@@ -13,6 +13,7 @@ export
 
 include("types.jl")
 include("ABCalg.jl")
+include("sampling.jl")
 
 
 end
