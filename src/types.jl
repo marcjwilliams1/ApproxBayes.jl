@@ -8,9 +8,16 @@ type ABCRejection <: ABCtype
   nparams::Int64
   ϵ::Float64
   nparticles::Int64
-  constants::Float64
+  constants::Array{Float64,1}
   maxiterations::Int64
   prior::Prior
+
+  ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior,
+    maxiterations = 10000,
+    constants = [1.0],
+    nparticles = 100,
+    ) =
+  new(sim_func, nparams, ϵ, nparticles, constants, maxiterations, prior)
 
 end
 
