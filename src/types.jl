@@ -2,9 +2,23 @@ abstract ABCtype
 abstract Prior
 abstract Particle
 
+type ParticleRejection <: Particle
+
+  params::Array{Float64, 1}
+
+end
+
+type ParticleSMC <: Particle
+
+  params::Array{Float64, 1}
+  weight::Float64
+  scales::Array{Float64, 1}
+
+end
+
 type ABCRejection <: ABCtype
 
-  sim_func::Function
+  simfunc::Function
   nparams::Int64
   ϵ::Float64
   nparticles::Int64
@@ -27,6 +41,7 @@ type ABCrejectionresults
   accratio::Float64
   numsims::Float64
   dist::Array{Float64,1}
+  particles::Array{ParticleRejection, 1}
 
    function ABCrejectionresults(particles, its, ABCsetup, dist)
 
@@ -43,7 +58,7 @@ type ABCrejectionresults
       println("Number of simulation = $its")
       println("Acceptance Ratio = $(accratio)")
 
-      new(parameters, accratio, its, dist)
+      new(parameters, accratio, its, dist, particles)
    end
 end
 
@@ -52,13 +67,6 @@ end
 type PriorUniform <: Prior
 
   p::Array{Float64, 2}
-
-end
-
-
-type ParticleRejection <: Particle
-
-  params::Array{Float64, 1}
 
 end
 
