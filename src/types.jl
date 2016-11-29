@@ -2,12 +2,13 @@ abstract ABCtype
 abstract Prior
 abstract Particle
 
-type ABCrejection <: ABCtype
+type ABCRejection <: ABCtype
 
   sim_func::Function
   nparams::Int64
   ϵ::Float64
   nparticles::Int64
+  constants::Float64
 
 end
 
@@ -19,7 +20,7 @@ type PriorUniform <: Prior
 end
 
 
-type Particlerejection <: Particle
+type ParticleRejection <: Particle
 
   params::Array{Float64, 1}
 
