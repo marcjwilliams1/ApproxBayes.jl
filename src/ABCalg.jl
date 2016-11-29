@@ -40,8 +40,8 @@ function runabc(ABCsetup::ABCSMC, targetdata)
 
   #run first population with parameters sampled from prior
   ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
-  ABCsetup.ϵ1,ABCsetup.prior; nparticles = ABCsetup.nparticles,
-  maxiterations = ABCsetup.maxiterations, ABCsetup.constants), targetdata);
+                  ABCsetup.ϵ1,ABCsetup.prior; nparticles = ABCsetup.nparticles,
+                  maxiterations = ABCsetup.maxiterations, ABCsetup.constants), targetdata);
 
   particles = setupSMCparticles(ABCrejresults, ABCsetup)
 
