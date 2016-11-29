@@ -9,6 +9,8 @@ type ABCRejection <: ABCtype
   ϵ::Float64
   nparticles::Int64
   constants::Float64
+  maxiterations::Int64
+  prior::Prior
 
 end
 

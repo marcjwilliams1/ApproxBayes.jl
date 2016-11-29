@@ -5,7 +5,20 @@ using Distributions
 
 export
   # types
-  abctype
+  ABCtype,
+  Prior,
+  Particle,
+  abctype,
+  PriorUniform,
+  ParticleRejection,
+  SimData,
+  ABCRejection,
+
+  #functions
+  ksdist,
+  runabc
+
+
 
 
 
@@ -14,6 +27,7 @@ export
 include("types.jl")
 include("ABCalg.jl")
 include("sampling.jl")
+include("util.jl")
 
 
 end
