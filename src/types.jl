@@ -26,8 +26,9 @@ type ABCrejectionresults
   parameters::Array{Float64,2}
   accratio::Float64
   numsims::Float64
+  dist::Array{Float64,1}
 
-   function ABCrejectionresults(particles, its, ABCsetup)
+   function ABCrejectionresults(particles, its, ABCsetup, dist)
 
       parameters = hcat(map(x -> x.params, particles)...)'
       accratio = ABCsetup.nparticles/its
@@ -42,7 +43,7 @@ type ABCrejectionresults
       println("Number of simulation = $its")
       println("Acceptance Ratio = $(accratio)")
 
-      new(parameters, accratio, its)
+      new(parameters, accratio, its, dist)
    end
 end
 
@@ -65,5 +66,29 @@ type SimData
 
   params::Array{Float64, 1}
   dist::Float64
+
+end
+
+
+type ABCSMC <: ABCtype
+
+  sim_func::Function
+  nparams::Int64
+  ϵ1::Float64
+  ϵT::Float64
+  nparticles::Int64
+  constants::Array{Float64,1}
+  maxiterations::Int64
+  prior::Prior
+  α::Float64
+
+  ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
+    maxiterations = 10000,
+    constants = [1.0],
+    nparticles = 100,
+    α = 0.3,
+    ϵ1 = 10000.0
+    ) =
+  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α)
 
 end
