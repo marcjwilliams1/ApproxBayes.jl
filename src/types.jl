@@ -145,7 +145,7 @@ function show(ABCresults::ABCSMCresults)
   @printf("Total Number of simulations: %.2e\n", sum(ABCresults.numsims))
   println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
   @printf("Acceptance ratio: %.2e\n", ABCresults.accratio)
-  println("Tolerance schedule = $(round(ABCresults.ϵ, 2))")
+  println("Tolerance schedule = $(round(ABCresults.ϵ, 2))\n")
 
   print("Means and 95% credible intervals:\n")
   for i in 1:length(parametermeans)

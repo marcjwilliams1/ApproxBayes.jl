@@ -38,7 +38,6 @@ end
 
 function runabc(ABCsetup::ABCSMC, targetdata)
 
-  println("start")
   #run first population with parameters sampled from prior
   ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
                   ABCsetup.ϵ1, ABCsetup.prior; nparticles = ABCsetup.nparticles,
@@ -50,9 +49,8 @@ function runabc(ABCsetup::ABCSMC, targetdata)
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
   particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
 
-
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
-    #println(ϵ)
+
     i = 1 #set particle indicator to 1
     particles = Array(ParticleSMC, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
@@ -65,7 +63,7 @@ function runabc(ABCsetup::ABCSMC, targetdata)
 
       priorp = priorprob(newparticle.params, ABCsetup.prior)
 
-      if priorp == 0.0
+      if priorp == 0.0 #return to beginning of loop if prior probability is 0
         continue
       end
 
@@ -88,6 +86,8 @@ function runabc(ABCsetup::ABCSMC, targetdata)
     ϵ = quantile(distvec, ABCsetup.α)
     push!(ϵvec, ϵ)
     push!(numsims, its)
+
+    println("Finished population with tolerance $(round(ϵ, 2))\n")
 
   end
 
