@@ -29,4 +29,11 @@ function getnormalthreeparam(params, constants, targetdata)
 
 end
 
-#@time particles, parameters = runabc(ABCRejection(getnormal, 2, 0.1, 100, 1.0, 1000000, PriorUniform([0 20; 0 2.0]), targetdata);
+#@time abcres= ABC.runabc(ABC.ABCRejection(getnormal, 2, 0.5, 100, 1.0, 1000000, ABC.PriorUniform([0 20; 0 2.0]), targetdata);
+
+#@time res = ABC.runabc(ABC.ABCSMC(getnormal, 2, 0.1,  ABC.PriorUniform([0 20; 0 2.0])), targetdata);
+
+#ABCSMC(getnormal, 2, 0.1,  PriorUniform([0 20; 0 2.0])
+#@time res = ABC.runabc(ABC.ABCSMC(getnormal, 2, 0.1,  ABC.PriorUniform([0 20; 0 2.0])), targetdata);
+
+#@time abcres = ABC.runabc(ABC.ABCRejection(getnormal, 2, 0.1,  ABC.PriorUniform([0 4; 0 2.0]); nparticles = 100, maxiterations = 10^7), targetdata);

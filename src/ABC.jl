@@ -13,6 +13,7 @@ export
   ParticleRejection,
   SimData,
   ABCRejection,
+  ABCSMC,
 
   #functions
   ksdist,
@@ -25,9 +26,10 @@ export
 ### source files
 
 include("types.jl")
-include("ABCalg.jl")
+include("ABCalgorithm.jl")
 include("sampling.jl")
 include("util.jl")
+include("priorprob.jl")
 
 
 end

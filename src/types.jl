@@ -39,7 +39,7 @@ type ABCrejectionresults
 
   parameters::Array{Float64,2}
   accratio::Float64
-  numsims::Float64
+  numsims::Int64
   dist::Array{Float64,1}
   particles::Array{ParticleRejection, 1}
 
@@ -58,10 +58,40 @@ type ABCrejectionresults
       println("Number of simulation = $its")
       println("Acceptance Ratio = $(accratio)")
 
+
       new(parameters, accratio, its, dist, particles)
    end
 end
 
+
+type ABCSMCresults
+
+  parameters::Array{Float64,2}
+  accratio::Float64
+  numsims::Array{Int64,1}
+  ϵ::Array{Float64,1}
+  particles::Array{ParticleSMC, 1}
+
+   function ABCSMCresults(particles, numsims, ABCsetup, epsvec)
+
+      parameters = hcat(map(x -> x.params, particles)...)'
+      accratio = ABCsetup.nparticles/sum(numsims)
+
+      for i in 1:size(parameters, 2)
+         println("Parameter $i")
+         println("\t Mean = $(mean(parameters[:,i]))")
+         println("\t stdev = $(std(parameters[:,i]))")
+      end
+
+      println("")
+      println("Cumulative number of simulations = $(cumsum(numsims))")
+      println("Total number of simulation = $(sum(numsims))")
+      println("Acceptance Ratio = $(accratio)")
+      println("Tolerance schedule = $(epsvec)")
+
+      new(parameters, accratio, numsims, epsvec, particles)
+   end
+end
 
 
 type PriorUniform <: Prior
@@ -80,7 +110,7 @@ end
 
 type ABCSMC <: ABCtype
 
-  sim_func::Function
+  simfunc::Function
   nparams::Int64
   ϵ1::Float64
   ϵT::Float64
@@ -91,7 +121,7 @@ type ABCSMC <: ABCtype
   α::Float64
 
   ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
-    maxiterations = 10000,
+    maxiterations = 10^5,
     constants = [1.0],
     nparticles = 100,
     α = 0.3,
