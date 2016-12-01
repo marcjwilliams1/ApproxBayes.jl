@@ -14,3 +14,34 @@ function ksdist{T<:Real, S<:Real}(x::AbstractVector{T}, y::AbstractVector{S})
 
   return δ
 end
+
+
+function setupSMCparticles(ABCrejresults, ABCsetup)
+
+  weights = ones(ABCsetup.nparticles)./ABCsetup.nparticles
+  scales = collect((maximum(ABCrejresults.parameters, 1) -
+                  minimum(ABCrejresults.parameters, 1) ./2)')
+
+  particles = Array(ParticleSMC, ABCsetup.nparticles)
+
+  for i in 1:length(particles)
+
+    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], scales)
+
+  end
+
+  return particles, weights
+end
+
+function getscales(particles)
+
+  parameters = hcat(map(x -> x.params, particles)...)'
+  scales = collect((maximum(parameters, 1) -
+                  minimum(parameters, 1) ./2)')
+
+  for i in 1:length(particles)
+    particles[i].scales = scales
+  end
+
+  return particles
+end
