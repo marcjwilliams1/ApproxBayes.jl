@@ -3,6 +3,8 @@ module ABC
 
 using Distributions
 
+import Base.show
+
 export
   # types
   ABCtype,

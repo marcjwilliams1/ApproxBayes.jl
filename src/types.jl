@@ -48,19 +48,29 @@ type ABCrejectionresults
       parameters = hcat(map(x -> x.params, particles)...)'
       accratio = ABCsetup.nparticles/its
 
-      for i in 1:size(parameters, 2)
-         println("Parameter $i")
-         println("\t Mean = $(mean(parameters[:,i]))")
-         println("\t stdev = $(std(parameters[:,i]))")
-      end
-
-      println("")
-      println("Number of simulation = $its")
-      println("Acceptance Ratio = $(accratio)")
-
-
       new(parameters, accratio, its, dist, particles)
    end
+end
+
+function show(ABCresults::ABCrejectionresults)
+
+  upperci = zeros(Float64, size(ABCresults.parameters, 2))
+  lowerci = zeros(Float64, size(ABCresults.parameters, 2))
+  parametermeans = zeros(Float64, size(ABCresults.parameters, 2))
+
+  for i in 1:size(ABCresults.parameters, 2)
+    parametermeans[i] = mean(ABCresults.parameters[:, i])
+    (lowerci[i], upperci[i]) = quantile(ABCresults.parameters[:, i], [0.025,0.975])
+  end
+
+  @printf("Number of simulations: %.2e\n", ABCresults.numsims)
+  @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
+
+  print("Means and 95% credible intervals:\n")
+  for i in 1:length(parametermeans)
+      @printf("Parameter %d: %.2f (%.2f,%.2f)\n", i, parametermeans[i], lowerci[i], upperci[i])
+  end
+
 end
 
 
