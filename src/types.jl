@@ -35,6 +35,19 @@ type ABCRejection <: ABCtype
 
 end
 
+type ABCRejectionModel <: ABCtype
+
+  Models::Array{ABCRejection, 1}
+
+  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}, constants;
+    maxiterations = 10000,
+    nparticles = 100,
+    ) =
+  new(sim_func, nparams, ϵ, nparticles, constants, maxiterations, prior)
+  new([ABCRejectionModel(sim_func[i], nparams[i], ϵ, nparticles, constants[i], maxiterations, prior[i]) for i in 1:length(sim_func)])
+
+end
+
 type ABCrejectionresults
 
   parameters::Array{Float64,2}
