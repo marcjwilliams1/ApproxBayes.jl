@@ -36,6 +36,48 @@ function runabc(ABCsetup::ABCRejection, targetdata)
 end
 
 
+function runabc(ABCsetup::ABCRejectionModel, targetdata)
+
+    ABCsetup.nmodels < 2 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
+
+  #initalize array of particles
+  particles = Array(ParticleRejectionModel, ABCsetup.nparticles)
+
+  i = 1 #set particle indicator to 1
+  its = 0 #keep track of number of iterations
+  distvec = zeros(Float64, ABCsetup.nparticles) #store distances in an array
+
+  while (i < (ABCsetup.Models[1].nparticles + 1)) & (its < ABCsetup.Models[1].maxiterations)
+
+    its += 1
+
+    #sample uniformly from models
+    model = rand(Uniform(1, ABCsetup.nmodels))
+
+    #get new proposal parameters
+    newparams = getproposal(ABCsetup.Models[model].prior, ABCsetup.Models[model].nparams)
+
+    #simulate with new parameters
+    dist = ABCsetup.Models[model].simfunc(newparams, ABCsetup.Models[model].constants, targetdata)
+
+    #if simulated data is less than target tolerance accept particle
+    if dist < ABCsetup.ϵ
+      particles[i] = ParticleRejectionModel(newparams, model)
+      distvec[i] = dist
+      i +=1
+    end
+
+
+  end
+
+  i > ABCsetup.nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tDecrease ϵ or increase maxiterations ")
+
+  #out = ABCrejectionmodelresults(particles, its, ABCsetup, distvec)
+  return particles
+
+end
+
+
 function runabc(ABCsetup::ABCSMC, targetdata)
 
   #run first population with parameters sampled from prior

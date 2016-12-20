@@ -10,6 +10,30 @@ function getnormal(params, constants, targetdata)
 
 end
 
+function getbinomial(params, constants, targetdata)
+
+  simdata = rand(Binomial(params...), 100)
+
+  ksdist(simdata, targetdata)
+
+end
+
+function getpoisson(params, constants, targetdata)
+
+  simdata = rand(Poisson(params...), 100)
+
+  ksdist(simdata, targetdata)
+
+end
+
+function getuniformdist(params, constants, targetdata)
+
+  simdata = rand(Uniform(params...), 100)
+
+  ksdist(simdata, targetdata)
+
+end
+
 function getnormaloneparam(params, constants, targetdata)
 
   m = params[1]

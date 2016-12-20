@@ -8,6 +8,13 @@ type ParticleRejection <: Particle
 
 end
 
+type ParticleRejectionModel <: Particle
+
+  params::Array{Float64, 1}
+  model::Int64
+
+end
+
 type ParticleSMC <: Particle
 
   params::Array{Float64, 1}
@@ -38,13 +45,14 @@ end
 type ABCRejectionModel <: ABCtype
 
   Models::Array{ABCRejection, 1}
+  nmodels::Int64
 
   ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}, constants;
     maxiterations = 10000,
     nparticles = 100,
     ) =
   new(sim_func, nparams, ϵ, nparticles, constants, maxiterations, prior)
-  new([ABCRejectionModel(sim_func[i], nparams[i], ϵ, nparticles, constants[i], maxiterations, prior[i]) for i in 1:length(sim_func)])
+  new([ABCRejectionModel(sim_func[i], nparams[i], ϵ, nparticles, constants[i], maxiterations, prior[i]) for i in 1:length(sim_func)], length(sim_func))
 
 end
 
