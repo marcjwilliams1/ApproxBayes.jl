@@ -2,6 +2,13 @@ abstract ABCtype
 abstract Prior
 abstract Particle
 
+
+type PriorUniform <: Prior
+
+  p::Array{Float64, 2}
+
+end
+
 type ParticleRejection <: Particle
 
   params::Array{Float64, 1}
@@ -47,16 +54,32 @@ type ABCRejectionModel <: ABCtype
   Models::Array{ABCRejection, 1}
   nmodels::Int64
 
-  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}, constants;
+  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{PriorUniform, 1}, constants;
     maxiterations = 10000,
     nparticles = 100,
     ) =
-  new(sim_func, nparams, ϵ, nparticles, constants, maxiterations, prior)
-  new([ABCRejectionModel(sim_func[i], nparams[i], ϵ, nparticles, constants[i], maxiterations, prior[i]) for i in 1:length(sim_func)], length(sim_func))
+  new([ABCRejection(sim_func[i], nparams[i], ϵ, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles) for i in 1:length(sim_func)], length(sim_func))
 
 end
 
 type ABCrejectionresults
+
+  parameters::Array{Float64,2}
+  accratio::Float64
+  numsims::Int64
+  dist::Array{Float64,1}
+  particles::Array{ParticleRejection, 1}
+
+   function ABCrejectionresults(particles, its, ABCsetup, dist)
+
+      parameters = hcat(map(x -> x.params, particles)...)'
+      accratio = ABCsetup.nparticles/its
+
+      new(parameters, accratio, its, dist, particles)
+   end
+end
+
+type ABCrejectionmodelresults
 
   parameters::Array{Float64,2}
   accratio::Float64
@@ -90,12 +113,6 @@ type ABCSMCresults
    end
 end
 
-
-type PriorUniform <: Prior
-
-  p::Array{Float64, 2}
-
-end
 
 type SimData
 
@@ -138,7 +155,6 @@ type ABCSMCModel <: ABCtype
     α = 0.3,
     ϵ1 = 10000.0
     ) =
-  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α)
   new([ABCSMC(sim_func[i], nparams[i], ϵ1, ϵT, nparticles, constants[i], maxiterations, prior[i], α) for i in 1:length(sim_func)])
 
 end
