@@ -81,18 +81,29 @@ end
 
 type ABCrejectionmodelresults
 
-  parameters::Array{Float64,2}
-  accratio::Float64
-  numsims::Int64
-  dist::Array{Float64,1}
-  particles::Array{ParticleRejection, 1}
+   parameters
+   accratio::Float64
+   numsims::Int64
+   dist::Array{Float64,1}
+   particles::Array{ParticleRejectionModel, 1}
+   modelfreq::Array{Float64, 1}
 
-   function ABCrejectionresults(particles, its, ABCsetup, dist)
+   function ABCrejectionmodelresults(particles, its, ABCsetup, dist)
 
-      parameters = hcat(map(x -> x.params, particles)...)'
-      accratio = ABCsetup.nparticles/its
+     parameters = []
+     modelfreq = []
+     for i in 1:ABCsetup.nmodels
 
-      new(parameters, accratio, its, dist, particles)
+        push!(modelfreq, sum(map(x -> x.model, particles) .== i))
+
+        models = map(x -> x.model, particles)
+        parameters = push!(parameters, hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
+
+     end
+     accratio = ABCsetup.Models[1].nparticles/its
+     modelfreq = modelfreq ./ sum(modelfreq)
+
+     new(parameters, accratio, its, dist, particles, modelfreq)
    end
 end
 
@@ -156,53 +167,5 @@ type ABCSMCModel <: ABCtype
     ϵ1 = 10000.0
     ) =
   new([ABCSMC(sim_func[i], nparams[i], ϵ1, ϵT, nparticles, constants[i], maxiterations, prior[i], α) for i in 1:length(sim_func)])
-
-end
-
-function show(ABCresults::ABCrejectionresults)
-
-  upperci = zeros(Float64, size(ABCresults.parameters, 2))
-  lowerci = zeros(Float64, size(ABCresults.parameters, 2))
-  parametermeans = zeros(Float64, size(ABCresults.parameters, 2))
-  parametermedians = zeros(Float64, size(ABCresults.parameters, 2))
-
-  for i in 1:size(ABCresults.parameters, 2)
-    parametermeans[i] = mean(ABCresults.parameters[:, i])
-    parametermedians[i] = median(ABCresults.parameters[:, i])
-    (lowerci[i], upperci[i]) = quantile(ABCresults.parameters[:, i], [0.025,0.975])
-  end
-
-  @printf("Number of simulations: %.2e\n", ABCresults.numsims)
-  @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
-
-  print("Median (95% intervals):\n")
-  for i in 1:length(parametermeans)
-      @printf("Parameter %d: %.2f (%.2f,%.2f)\n", i, parametermedians[i], lowerci[i], upperci[i])
-  end
-
-end
-
-function show(ABCresults::ABCSMCresults)
-
-  upperci = zeros(Float64, size(ABCresults.parameters, 2))
-  lowerci = zeros(Float64, size(ABCresults.parameters, 2))
-  parametermeans = zeros(Float64, size(ABCresults.parameters, 2))
-  parametermedians = zeros(Float64, size(ABCresults.parameters, 2))
-
-  for i in 1:size(ABCresults.parameters, 2)
-    parametermeans[i] = mean(ABCresults.parameters[:, i])
-    parametermedians[i] = median(ABCresults.parameters[:, i])
-    (lowerci[i], upperci[i]) = quantile(ABCresults.parameters[:, i], [0.025,0.975])
-  end
-
-  @printf("Total Number of simulations: %.2e\n", sum(ABCresults.numsims))
-  println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
-  @printf("Acceptance ratio: %.2e\n", ABCresults.accratio)
-  println("Tolerance schedule = $(round(ABCresults.ϵ, 2))\n")
-
-  print("Median (95% intervals):\n")
-  for i in 1:length(parametermeans)
-      @printf("Parameter %d: %.2f (%.2f,%.2f)\n", i, parametermedians[i], lowerci[i], upperci[i])
-  end
 
 end

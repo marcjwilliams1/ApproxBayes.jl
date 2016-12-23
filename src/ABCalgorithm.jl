@@ -72,8 +72,8 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata)
 
   i > ABCsetup.Models[1].nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.Models[1].ϵ). \n\tDecrease ϵ or increase maxiterations ")
 
-  #out = ABCrejectionmodelresults(particles, its, ABCsetup, distvec)
-  return particles
+  out = ABCrejectionmodelresults(particles, its, ABCsetup, distvec)
+  return out
 
 end
 

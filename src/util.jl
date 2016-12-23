@@ -95,3 +95,38 @@ function show(ABCresults::ABCSMCresults)
   end
 
 end
+
+
+function show(ABCresults::ABCrejectionmodelresults)
+
+  @printf("Number of simulations: %.2e\n", ABCresults.numsims)
+  @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
+  print("Model frequencies:\n")
+  for j in 1:length(ABCresults.modelfreq)
+    @printf("\tModel %d: %.2f\n", j, ABCresults.modelfreq[j])
+  end
+
+  print("\nParameters:\n\n")
+
+  for j in 1:length(ABCresults.parameters)
+    print("Model $j\n")
+
+    upperci = zeros(Float64, size(ABCresults.parameters[j], 2))
+    lowerci = zeros(Float64, size(ABCresults.parameters[j], 2))
+    parametermeans = zeros(Float64, size(ABCresults.parameters[j], 2))
+    parametermedians = zeros(Float64, size(ABCresults.parameters[j], 2))
+
+    for i in 1:size(ABCresults.parameters[j], 2)
+      parametermeans[i] = mean(ABCresults.parameters[j][:, i])
+      parametermedians[i] = median(ABCresults.parameters[j][:, i])
+      (lowerci[i], upperci[i]) = quantile(ABCresults.parameters[j][:, i], [0.025,0.975])
+    end
+
+    print("\tMedian (95% intervals):\n")
+    for i in 1:length(parametermeans)
+        @printf("\tParameter %d: %.2f (%.2f,%.2f)\n", i, parametermedians[i], lowerci[i], upperci[i])
+    end
+
+  end
+
+end
