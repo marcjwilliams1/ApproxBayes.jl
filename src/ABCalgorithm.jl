@@ -146,9 +146,15 @@ end
 function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   #run first population with parameters sampled from prior
-  ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
-                  ABCsetup.ϵ1, ABCsetup.prior; nparticles = ABCsetup.nparticles,
-                  maxiterations = ABCsetup.maxiterations, constants = ABCsetup.constants), targetdata);
+  ABCrejresults = runabc(ABCRejectionModel(
+            map(x -> x.simfunc, ABCsetup.Models),
+            map(x -> x.nparams, ABCsetup.Models),
+            ABCsetup.Models[1].ϵ1,
+            map(x -> x.prior, ABCsetup.Models),
+            map(x -> x.constants, ABCsetup.Models);
+            nparticles = ABCsetup.Models[1].nparticles,
+            maxiterations = ABCsetup.Models[1].maxiterations),
+            targetdata);
 
   oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile

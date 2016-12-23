@@ -178,18 +178,3 @@ type SimData
   dist::Float64
 
 end
-
-
-type ABCSMCModel <: ABCtype
-
-  Models::Array{ABCSMC, 1}
-
-  ABCSMCModel(sim_func::Function, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1}, constants;
-    maxiterations = 10^5,
-    nparticles = 100,
-    α = 0.3,
-    ϵ1 = 10000.0
-    ) =
-  new([ABCSMC(sim_func[i], nparams[i], ϵ1, ϵT, nparticles, constants[i], maxiterations, prior[i], α) for i in 1:length(sim_func)])
-
-end
