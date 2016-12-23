@@ -30,6 +30,15 @@ type ParticleSMC <: Particle
 
 end
 
+type ParticleSMCModel <: Particle
+
+  params::Array{Float64, 1}
+  weight::Float64
+  scales::Array{Float64, 1}
+  model::Int64
+
+end
+
 type ABCRejection <: ABCtype
 
   simfunc::Function
@@ -49,6 +58,29 @@ type ABCRejection <: ABCtype
 
 end
 
+type ABCSMC <: ABCtype
+
+  simfunc::Function
+  nparams::Int64
+  ϵ1::Float64
+  ϵT::Float64
+  nparticles::Int64
+  constants::Array{Float64,1}
+  maxiterations::Int64
+  prior::Prior
+  α::Float64
+
+  ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
+    maxiterations = 10^5,
+    constants = [1.0],
+    nparticles = 100,
+    α = 0.3,
+    ϵ1 = 10000.0
+    ) =
+  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α)
+
+end
+
 type ABCRejectionModel <: ABCtype
 
   Models::Array{ABCRejection, 1}
@@ -59,6 +91,21 @@ type ABCRejectionModel <: ABCtype
     nparticles = 100,
     ) =
   new([ABCRejection(sim_func[i], nparams[i], ϵ, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles) for i in 1:length(sim_func)], length(sim_func))
+
+end
+
+type ABCSMCModel <: ABCtype
+
+  Models::Array{ABCSMC, 1}
+  nmodels::Int64
+
+  ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{PriorUniform, 1}, constants;
+    maxiterations = 10^5,
+    nparticles = 100,
+    α = 0.3,
+    ϵ1 = 10000.0
+    ) =
+  new([ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1) for i in 1:length(sim_func)], length(sim_func))
 
 end
 
@@ -132,29 +179,6 @@ type SimData
 
 end
 
-
-type ABCSMC <: ABCtype
-
-  simfunc::Function
-  nparams::Int64
-  ϵ1::Float64
-  ϵT::Float64
-  nparticles::Int64
-  constants::Array{Float64,1}
-  maxiterations::Int64
-  prior::Prior
-  α::Float64
-
-  ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
-    maxiterations = 10^5,
-    constants = [1.0],
-    nparticles = 100,
-    α = 0.3,
-    ϵ1 = 10000.0
-    ) =
-  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α)
-
-end
 
 type ABCSMCModel <: ABCtype
 

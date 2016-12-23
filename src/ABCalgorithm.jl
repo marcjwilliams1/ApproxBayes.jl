@@ -134,7 +134,71 @@ function runabc(ABCsetup::ABCSMC, targetdata)
   end
 
   out = ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
-  show(out)
+
+  return out
+
+end
+
+
+
+
+
+function runabc(ABCsetup::ABCSMCModel, targetdata)
+
+  #run first population with parameters sampled from prior
+  ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
+                  ABCsetup.ϵ1, ABCsetup.prior; nparticles = ABCsetup.nparticles,
+                  maxiterations = ABCsetup.maxiterations, constants = ABCsetup.constants), targetdata);
+
+  oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
+  ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
+  ϵvec = [ϵ] #store epsilon values
+  numsims = [ABCrejresults.numsims] #keep track of number of simualtions
+  particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
+
+  while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
+
+    i = 1 #set particle indicator to 1
+    particles = Array(ParticleSMC, ABCsetup.nparticles)
+    distvec = zeros(Float64, ABCsetup.nparticles)
+    its = 1
+    while i < ABCsetup.nparticles + 1
+
+      j = wsample(1:ABCsetup.nparticles, weights)
+      particle = oldparticles[j]
+      newparticle = perturbparticle(particle)
+
+      priorp = priorprob(newparticle.params, ABCsetup.prior)
+
+      if priorp == 0.0 #return to beginning of loop if prior probability is 0
+        continue
+      end
+
+      #simulate with new parameters
+      dist = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+
+      #if simulated data is less than target tolerance accept particle
+      if dist < ϵ
+        particles[i] = newparticle
+        distvec[i] = dist
+        i += 1
+      end
+
+      its += 1
+    end
+
+    particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
+    particles = getscales(particles)
+    oldparticles = deepcopy(particles)
+    ϵ = quantile(distvec, ABCsetup.α)
+    push!(ϵvec, ϵ)
+    push!(numsims, its)
+
+    println("Finished population with tolerance $(round(ϵ, 2))\n")
+
+  end
+
+  out = ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
 
   return out
 
