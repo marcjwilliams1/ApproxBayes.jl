@@ -16,11 +16,11 @@ function ksdist{T<:Real, S<:Real}(x::AbstractVector{T}, y::AbstractVector{S})
 end
 
 
-function setupSMCparticles(ABCrejresults, ABCsetup)
+function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
 
   weights = ones(ABCsetup.nparticles)./ABCsetup.nparticles
-  scales = collect((maximum(ABCrejresults.parameters, 1) -
-                  minimum(ABCrejresults.parameters, 1) ./2)')
+  scales = (maximum(ABCrejresults.parameters, 1) -
+                  minimum(ABCrejresults.parameters, 1) ./2)[:]
 
   particles = Array(ParticleSMC, ABCsetup.nparticles)
 
@@ -33,11 +33,28 @@ function setupSMCparticles(ABCrejresults, ABCsetup)
   return particles, weights
 end
 
+function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
+
+  weights = ones(ABCsetup.Models[1].nparticles)./ABCsetup.Models[1].nparticles
+  scales = map(x -> collect((maximum(x, 1) -
+                  minimum(x, 1) ./2)'), ABCrejresults.parameters)
+
+  particles = Array(ParticleSMCModel, ABCsetup.nparticles)
+
+  for i in 1:length(particles)
+
+    particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params, weights[1], scales[ABCrejresults.particles[i].model])
+
+  end
+
+  return particles, weights
+end
+
 function getscales(particles)
 
   parameters = hcat(map(x -> x.params, particles)...)'
-  scales = collect((maximum(parameters, 1) -
-                  minimum(parameters, 1) ./2)')
+  scales = (maximum(parameters, 1) -
+                  minimum(parameters, 1) ./2)[:]
 
   for i in 1:length(particles)
     particles[i].scales = scales
