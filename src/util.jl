@@ -26,7 +26,7 @@ function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
 
   for i in 1:length(particles)
 
-    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], scales)
+    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], scales, ABCrejresults.particles[i].other)
 
   end
 

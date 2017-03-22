@@ -2,6 +2,7 @@ module ABC
 
 
 using Distributions
+using ProgressMeter
 
 import Base.show
 

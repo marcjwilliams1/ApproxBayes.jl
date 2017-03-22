@@ -12,6 +12,7 @@ end
 type ParticleRejection <: Particle
 
   params::Array{Float64, 1}
+  other::Any
 
 end
 
@@ -27,6 +28,7 @@ type ParticleSMC <: Particle
   params::Array{Float64, 1}
   weight::Float64
   scales::Array{Float64, 1}
+  other::Any
 
 end
 

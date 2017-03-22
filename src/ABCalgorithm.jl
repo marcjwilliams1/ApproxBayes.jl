@@ -16,11 +16,11 @@ function runabc(ABCsetup::ABCRejection, targetdata)
     newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
 
     #simulate with new parameters
-    dist = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
+    dist, out = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
 
     #if simulated data is less than target tolerance accept particle
     if dist < ABCsetup.ϵ
-      particles[i] = ParticleRejection(newparams)
+      particles[i] = ParticleRejection(newparams, out)
       distvec[i] = dist
       i +=1
     end
@@ -81,6 +81,7 @@ end
 function runabc(ABCsetup::ABCSMC, targetdata)
 
   #run first population with parameters sampled from prior
+  println("Use ABC rejection to get first population")
   ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
                   ABCsetup.ϵ1, ABCsetup.prior; nparticles = ABCsetup.nparticles,
                   maxiterations = ABCsetup.maxiterations, constants = ABCsetup.constants), targetdata);
@@ -91,12 +92,17 @@ function runabc(ABCsetup::ABCSMC, targetdata)
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
   particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
 
+  println("Run ABC SMC \n")
+
+  popnum = 1
+
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
     particles = Array(ParticleSMC, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
+    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum)...", 50)
     while i < ABCsetup.nparticles + 1
 
       j = wsample(1:ABCsetup.nparticles, weights)
@@ -110,13 +116,15 @@ function runabc(ABCsetup::ABCSMC, targetdata)
       end
 
       #simulate with new parameters
-      dist = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+      dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
 
       #if simulated data is less than target tolerance accept particle
       if dist < ϵ
         particles[i] = newparticle
+        particles[i].other = out
         distvec[i] = dist
         i += 1
+        next!(p)
       end
 
       its += 1
@@ -130,6 +138,8 @@ function runabc(ABCsetup::ABCSMC, targetdata)
     push!(numsims, its)
 
     println("Finished population with tolerance $(round(ϵ, 2))\n")
+
+    popnum = popnum + 1
 
   end
 

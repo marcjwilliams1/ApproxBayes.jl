@@ -6,7 +6,7 @@ function getnormal(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 100)
 
-  ksdist(simdata, targetdata)
+  ksdist(simdata, targetdata), 1
 
 end
 
