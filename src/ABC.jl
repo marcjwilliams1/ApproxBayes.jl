@@ -3,6 +3,7 @@ module ABC
 
 using Distributions
 using ProgressMeter
+using Gadfly
 
 import Base.show
 
@@ -20,7 +21,8 @@ export
 
   #functions
   ksdist,
-  runabc
+  runabc,
+  plotresults
 
 
 
@@ -33,6 +35,7 @@ include("ABCalgorithm.jl")
 include("sampling.jl")
 include("util.jl")
 include("priorprob.jl")
+include("plots.jl")
 
 
 end

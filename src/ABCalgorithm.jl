@@ -96,13 +96,13 @@ function runabc(ABCsetup::ABCSMC, targetdata)
 
   popnum = 1
 
-  while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
+  while (ϵ >= ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
     particles = Array(ParticleSMC, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
-    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum)...", 50)
+    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population: $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     while i < ABCsetup.nparticles + 1
 
       j = wsample(1:ABCsetup.nparticles, weights)
@@ -134,12 +134,22 @@ function runabc(ABCsetup::ABCSMC, targetdata)
     particles = getscales(particles)
     oldparticles = deepcopy(particles)
     ϵ = quantile(distvec, ABCsetup.α)
+
+    if ϵ < ABCsetup.ϵT
+      ϵ = ABCsetup.ϵT
+    end
+
     push!(ϵvec, ϵ)
     push!(numsims, its)
 
-    println("Finished population with tolerance $(round(ϵ, 2))\n")
+    #println("Finished population with tolerance $(round(ϵ, 2))\n")
 
     popnum = popnum + 1
+
+    if (( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < 0.05
+      println("New ϵ is within 5% of previous population, stop ABC SMC")
+      break
+    end
 
   end
 

@@ -1,5 +1,3 @@
-Package to implement Approximate Bayesian computation algorthms. Code currently implements basic ABC rejection sampler and sequential monte carlo algorithm (ABC-SMC) as in Toni. et al 2009. Plans to include ABC-SMC with model selection algorithm from Toni et al 2010.
-
 # Approximate Bayesian Computation
 
 Package to implement Approximate Bayesian computation algorthms. Code currently implements basic ABC rejection sampler and sequential monte carlo algorithm (ABC-SMC) as in Toni. et al 2009. Plans to include ABC-SMC with model selection algorithm from Toni et al 2010.
