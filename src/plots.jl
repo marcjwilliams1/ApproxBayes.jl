@@ -1,9 +1,18 @@
-function plotresults(parametervec, xlabel, truevalue)
+function plotresults(parametervec, xlabel; truevalue = [])
 
-  p = plot(x = parametervec, Geom.density,
-   xintercept = [truevalue],
-   Geom.vline(color = "red", size=1mm),
-   Guide.xlabel(xlabel))
+  if length(truevalue) > 0
+
+    p = plot(x = parametervec, Geom.density,
+     xintercept = truevalue,
+     Geom.vline(color = "red", size=1mm),
+     Guide.xlabel(xlabel))
+
+   else
+
+     p = plot(x = parametervec, Geom.density,
+      Guide.xlabel(xlabel))
+
+    end
 
   return p
 end
