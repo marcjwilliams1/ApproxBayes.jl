@@ -102,14 +102,16 @@ type ABCSMCModel <: ABCtype
 
   Models::Array{ABCSMC, 1}
   nmodels::Int64
+  modelkern::Float64
 
   ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{PriorUniform, 1}, constants;
     maxiterations = 10^5,
     nparticles = 100,
     α = 0.3,
-    ϵ1 = 10000.0
+    ϵ1 = 10000.0,
+    modelkern = 0.7,
     ) =
-  new([ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1) for i in 1:length(sim_func)], length(sim_func))
+  new([ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1) for i in 1:length(sim_func)], length(sim_func), modelkern)
 
 end
 

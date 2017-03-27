@@ -40,7 +40,62 @@ function kernel_prob(p1, p2)
     return prob
 end
 
+function perturbmodel(ABCsetup, mstar, modelprob)
+
+    prob = ABCsetup.modelkern
+
+    mprob = ones(Float64, length(modelprob))
+    mprob[modelprob.==0.0] = 0.0
+
+    nsurvivingmodels = sum(mprob)
+
+    mprob[mprob.> 0.0] = (1 - prob) / (nsurvivingmodels - 1)
+    mprob[mstar] = prob
+
+    wsample(1:ABCsetup.nmodels, mprob)
+
+end
+
+function getmodelprob(currmodel, prevmodel, modelprob)
+
+  prob = ABCsetup.modelkern
+
+  if currmodel == prevmodel
+    return prob
+  elseif sum(modelprob.>0.0) > 1
+    return (1 - prob) / (sum(modelprob.>0.0) - 1)
+  else
+    return prob
+  end
+
+end
+
+
 function smcweights(particles, oldparticles, prior)
+
+  weights = zeros(Float64, length(particles))
+
+  for i in 1:length(particles)
+    numerator = priorprob(particles[i].params, prior)
+    denom = 0.0
+    for j in 1:length(particles)
+      denom = denom + kernel_prob(particles[i], oldparticles[j])
+    end
+
+    weights[i] = numerator / (oldparticles[i].weight * denom)
+
+  end
+
+  for i in 1:length(particles)
+    particles[i].weight = weights[i]
+  end
+
+  return particles, weights
+end
+
+
+
+function smcweightsmodel(particles, oldparticles, prior)
 
   weights = zeros(Float64, length(particles))
 

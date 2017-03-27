@@ -185,6 +185,8 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
   particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
 
+  modelprob = ABCrejresults.modelfreq
+
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
@@ -193,8 +195,17 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     its = 1
     while i < ABCsetup.nparticles + 1
 
+      #draw model from previous model probabilities
+      mstar = wsample(1:ABCsetup.nmodels, modelprob)
+
+      #perturb model
+      mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
+
+      # sample particle with correct model
       j = wsample(1:ABCsetup.nparticles, weights)
       particle = oldparticles[j]
+
+      #perturb particle
       newparticle = perturbparticle(particle)
 
       priorp = priorprob(newparticle.params, ABCsetup.prior)
@@ -216,7 +227,11 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       its += 1
     end
 
-    particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
+    #needs to know priors on all models
+    particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup.prior)
+
+    #calculate model frequencies
+
     particles = getscales(particles)
     oldparticles = deepcopy(particles)
     ϵ = quantile(distvec, ABCsetup.α)
