@@ -58,11 +58,11 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata)
     newparams = getproposal(ABCsetup.Models[model].prior, ABCsetup.Models[model].nparams)
 
     #simulate with new parameters
-    dist = ABCsetup.Models[model].simfunc(newparams, ABCsetup.Models[model].constants, targetdata)
+    dist, out = ABCsetup.Models[model].simfunc(newparams, ABCsetup.Models[model].constants, targetdata)
 
     #if simulated data is less than target tolerance accept particle
     if dist < ABCsetup.Models[1].ϵ
-      particles[i] = ParticleRejectionModel(newparams, model)
+      particles[i] = ParticleRejectionModel(newparams, model, out)
       distvec[i] = dist
       i +=1
     end
@@ -96,7 +96,7 @@ function runabc(ABCsetup::ABCSMC, targetdata)
 
   popnum = 1
 
-  while (ϵ >= ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
+  while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
     particles = Array(ParticleSMC, ABCsetup.nparticles)
@@ -137,6 +137,9 @@ function runabc(ABCsetup::ABCSMC, targetdata)
 
     if ϵ < ABCsetup.ϵT
       ϵ = ABCsetup.ϵT
+      push!(ϵvec, ϵ)
+      push!(numsims, its)
+      continue
     end
 
     push!(ϵvec, ϵ)
@@ -201,7 +204,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       end
 
       #simulate with new parameters
-      dist = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+      dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
 
       #if simulated data is less than target tolerance accept particle
       if dist < ϵ
