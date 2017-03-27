@@ -183,17 +183,18 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
+  particles = Array(ParticleSMCModel, ABCsetup.nparticles) #define particles array
+  weights, modelprob = getparticleweights(oldparticles, ABCsetup)
 
   modelprob = ABCrejresults.modelfreq
 
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
-    particles = Array(ParticleSMC, ABCsetup.nparticles)
+    particles = Array(ParticleSMCModel, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
-    weights, modelprob = getparticleweights(oldparticles, ABCsetup)
+
     while i < ABCsetup.nparticles + 1
 
       #draw model from previous model probabilities
@@ -210,14 +211,14 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       newparticle = perturbparticle(particle)
 
       #calculate priorprob
-      priorp = priorprob(newparticle.params, ABCsetup.prior)
+      priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
 
       if priorp == 0.0 #return to beginning of loop if prior probability is 0
         continue
       end
 
       #simulate with new parameters
-      dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+      dist, out = ABCsetup.Models[mdoublestar].simfunc(newparticle.params, ABCsetup.Models[mdoublestar].constants, targetdata)
 
       #if simulated data is less than target tolerance accept particle
       if dist < ϵ
@@ -230,9 +231,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     end
 
     #needs to know priors on all models
-    particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup.prior)
+    particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
 
-    #calculate model frequencies
+    weights, modelprob = getparticleweights(oldparticles, ABCsetup)
 
     particles = getscales(particles)
     oldparticles = deepcopy(particles)

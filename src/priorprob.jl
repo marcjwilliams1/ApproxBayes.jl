@@ -1,4 +1,4 @@
-function priorprob(parameters, prior::PriorUniform)
+function priorprob(parameters::Array{Float64, 1}, prior::PriorUniform)
 
   pprob = 1
 

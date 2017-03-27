@@ -56,7 +56,7 @@ function perturbmodel(ABCsetup, mstar, modelprob)
 
 end
 
-function getmodelprob(currmodel, prevmodel, modelprob)
+function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
 
   prob = ABCsetup.modelkern
 
@@ -93,22 +93,51 @@ function smcweights(particles, oldparticles, prior)
   return particles, weights
 end
 
+function denom_modelfunc(p, prevmodelprob, ABCsetup)
 
+  denom_m = 0.0
+  for i in 1:ABCsetup.nmodels
+    denom_m = denom_m + prevmodelprob[i] * getmodelprob(p.model, i, prevmodelprob, ABCsetup)
+  end
 
-function smcweightsmodel(particles, oldparticles, prior)
+  return denom_m
 
-  weights = zeros(Float64, length(particles))
+end
 
-  for i in 1:length(particles)
-    numerator = priorprob(particles[i].params, prior)
-    denom = 0.0
-    for j in 1:length(particles)
-      denom = denom + kernel_prob(particles[i], oldparticles[j])
+function denom_particlefunc(p, particles, prevmodelprob)
+
+  denom_p = 0.0
+
+  for i in particles
+    if p.model == i.model
+
+      denom_p = denom_p + ((i.weight * kernel_prob(p, i)) / prevmodelprob[p.model])
+
     end
+  end
 
-    weights[i] = numerator / (oldparticles[i].weight * denom)
+  return denom_p
+end
+
+
+function smcweightsmodel(particles, oldparticles, ABCsetup, prevmodelprob)
+
+  numerator = zeros(Float64, length(particles))
+  modeldenominator = zeros(Float64, length(particles))
+  particledenominator = zeros(Float64, length(particles))
+
+  #calculate numerator
+  for i in 1:length(particles)
+
+    numerator[i] = priorprob(particles[i].params, ABCsetup.Models[particles[i].model].prior)
+    modeldenominator[i] = denom_particlefunc(particles[i], oldparticles, prevmodelprob)
+    particledenominator[i] = denom_modelfunc(particles[i], prevmodelprob, ABCsetup)
 
   end
+
+  weights = numerator ./ (modeldenominator .* particledenominator)
+
+  weights = weights ./ sum(weights)
 
   for i in 1:length(particles)
     particles[i].weight = weights[i]
