@@ -193,6 +193,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     particles = Array(ParticleSMC, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
+    weights, modelprob = getparticleweights(oldparticles, ABCsetup)
     while i < ABCsetup.nparticles + 1
 
       #draw model from previous model probabilities
@@ -202,12 +203,13 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
 
       # sample particle with correct model
-      j = wsample(1:ABCsetup.nparticles, weights)
+      j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
       particle = oldparticles[j]
 
       #perturb particle
       newparticle = perturbparticle(particle)
 
+      #calculate priorprob
       priorp = priorprob(newparticle.params, ABCsetup.prior)
 
       if priorp == 0.0 #return to beginning of loop if prior probability is 0

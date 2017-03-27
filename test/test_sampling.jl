@@ -15,21 +15,58 @@ function getuniformdist(params, constants, targetdata)
   ABC.ksdist(simdata, targetdata), 1
 
 end
-cst = [[i] for i in 1:2]
+srand(1234)
+cst = [[i] for i in 1:3]
 targetdata = rand(Normal(3.5, 0.44), 100)
 
-ABCsetup = ABC.ABCSMCModel([getnormal, getuniformdist], [2, 2], 0.1, [ABC.PriorUniform([0.0 20; 0.0 2.0]), ABC.PriorUniform([0.0 20.0; 0.0 20.0])], cst; nparticles = 100, maxiterations = 10^5)
+ABCsetup = ABC.ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [ABC.PriorUniform([0.0 20; 0.0 2.0]), ABC.PriorUniform([0.0 20.0; 0.0 20.0]), ABC.PriorUniform([0.0 20.0; 0.0 20.0])], cst; nparticles = 100, maxiterations = 10^5)
 
 #test model perturbation kernel
-Niterations = 10^5
+Niterations = 10^6
 m = zeros(Int64, Niterations )
 mstar = 1
-modelprob = [0.5, 0.5]
+modelprob = [1/3, 1/3, 1/3]
 for i in 1:Niterations
   mdoublestar = ABC.perturbmodel(ABCsetup, mstar, modelprob)
   m[i] = mdoublestar
 end
 
-@test ABCsetup.modelkern ≈ sum(m.==1)/length(m)
+@test isapprox(ABCsetup.modelkern, sum(m.==1)/length(m), rtol = 0.01)
 
-@test_approx_eq_eps ABCsetup.modelkern sum(m.==1)/length(m)
+@test isapprox((1 - ABCsetup.modelkern)./(ABCsetup.nmodels - 1), sum(m.==2)/length(m), rtol = 0.01)
+
+#test model perturbation kernel when one model has died out
+Niterations = 10^6
+m = zeros(Int64, Niterations )
+mstar = 1
+modelprob = [0.5, 0.0, 0.5]
+for i in 1:Niterations
+  mdoublestar = ABC.perturbmodel(ABCsetup, mstar, modelprob)
+  m[i] = mdoublestar
+end
+
+@test isapprox(ABCsetup.modelkern, sum(m.==1)/length(m), rtol = 0.01)
+@test isapprox(0.0, sum(m.==2)/length(m))
+@test isapprox(1.0 - ABCsetup.modelkern, sum(m.==3)/length(m), rtol = 0.01)
+
+
+#test get particle weights
+ABCrejresults = ABC.runabc(ABC.ABCRejectionModel(
+          map(x -> x.simfunc, ABCsetup.Models),
+          map(x -> x.nparams, ABCsetup.Models),
+          ABCsetup.Models[1].ϵ1,
+          map(x -> x.prior, ABCsetup.Models),
+          map(x -> x.constants, ABCsetup.Models);
+          nparticles = ABCsetup.Models[1].nparticles,
+          maxiterations = ABCsetup.Models[1].maxiterations),
+          targetdata);
+
+oldparticles, weights = ABC.setupSMCparticles(ABCrejresults, ABCsetup)
+weights, modelprob = ABC.getparticleweights(oldparticles, ABCsetup)
+
+#test if modelprob is the same as from ABCrejresults
+@test modelprob[:] ≈ ABCrejresults.modelfreq
+
+for i in 1:ABCsetup.nmodels
+  @test (map(x -> x.model, oldparticles).==i) == (weights[i, :].> 0.0)
+end
