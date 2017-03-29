@@ -4,7 +4,7 @@ function getproposal(p::Prior, nparams)
   newparams = zeros(Float64, nparams)
 
   for i in 1:nparams
-    newparams[i] = rand(Uniform(p.p[i,:]...))
+    newparams[i] = rand(p.distribution(p.lims...))
   end
 
   return newparams
@@ -57,7 +57,7 @@ function perturbmodel(ABCsetup, mstar, modelprob)
 end
 
 function getmodelfreq(particles, ABCsetup)
-  
+
   freq = zeros(Int64, ABCsetup.nmodels)
   models = map(x -> x.model, particles)
 

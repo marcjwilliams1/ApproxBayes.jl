@@ -1,11 +1,11 @@
 abstract ABCtype
-abstract Prior
 abstract Particle
 
 
-type PriorUniform <: Prior
+type Prior
 
-  p::Array{Float64, 2}
+  distribution::DataType
+  lims
 
 end
 
