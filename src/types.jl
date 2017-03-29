@@ -90,7 +90,7 @@ type ABCRejectionModel <: ABCtype
   Models::Array{ABCRejection, 1}
   nmodels::Int64
 
-  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{PriorUniform, 1}, constants;
+  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}, constants;
     maxiterations = 10000,
     nparticles = 100,
     ) =
@@ -108,7 +108,7 @@ type ABCSMCModel <: ABCtype
   ϵT::Float64
   maxiterations::Int64
 
-  ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{PriorUniform, 1}, constants;
+  ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1}, constants;
     maxiterations = 10^5,
     nparticles = 100,
     α = 0.3,
@@ -180,6 +180,36 @@ type ABCSMCresults
       new(parameters, accratio, numsims, epsvec, particles)
    end
 end
+
+
+type ABCSMCmodelresults
+
+   parameters
+   accratio::Float64
+   numsims::Array{Int64, 1}
+   dist::Array{Float64,1}
+   particles::Array{ParticleSMCModel, 1}
+   modelfreq::Array{Float64, 1}
+
+   function ABCSMCmodelresults(particles, its, ABCsetup, dist)
+
+     parameters = []
+     modelfreq = []
+     for i in 1:ABCsetup.nmodels
+
+        push!(modelfreq, sum(map(x -> x.model, particles) .== i))
+
+        models = map(x -> x.model, particles)
+        parameters = push!(parameters, hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
+
+     end
+     accratio = ABCsetup.nparticles ./ sum(its)
+     modelfreq = modelfreq ./ sum(modelfreq)
+
+     new(parameters, accratio, its, dist, particles, modelfreq)
+   end
+end
+
 
 
 type SimData

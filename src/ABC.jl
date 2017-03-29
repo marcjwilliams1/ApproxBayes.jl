@@ -18,6 +18,7 @@ export
   SimData,
   ABCRejection,
   ABCSMC,
+  ABCRejectionModel,
 
   #functions
   ksdist,

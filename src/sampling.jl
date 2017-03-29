@@ -56,6 +56,20 @@ function perturbmodel(ABCsetup, mstar, modelprob)
 
 end
 
+function getmodelfreq(particles, ABCsetup)
+  
+  freq = zeros(Int64, ABCsetup.nmodels)
+  models = map(x -> x.model, particles)
+
+  for i in 1:ABCsetup.nmodels
+    freq[i] = sum(models.==i)
+  end
+
+  return freq
+end
+
+
+
 function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
 
   prob = ABCsetup.modelkern
