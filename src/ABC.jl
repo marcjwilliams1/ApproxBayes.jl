@@ -13,7 +13,6 @@ export
   Prior,
   Particle,
   abctype,
-  PriorUniform,
   ParticleRejection,
   SimData,
   ABCRejection,

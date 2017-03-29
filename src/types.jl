@@ -4,8 +4,8 @@ abstract Particle
 
 type Prior
 
-  distribution::DataType
-  lims
+  distribution::Array{DataType, 1}
+  lims::Array{Array{Real, 1}, 1}
 
 end
 
