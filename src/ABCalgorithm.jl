@@ -102,7 +102,7 @@ function runabc(ABCsetup::ABCSMC, targetdata)
     particles = Array(ParticleSMC, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
-    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population: $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     while i < ABCsetup.nparticles + 1
 
       j = wsample(1:ABCsetup.nparticles, weights)
