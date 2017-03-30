@@ -19,7 +19,7 @@ srand(1234)
 cst = [[i] for i in 1:3]
 targetdata = rand(Normal(3.5, 0.44), 100)
 
-ABCsetup = ABC.ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [ABC.PriorUniform([0.0 20; 0.0 2.0]), ABC.PriorUniform([0.0 20.0; 0.0 20.0]), ABC.PriorUniform([0.0 20.0; 0.0 20.0])], cst; nparticles = 100, maxiterations = 10^5)
+ABCsetup = ABC.ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [ABC.Prior([Uniform, Uniform][[0.0, 20]; [0.0, 2.0]]), ABC.Prior([Uniform, Uniform],[[0.0, 20]; [0.0, 2.0]]), ABC.Prior([Uniform, Uniform],[[0.0, 20], [0.0, 2.0]])], cst; nparticles = 100, maxiterations = 10^5)
 
 #test model perturbation kernel
 Niterations = 10^6
