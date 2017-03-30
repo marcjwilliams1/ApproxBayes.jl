@@ -1,4 +1,4 @@
-module ABC
+module ApproximateBayesianComputation
 
 
 using Distributions
