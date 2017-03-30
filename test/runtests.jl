@@ -1,4 +1,5 @@
 using ApproximateBayesianComputation
+using Distributions
 using Base.Test
 
 tests = ["sampling"]
