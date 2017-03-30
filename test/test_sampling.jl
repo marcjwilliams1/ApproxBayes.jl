@@ -19,7 +19,7 @@ srand(1234)
 cst = [[i] for i in 1:3]
 targetdata = rand(Normal(3.5, 0.44), 100)
 
-ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform, Uniform][[0.0, 20]; [0.0, 2.0]]), Prior([Uniform, Uniform],[[0.0, 20]; [0.0, 2.0]]), Prior([Uniform, Uniform],[[0.0, 20], [0.0, 2.0]])], cst; nparticles = 100, maxiterations = 10^5)
+ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]])], cst; nparticles = 100, maxiterations = 10^5)
 
 #test model perturbation kernel
 Niterations = 10^6
@@ -27,7 +27,7 @@ m = zeros(Int64, Niterations )
 mstar = 1
 modelprob = [1/3, 1/3, 1/3]
 for i in 1:Niterations
-  mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
+  mdoublestar = ApproximateBayesianComputation.perturbmodel(ABCsetup, mstar, modelprob)
   m[i] = mdoublestar
 end
 
@@ -41,7 +41,7 @@ m = zeros(Int64, Niterations )
 mstar = 1
 modelprob = [0.5, 0.0, 0.5]
 for i in 1:Niterations
-  mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
+  mdoublestar = ApproximateBayesianComputation.perturbmodel(ABCsetup, mstar, modelprob)
   m[i] = mdoublestar
 end
 
@@ -61,8 +61,8 @@ ABCrejresults = runabc(ABCRejectionModel(
           maxiterations = ABCsetup.Models[1].maxiterations),
           targetdata);
 
-oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
-weights, modelprob = getparticleweights(oldparticles, ABCsetup)
+oldparticles, weights = ApproximateBayesianComputation.setupSMCparticles(ABCrejresults, ABCsetup)
+weights, modelprob = ApproximateBayesianComputation.getparticleweights(oldparticles, ABCsetup)
 
 #test if modelprob is the same as from ABCrejresults
 @test modelprob[:] ≈ ABCrejresults.modelfreq
