@@ -79,7 +79,7 @@ nparticles = 500, maxiterations = 10^7)
 
 td, pM1 = generatedata()
 abcresrej = runabc(ABCsetuprej, td);
-abcressmc = runabc(ABCsetup, td);
+abcressmc = runabc(ABCsetupsmc, td);
 
 println("\t Checking ABC rejection model selection")
 @test isapprox(pM1, abcresrej.modelfreq[1], rtol = 0.01)
