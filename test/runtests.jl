@@ -1,5 +1,6 @@
 using ApproximateBayesianComputation
 using Distributions
+using Distances
 using Base.Test
 
 tests = ["sampling", "bayesfactor"]
