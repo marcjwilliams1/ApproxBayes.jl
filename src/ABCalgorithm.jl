@@ -38,7 +38,7 @@ end
 
 function runabc(ABCsetup::ABCRejectionModel, targetdata)
 
-    ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
+  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #initalize array of particles
   particles = Array(ParticleRejectionModel, ABCsetup.Models[1].nparticles)
@@ -168,7 +168,10 @@ end
 
 function runabc(ABCsetup::ABCSMCModel, targetdata)
 
+  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
+
   #run first population with parameters sampled from prior
+  println("Use ABC rejection to get first population")
   ABCrejresults = runabc(ABCRejectionModel(
             map(x -> x.simfunc, ABCsetup.Models),
             map(x -> x.nparams, ABCsetup.Models),
@@ -188,6 +191,11 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   modelprob = ABCrejresults.modelfreq
 
+  println("Run ABC SMC \n")
+
+  popnum = 1
+
+  p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
@@ -229,6 +237,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
         particles[i] = newparticle
         distvec[i] = dist
         i += 1
+        next!(p)
       end
 
       its += 1
@@ -242,10 +251,23 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     particles = getscales(particles)
     oldparticles = deepcopy(particles)
     ϵ = quantile(distvec, ABCsetup.α)
+
+    if ϵ < ABCsetup.ϵT
+      ϵ = ABCsetup.ϵT
+      push!(ϵvec, ϵ)
+      push!(numsims, its)
+      continue
+    end
+
     push!(ϵvec, ϵ)
     push!(numsims, its)
 
-    println("Finished population with tolerance $(round(ϵ, 2))\n")
+    popnum = popnum + 1
+
+    if (( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < 0.05
+      println("New ϵ is within 5% of previous population, stop ABC SMC")
+      break
+    end
 
   end
 
