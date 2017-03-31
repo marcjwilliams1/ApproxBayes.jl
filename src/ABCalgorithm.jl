@@ -203,10 +203,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
-    println()
-    println(modelprob)
-    println(getmodelfreq(oldparticles, ABCsetup)./sum(getmodelfreq(oldparticles, ABCsetup)))
-
     while i < ABCsetup.nparticles + 1
 
       #draw model from previous model probabilities
@@ -246,7 +242,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     #needs to know priors on all models
     particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
 
-    weights, modelprob = getparticleweights(oldparticles, ABCsetup)
+    weights, modelprob = getparticleweights(particles, ABCsetup)
 
     particles = getscales(particles)
     oldparticles = deepcopy(particles)
@@ -273,7 +269,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   println()
   println(modelprob)
-  println(getmodelfreq(oldparticles, ABCsetup)./sum(getmodelfreq(oldparticles, ABCsetup)))
+  println(getmodelfreq(particles, ABCsetup)./sum(getmodelfreq(particles, ABCsetup)))
 
   out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
 
