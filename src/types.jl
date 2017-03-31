@@ -190,23 +190,27 @@ type ABCSMCmodelresults
    dist::Array{Float64,1}
    particles::Array{ParticleSMCModel, 1}
    modelfreq::Array{Float64, 1}
+   modelprob::Array{Float64, 1}
 
    function ABCSMCmodelresults(particles, its, ABCsetup, dist)
 
      parameters = []
      modelfreq = []
+     modelweights = map(x -> x.weight, abcres.particles)
+     models = map(x -> x.model, particles)
+     modelprob = []
      for i in 1:ABCsetup.nmodels
 
         push!(modelfreq, sum(map(x -> x.model, particles) .== i))
+        push!(modelprob, sum(modelweights[models .== i]))
 
-        models = map(x -> x.model, particles)
         parameters = push!(parameters, hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
 
      end
      accratio = ABCsetup.nparticles ./ sum(its)
      modelfreq = modelfreq ./ sum(modelfreq)
 
-     new(parameters, accratio, its, dist, particles, modelfreq)
+     new(parameters, accratio, its, dist, particles, modelfreq, modelprob)
    end
 end
 
