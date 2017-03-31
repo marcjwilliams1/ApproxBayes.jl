@@ -195,7 +195,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   popnum = 1
 
-  p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
@@ -203,6 +202,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
+    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     while i < ABCsetup.nparticles + 1
 
       #draw model from previous model probabilities
