@@ -64,7 +64,7 @@ function generatedata()
 end
 
 ################################################################
-println("Test Bayes factors are calculated correctly")
+println("Test Bayes factors are calculated correctly (within 5% of true value)")
 srand(1234)
 
 cst = [[i] for i in 1:2]
@@ -78,11 +78,10 @@ ABCsetuprej = ABCRejectionModel([poissonsimulator, geometricsimulator], [1, 1], 
 nparticles = 500, maxiterations = 10^7)
 
 td, pM1 = generatedata()
-abcresrej = runabc(ABCsetuprej, td);
-abcressmc = runabc(ABCsetupsmc, td);
-
 println("\t Checking ABC rejection model selection")
+abcresrej = runabc(ABCsetuprej, td);
 @test isapprox(pM1, abcresrej.modelfreq[1], rtol = 0.05)
 
 println("\t Checking ABC SMC model selection")
+abcressmc = runabc(ABCsetupsmc, td);
 @test isapprox(pM1, abcressmc.modelprob[1], rtol = 0.05)
