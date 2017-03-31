@@ -2,7 +2,7 @@ using ApproximateBayesianComputation
 using Distributions
 using Base.Test
 
-tests = ["sampling"]
+tests = ["sampling", "bayesfactor"]
 
 println("Running tests ...")
 
