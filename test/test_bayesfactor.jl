@@ -82,7 +82,7 @@ abcresrej = runabc(ABCsetuprej, td);
 abcressmc = runabc(ABCsetupsmc, td);
 
 println("\t Checking ABC rejection model selection")
-@test isapprox(pM1, abcresrej.modelfreq[1], rtol = 0.01)
+@test isapprox(pM1, abcresrej.modelfreq[1], rtol = 0.03)
 
 println("\t Checking ABC SMC model selection")
-@test isapprox(pM1, abcressmc.modelprob[1], rtol = 0.01)
+@test isapprox(pM1, abcressmc.modelprob[1], rtol = 0.03)
