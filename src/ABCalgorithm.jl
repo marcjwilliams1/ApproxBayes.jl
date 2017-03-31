@@ -267,10 +267,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   end
 
-  println()
-  println(modelprob)
-  println(getmodelfreq(particles, ABCsetup)./sum(getmodelfreq(particles, ABCsetup)))
-
   out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
 
   return out
