@@ -203,9 +203,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
+    println()
     println(modelprob)
-    println(numsims)
-    println(getmodelfreq(oldparticles, ABCsetup))
+    println(getmodelfreq(oldparticles, ABCsetup)./sum(getmodelfreq(oldparticles, ABCsetup)))
 
     while i < ABCsetup.nparticles + 1
 
@@ -270,6 +270,10 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     end
 
   end
+
+  println()
+  println(modelprob)
+  println(getmodelfreq(oldparticles, ABCsetup)./sum(getmodelfreq(oldparticles, ABCsetup)))
 
   out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
 

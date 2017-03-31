@@ -152,7 +152,7 @@ end
 
 function show(ABCresults::ABCSMCmodelresults)
 
-  @printf("Number of simulations: %.2e\n", ABCresults.numsims)
+  @printf("Number of simulations: %.2e\n", sum(ABCresults.numsims))
   @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
   print("Model frequencies:\n")
   for j in 1:length(ABCresults.modelfreq)

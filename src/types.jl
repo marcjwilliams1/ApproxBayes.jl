@@ -196,7 +196,7 @@ type ABCSMCmodelresults
 
      parameters = []
      modelfreq = []
-     modelweights = map(x -> x.weight, abcres.particles)
+     modelweights = map(x -> x.weight, particles)
      models = map(x -> x.model, particles)
      modelprob = []
      for i in 1:ABCsetup.nmodels
