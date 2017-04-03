@@ -33,7 +33,7 @@ function kernel_prob(p1, p2)
 
     for i in 1:length(p1.params)
 
-      prob = prob * pdf(Uniform(p2.params[i] - p2.scales[i], p2.scales[i] + p2.scales[i]), p1.params[i])
+      prob = prob * pdf(Uniform(p2.params[i] - p2.scales[i], p2.params[i] + p2.scales[i]), p1.params[i])
 
     end
 
@@ -144,8 +144,8 @@ function smcweightsmodel(particles, oldparticles, ABCsetup, prevmodelprob)
   for i in 1:length(particles)
 
     numerator[i] = priorprob(particles[i].params, ABCsetup.Models[particles[i].model].prior)
-    modeldenominator[i] = denom_particlefunc(particles[i], oldparticles, prevmodelprob)
-    particledenominator[i] = denom_modelfunc(particles[i], prevmodelprob, ABCsetup)
+    particledenominator[i] = denom_particlefunc(particles[i], oldparticles, prevmodelprob)
+    modeldenominator[i] = denom_modelfunc(particles[i], prevmodelprob, ABCsetup)
 
   end
 

@@ -67,15 +67,20 @@ function getscales(particles, ABCsetup)
 
   modelindex = trues(ABCsetup.nparticles, ABCsetup.nmodels)
   for i in 1:ABCsetup.nmodels
-      modelindex[:, i] = map(x -> x.model, abcres.particles) .== i
+      modelindex[:, i] = map(x -> x.model, particles) .== i
   end
 
+  modelfreq = sum(modelindex, 1)
   scales = zeros(Float64, ABCsetup.nmodels)
 
   for i in 1:ABCsetup.nmodels
-    parameters = hcat(map(x -> x.params, particles)...)'[modelindex[:, i]]
-    scales[i] = (maximum(parameters, 1) -
-                    minimum(parameters, 1) ./2)[:][1]
+    if modelfreq[i] == 0
+      scales[i] = 0.0
+    else
+      parameters = hcat(map(x -> x.params, particles)...)'[modelindex[:, i]]
+      scales[i] = (maximum(parameters, 1) -
+                      minimum(parameters, 1) ./2)[:][1]
+    end
   end
 
   for i in 1:length(particles)

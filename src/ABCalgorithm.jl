@@ -219,10 +219,10 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
       # sample particle with correct model
       j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
-      particle = oldparticles[j]
+      particletemp = oldparticles[j]
 
       #perturb particle
-      newparticle = perturbparticle(particle)
+      newparticle = perturbparticle(particletemp)
 
       #calculate priorprob
       priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
@@ -245,7 +245,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       its += 1
     end
 
-    #needs to know priors on all models
     particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
 
     weights, modelprob = getparticleweights(particles, ABCsetup)
