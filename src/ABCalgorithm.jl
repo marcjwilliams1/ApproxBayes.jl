@@ -158,6 +158,8 @@ function runabc(ABCsetup::ABCSMC, targetdata)
       break
     end
 
+    popnum = popnum + 1
+
   end
 
   out = ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
