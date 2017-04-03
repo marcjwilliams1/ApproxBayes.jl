@@ -250,7 +250,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
     weights, modelprob = getparticleweights(particles, ABCsetup)
 
-    particles = getscales(particles)
+    particles = getscales(particles, ABCsetup)
     oldparticles = deepcopy(particles)
 
     if finalpop == true
