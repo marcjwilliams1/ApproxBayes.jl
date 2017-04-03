@@ -63,6 +63,28 @@ function getscales(particles)
   return particles
 end
 
+function getscales(particles, ABCsetup)
+
+  modelindex = trues(ABCsetup.nparticles, ABCsetup.nmodels)
+  for i in 1:ABCsetup.nmodels
+      modelindex[:, i] = map(x -> x.model, abcres.particles) .== i
+  end
+
+  scales = zeros(Float64, ABCsetup.nmodels)
+
+  for i in 1:ABCsetup.nmodels
+    parameters = hcat(map(x -> x.params, particles)...)'[modelindex[:, i]]
+    scales[i] = (maximum(parameters, 1) -
+                    minimum(parameters, 1) ./2)[:][1]
+  end
+
+  for i in 1:length(particles)
+    particles[i].scales = [scales[particles[i].model]]
+  end
+
+  return particles
+end
+
 
 
 function show(ABCresults::ABCrejectionresults)
