@@ -20,7 +20,7 @@ function runabc(ABCsetup::ABCRejection, targetdata)
 
     #if simulated data is less than target tolerance accept particle
     if dist < ABCsetup.ϵ
-      particles[i] = ParticleRejection(newparams, out)
+      particles[i] = ParticleRejection(newparams, dist, out)
       distvec[i] = dist
       i +=1
     end
@@ -62,7 +62,7 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata)
 
     #if simulated data is less than target tolerance accept particle
     if dist < ABCsetup.Models[1].ϵ
-      particles[i] = ParticleRejectionModel(newparams, model, out)
+      particles[i] = ParticleRejectionModel(newparams, model, dist, out)
       distvec[i] = dist
       i +=1
     end
@@ -123,6 +123,7 @@ function runabc(ABCsetup::ABCSMC, targetdata)
       if dist < ϵ
         particles[i] = newparticle
         particles[i].other = out
+        particles[i].distance = dist
         distvec[i] = dist
         i += 1
         next!(p)
@@ -239,6 +240,8 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       #if simulated data is less than target tolerance accept particle
       if dist < ϵ
         particles[i] = newparticle
+        particles[i].other = out
+        particles[i].distance = dist
         distvec[i] = dist
         i += 1
         next!(p)

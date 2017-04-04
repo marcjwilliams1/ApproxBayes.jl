@@ -26,7 +26,7 @@ function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
 
   for i in 1:length(particles)
 
-    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], scales, ABCrejresults.particles[i].other)
+    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], scales, ABCrejresults.particles[i].distance, ABCrejresults.particles[i].other)
 
   end
 
@@ -43,7 +43,7 @@ function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
 
   for i in 1:length(particles)
 
-    particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params, weights[1], scales[ABCrejresults.particles[i].model], ABCrejresults.particles[i].model, ABCrejresults.particles[i].other)
+    particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params, weights[1], scales[ABCrejresults.particles[i].model], ABCrejresults.particles[i].model, ABCrejresults.particles[i].distance, ABCrejresults.particles[i].other)
 
   end
 
@@ -71,20 +71,22 @@ function getscales(particles, ABCsetup)
   end
 
   modelfreq = sum(modelindex, 1)
-  scales = zeros(Float64, ABCsetup.nmodels)
+  scales =  Array{Float64,1}[]
 
   for i in 1:ABCsetup.nmodels
     if modelfreq[i] == 0
-      scales[i] = 0.0
+      push!(scales, [0.0])
     else
-      parameters = hcat(map(x -> x.params, particles)...)'[modelindex[:, i]]
-      scales[i] = (maximum(parameters, 1) -
-                      minimum(parameters, 1) ./2)[:][1]
+      #parameters = hcat(map(x -> x.params, particles)...)'[modelindex[:, i], :]
+      parameters = hcat(map(x -> x.params, particles[modelindex[:, i]])...)'
+      #println(length(parameters))
+      push!(scales, (maximum(parameters, 1) -
+                      minimum(parameters, 1) ./2)[:])
     end
   end
 
   for i in 1:length(particles)
-    particles[i].scales = [scales[particles[i].model]]
+    particles[i].scales = scales[particles[i].model]
   end
 
   return particles
