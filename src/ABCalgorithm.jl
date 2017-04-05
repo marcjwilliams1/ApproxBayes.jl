@@ -154,7 +154,7 @@ function runabc(ABCsetup::ABCSMC, targetdata)
     push!(ϵvec, ϵ)
     push!(numsims, its)
 
-    if (( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < 0.05
+    if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       println("New ϵ is within 5% of previous population, stop ABC SMC")
       break
     end
@@ -291,7 +291,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
     push!(ϵvec, ϵ)
     push!(numsims, its)
 
-    if (( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < 0.05
+    if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       println("New ϵ is within 5% of previous population, stop ABC SMC")
       break
     end
