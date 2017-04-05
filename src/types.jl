@@ -94,7 +94,8 @@ type ABCRejectionModel <: ABCtype
   Models::Array{ABCRejection, 1}
   nmodels::Int64
 
-  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}, constants;
+  ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1};
+    constants = repeat([[1]], inner = length(sim_func)),
     maxiterations = 10000,
     nparticles = 100,
     ) =
@@ -112,7 +113,8 @@ type ABCSMCModel <: ABCtype
   ϵT::Float64
   maxiterations::Int64
 
-  ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1}, constants;
+  ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
+    constants = repeat([[1]], inner = length(sim_func)),
     maxiterations = 10^5,
     nparticles = 100,
     α = 0.3,

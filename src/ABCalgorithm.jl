@@ -183,7 +183,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
             map(x -> x.nparams, ABCsetup.Models),
             ABCsetup.Models[1].ϵ1,
             map(x -> x.prior, ABCsetup.Models),
-            map(x -> x.constants, ABCsetup.Models);
+            constants = map(x -> x.constants, ABCsetup.Models),
             nparticles = ABCsetup.Models[1].nparticles,
             maxiterations = ABCsetup.Models[1].maxiterations),
             targetdata);
