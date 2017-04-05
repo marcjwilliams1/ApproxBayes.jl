@@ -170,15 +170,14 @@ function runabc(ABCsetup::ABCSMC, targetdata)
 end
 
 
-
-
-
-function runabc(ABCsetup::ABCSMCModel, targetdata)
+function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #run first population with parameters sampled from prior
-  println("Use ABC rejection to get first population")
+  if verbose == true
+    println("Use ABC rejection to get first population")
+  end
   ABCrejresults = runabc(ABCRejectionModel(
             map(x -> x.simfunc, ABCsetup.Models),
             map(x -> x.nparams, ABCsetup.Models),
@@ -198,7 +197,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   modelprob = ABCrejresults.modelfreq
 
-  println("Run ABC SMC \n")
+  if verbose == true
+    println("Run ABC SMC \n")
+  end
 
   popnum = 1
 
@@ -213,7 +214,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
-    p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+    if verbose == true
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+    end
     while i < ABCsetup.nparticles + 1
 
       #draw model from previous model probabilities
@@ -246,7 +249,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
         particles[i].distance = dist
         distvec[i] = dist
         i += 1
-        next!(p)
+        if verbose == true
+          next!(p)
+        end
       end
 
       its += 1
@@ -263,7 +268,10 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       break
     end
 
-    show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+    if verbose == true
+      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+      println("##################################################")
+    end
 
     ϵ = quantile(distvec, ABCsetup.α)
 
