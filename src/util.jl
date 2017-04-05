@@ -53,8 +53,8 @@ end
 function getscales(particles)
 
   parameters = hcat(map(x -> x.params, particles)...)'
-  scales = (maximum(parameters, 1) -
-                  minimum(parameters, 1) ./2)[:]
+  scales = ((maximum(parameters, 1) -
+                  minimum(parameters, 1)) ./2)[:]
 
   for i in 1:length(particles)
     particles[i].scales = scales
@@ -76,12 +76,12 @@ function getscales(particles, ABCsetup)
   for i in 1:ABCsetup.nmodels
     if modelfreq[i] == 0
       push!(scales, [0.0])
+    elseif modelfreq[i] == 1
+      push!(scales, particles[modelindex[:, i]][1].scales)
     else
-      #parameters = hcat(map(x -> x.params, particles)...)'[modelindex[:, i], :]
       parameters = hcat(map(x -> x.params, particles[modelindex[:, i]])...)'
-      #println(length(parameters))
-      push!(scales, (maximum(parameters, 1) -
-                      minimum(parameters, 1) ./2)[:])
+      push!(scales, ((maximum(parameters, 1) -
+                      minimum(parameters, 1)) ./2)[:])
     end
   end
 
