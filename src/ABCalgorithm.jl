@@ -172,10 +172,11 @@ end
 
 function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
 
-  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
+  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
   #run first population with parameters sampled from prior
   if verbose == true
+    println("##################################################")
     println("Use ABC rejection to get first population")
   end
   ABCrejresults = runabc(ABCRejectionModel(
@@ -205,7 +206,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
 
   finalpop = false
 
-  show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+  if verbose == true
+    show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+  end
 
   while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
 
@@ -269,8 +272,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
     end
 
     if verbose == true
-      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
       println("##################################################")
+      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+      println("##################################################\n")
     end
 
     ϵ = quantile(distvec, ABCsetup.α)
