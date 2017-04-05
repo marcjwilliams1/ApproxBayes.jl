@@ -204,6 +204,8 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
 
   finalpop = false
 
+  show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+
   while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
@@ -261,6 +263,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata)
       break
     end
 
+    show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
 
     ϵ = quantile(distvec, ABCsetup.α)
 
