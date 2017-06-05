@@ -53,7 +53,7 @@ type ABCRejection <: ABCtype
   nparams::Int64
   ϵ::Float64
   nparticles::Int64
-  constants::Array{Float64,1}
+  constants::Array{Any,1}
   maxiterations::Int64
   prior::Prior
 
@@ -73,7 +73,7 @@ type ABCSMC <: ABCtype
   ϵ1::Float64
   ϵT::Float64
   nparticles::Int64
-  constants::Array{Float64,1}
+  constants::Array{Any,1}
   maxiterations::Int64
   prior::Prior
   α::Float64
