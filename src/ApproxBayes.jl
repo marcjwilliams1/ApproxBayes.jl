@@ -1,4 +1,4 @@
-module ApproximateBayesianComputation
+module ApproxBayes
 
 
 using Distributions
