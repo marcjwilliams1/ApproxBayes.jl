@@ -531,8 +531,8 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false)
         end
 
         #simulate with new parameters
-        dist, out = ABCsetup.Models[mdoublestar].simfunc(newparticle.params, ABCsetup.Models[mdoublestar].constants, targetdata)
-        correctmodel = out[3]
+        dist, out, cm = ABCsetup.Models[mdoublestar].simfunc(newparticle.params, ABCsetup.Models[mdoublestar].constants, targetdata)
+        correctmodel = cm
       end
 
       if priorp == 0.0 #return to beginning of loop if prior probability is 0
