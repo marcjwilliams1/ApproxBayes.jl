@@ -565,11 +565,11 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false)
       break
     end
 
-    if verbose == true
-      println("##################################################")
-      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
-      println("##################################################\n")
-    end
+    #if verbose == true
+    #  println("##################################################")
+    #  show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+    #    println("##################################################\n")
+    #end
 
     ϵ = quantile(distvec, ABCsetup.α)
 
