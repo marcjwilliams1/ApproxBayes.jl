@@ -1,4 +1,4 @@
-using ApproximateBayesianComputation
+using ApproxBayes
 using Distributions
 using Distances
 using Base.Test

@@ -27,7 +27,7 @@ m = zeros(Int64, Niterations )
 mstar = 1
 modelprob = [1/3, 1/3, 1/3]
 for i in 1:Niterations
-  mdoublestar = ApproximateBayesianComputation.perturbmodel(ABCsetup, mstar, modelprob)
+  mdoublestar = ApproxBayes.perturbmodel(ABCsetup, mstar, modelprob)
   m[i] = mdoublestar
 end
 
@@ -41,7 +41,7 @@ m = zeros(Int64, Niterations )
 mstar = 1
 modelprob = [0.5, 0.0, 0.5]
 for i in 1:Niterations
-  mdoublestar = ApproximateBayesianComputation.perturbmodel(ABCsetup, mstar, modelprob)
+  mdoublestar = ApproxBayes.perturbmodel(ABCsetup, mstar, modelprob)
   m[i] = mdoublestar
 end
 
