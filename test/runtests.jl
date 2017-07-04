@@ -3,7 +3,7 @@ using Distributions
 using Distances
 using Base.Test
 
-tests = ["sampling", "bayesfactor"]
+tests = ["sampling", "bayesfactor", "parameter"]
 
 println("Running tests ...")
 
