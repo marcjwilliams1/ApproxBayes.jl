@@ -3,6 +3,8 @@ using Distributions
 using Distances
 using Base.Test
 
+#run using Pkg.test("PkgName")
+
 tests = ["sampling", "bayesfactor", "parameter"]
 
 println("Running tests ...")

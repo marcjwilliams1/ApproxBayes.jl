@@ -16,10 +16,9 @@ function getuniformdist(params, constants, targetdata)
 
 end
 srand(1234)
-cst = [[i] for i in 1:3]
 targetdata = rand(Normal(3.5, 0.44), 100)
 
-ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]])], cst; nparticles = 100, maxiterations = 10^5)
+ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]])]; nparticles = 100, maxiterations = 10^5)
 
 #test model perturbation kernel
 Niterations = 10^6
@@ -55,14 +54,13 @@ ABCrejresults = runabc(ABCRejectionModel(
           map(x -> x.simfunc, ABCsetup.Models),
           map(x -> x.nparams, ABCsetup.Models),
           ABCsetup.Models[1].ϵ1,
-          map(x -> x.prior, ABCsetup.Models),
-          map(x -> x.constants, ABCsetup.Models);
+          map(x -> x.prior, ABCsetup.Models);
           nparticles = ABCsetup.Models[1].nparticles,
           maxiterations = ABCsetup.Models[1].maxiterations),
           targetdata);
 
-oldparticles, weights = ApproximateBayesianComputation.setupSMCparticles(ABCrejresults, ABCsetup)
-weights, modelprob = ApproximateBayesianComputation.getparticleweights(oldparticles, ABCsetup)
+oldparticles, weights = ApproxBayes.setupSMCparticles(ABCrejresults, ABCsetup)
+weights, modelprob = ApproxBayes.getparticleweights(oldparticles, ABCsetup)
 
 #test if modelprob is the same as from ABCrejresults
 @test modelprob[:] ≈ ABCrejresults.modelfreq
