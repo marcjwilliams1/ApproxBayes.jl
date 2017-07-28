@@ -3,7 +3,7 @@ abstract type Particle end
 
 type Prior
 
-  distribution::Array{Sampleable, 1}
+  distribution::Array{Type{Distributions.Sampleable}, 1}
   lims::Array{Array{Real, 1}, 1}
 
 end
