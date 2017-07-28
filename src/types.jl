@@ -1,10 +1,9 @@
-abstract ABCtype
-abstract Particle
-
+abstract type ABCtype end
+abstract type Particle end
 
 type Prior
 
-  distribution::Array{DataType, 1}
+  distribution::Array{Distributions.Uniform, 1}
   lims::Array{Array{Real, 1}, 1}
 
 end
