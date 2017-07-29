@@ -77,144 +77,7 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata)
 
 end
 
-function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
-
-  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
-
-  #run first population with parameters sampled from prior
-  if verbose == true
-    println("##################################################")
-    println("Use ABC rejection to get first population")
-  end
-  ABCrejresults = runabc(ABCRejectionModel(
-            map(x -> x.simfunc, ABCsetup.Models),
-            map(x -> x.nparams, ABCsetup.Models),
-            ABCsetup.Models[1].ϵ1,
-            map(x -> x.prior, ABCsetup.Models),
-            constants = map(x -> x.constants, ABCsetup.Models),
-            nparticles = ABCsetup.Models[1].nparticles,
-            maxiterations = ABCsetup.Models[1].maxiterations),
-            targetdata);
-
-  oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
-  ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
-  ϵvec = [ϵ] #store epsilon values
-  numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array(ParticleSMCModel, ABCsetup.nparticles) #define particles array
-  weights, modelprob = getparticleweights(oldparticles, ABCsetup)
-
-  modelprob = ABCrejresults.modelfreq
-
-  if verbose == true
-    println("Run ABC SMC \n")
-  end
-
-  popnum = 1
-
-  finalpop = false
-
-  if verbose == true
-    show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
-  end
-
-  while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
-
-    i = 1 #set particle indicator to 1
-    particles = Array(ParticleSMCModel, ABCsetup.nparticles)
-    distvec = zeros(Float64, ABCsetup.nparticles)
-    its = 1
-
-    if verbose == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
-    end
-    while i < ABCsetup.nparticles + 1
-
-      #draw model from previous model probabilities
-      mstar = wsample(1:ABCsetup.nmodels, modelprob)
-
-      #perturb model
-      mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
-
-      # sample particle with correct model
-      j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
-      particletemp = oldparticles[j]
-
-      #perturb particle
-      newparticle = perturbparticle(particletemp)
-
-      #calculate priorprob
-      priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
-
-      if priorp == 0.0 #return to beginning of loop if prior probability is 0
-        continue
-      end
-
-      #simulate with new parameters
-      dist, out = ABCsetup.Models[mdoublestar].simfunc(newparticle.params, ABCsetup.Models[mdoublestar].constants, targetdata)
-
-      #if simulated data is less than target tolerance accept particle
-      if dist < ϵ
-        particles[i] = newparticle
-        particles[i].other = out
-        particles[i].distance = dist
-        distvec[i] = dist
-        i += 1
-        if verbose == true
-          next!(p)
-        end
-      end
-
-      its += 1
-    end
-
-    particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
-
-    weights, modelprob = getparticleweights(particles, ABCsetup)
-
-    particles = getscales(particles, ABCsetup)
-    oldparticles = deepcopy(particles)
-
-    if finalpop == true
-      break
-    end
-
-    if verbose == true
-      println("##################################################")
-      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
-      println("##################################################\n")
-    end
-
-    ϵ = quantile(distvec, ABCsetup.α)
-
-    if ϵ < ABCsetup.ϵT
-      ϵ = ABCsetup.ϵT
-      push!(ϵvec, ϵ)
-      push!(numsims, its)
-      popnum = popnum + 1
-      finalpop = true
-      continue
-    end
-
-    push!(ϵvec, ϵ)
-    push!(numsims, its)
-
-    if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
-      break
-    end
-
-    popnum = popnum + 1
-
-  end
-
-  out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
-
-  return out
-
-end
-
-
-function runabc(ABCsetup::ABCSMC, targetdata; verbose = false)
+function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
   #run first population with parameters sampled from prior
   if verbose == true
@@ -244,7 +107,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false)
     particles = Array(ParticleSMC, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
-    if verbose == true
+    if progress == true
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
@@ -269,7 +132,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false)
         particles[i].distance = dist
         distvec[i] = dist
         i += 1
-        if verbose == true
+        if progress == true
           next!(p)
         end
       end
@@ -280,6 +143,12 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false)
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
     particles = getscales(particles)
     oldparticles = deepcopy(particles)
+
+    if verbose == true
+      println("##################################################")
+      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+      println("##################################################\n")
+    end
 
     if finalpop == true
       break
@@ -302,7 +171,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false)
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       if verbose == true
         println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
-    end
+      end
       break
     end
 
@@ -317,7 +186,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false)
 end
 
 
-function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
+function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
@@ -364,7 +233,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
-    if verbose == true
+    if progress == true
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
@@ -399,7 +268,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
         particles[i].distance = dist
         distvec[i] = dist
         i += 1
-        if verbose == true
+        if progress == true
           next!(p)
         end
       end
@@ -455,7 +324,7 @@ end
 
 
 
-function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false)
+function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
@@ -504,7 +373,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
-    if verbose == true
+    if progress == true
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
@@ -546,7 +415,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false)
         particles[i].distance = dist
         distvec[i] = dist
         i += 1
-        if verbose == true
+        if progress == true
           next!(p)
         end
       end
@@ -591,6 +460,10 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false)
     end
 
     popnum = popnum + 1
+
+    if verbose == true
+      show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+    end
 
   end
 
