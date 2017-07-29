@@ -322,8 +322,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
 
 end
 
-
-
 function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
