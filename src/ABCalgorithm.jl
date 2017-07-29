@@ -365,6 +365,11 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
   newparticle, dist, out, priorp = 0.0,0.0,0.0,0.0
 
   while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
+    if verbose == true
+      println("######################################## \n")
+      println("########################################")
+      println("Population number: $(popnum) \n")
+    end
 
     i = 1 #set particle indicator to 1
     particles = Array(ParticleSMCModel, ABCsetup.nparticles)
