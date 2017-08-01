@@ -141,7 +141,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
     end
 
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
-    particles = getscales(particles)
+    particles = getscales(particles, ABCsetup)
     oldparticles = deepcopy(particles)
 
     if verbose == true
@@ -553,7 +553,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
     end
 
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
-    particles = getscales(particles)
+    particles = getscales(particles, ABCsetup)
     oldparticles = deepcopy(particles)
 
     if finalpop == true

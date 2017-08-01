@@ -50,11 +50,11 @@ function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   return particles, weights
 end
 
-function getscales(particles)
+function getscales(particles, ABCsetup::ABCSMC)
 
   parameters = hcat(map(x -> x.params, particles)...)'
   scales = ((maximum(parameters, 1) -
-                  minimum(parameters, 1)) ./2)[:]
+                  minimum(parameters, 1)) ./ABCsetup.scalefactor)[:]
 
   for i in 1:length(particles)
     particles[i].scales = scales
@@ -63,7 +63,7 @@ function getscales(particles)
   return particles
 end
 
-function getscales(particles, ABCsetup)
+function getscales(particles, ABCsetup::ABCSMCModel)
 
   modelindex = trues(ABCsetup.nparticles, ABCsetup.nmodels)
   for i in 1:ABCsetup.nmodels
@@ -81,7 +81,7 @@ function getscales(particles, ABCsetup)
     else
       parameters = hcat(map(x -> x.params, particles[modelindex[:, i]])...)'
       push!(scales, ((maximum(parameters, 1) -
-                      minimum(parameters, 1)) ./2)[:])
+                      minimum(parameters, 1)) ./ABCsetup.scalefactor)[:])
     end
   end
 

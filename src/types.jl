@@ -78,6 +78,7 @@ type ABCSMC <: ABCtype
   prior::Prior
   α::Float64
   convergence::Float64
+  scalefactor::Int64
 
   ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
     maxiterations = 10^5,
@@ -85,9 +86,10 @@ type ABCSMC <: ABCtype
     nparticles = 100,
     α = 0.3,
     ϵ1 = 10000.0,
-    convergence = 0.05
+    convergence = 0.05,
+    scalefactor = 2,
     ) =
-  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence)
+  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, scalefactor)
 
 end
 
@@ -115,6 +117,7 @@ type ABCSMCModel <: ABCtype
   ϵT::Float64
   maxiterations::Int64
   convergence::Float64
+  scalefactor::Int64
 
   ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
     constants = repeat([[1]], inner = length(sim_func)),
@@ -123,9 +126,10 @@ type ABCSMCModel <: ABCtype
     α = 0.3,
     ϵ1 = 10000.0,
     modelkern = 0.7,
-    convergence = 0.05
+    convergence = 0.05,
+    scalefactor = 2,
     ) =
-  new([ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)], length(sim_func), modelkern, nparticles, α, ϵT, maxiterations, convergence)
+  new([ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)], length(sim_func), modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor)
 
 end
 
