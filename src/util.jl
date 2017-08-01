@@ -22,7 +22,7 @@ function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
   scales = (maximum(ABCrejresults.parameters, 1) -
                   minimum(ABCrejresults.parameters, 1) ./2)[:]
 
-  particles = Array(ParticleSMC, ABCsetup.nparticles)
+  particles = Array{ParticleSMC}(ABCsetup.nparticles)
 
   for i in 1:length(particles)
 
@@ -39,7 +39,7 @@ function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   scales = map(x -> collect((maximum(x, 1) -
                   minimum(x, 1) ./2)[:]), ABCrejresults.parameters)
 
-  particles = Array(ParticleSMCModel, ABCsetup.Models[1].nparticles)
+  particles = Array{ParticleSMCModel}(ABCsetup.Models[1].nparticles)
 
   for i in 1:length(particles)
 
