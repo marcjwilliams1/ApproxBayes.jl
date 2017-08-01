@@ -8,6 +8,10 @@ function runabc(ABCsetup::ABCRejection, targetdata)
   its = 0 #keep track of number of iterations
   distvec = zeros(Float64, ABCsetup.nparticles) #store distances in an array
 
+  if progress == true
+    p = Progress(ABCsetup.nparticles, 1, "Running ABC rejection algorithm...", 30)
+  end
+
   while (i < (ABCsetup.nparticles + 1)) & (its < ABCsetup.maxiterations)
 
     its += 1
@@ -23,6 +27,9 @@ function runabc(ABCsetup::ABCRejection, targetdata)
       particles[i] = ParticleRejection(newparams, dist, out)
       distvec[i] = dist
       i +=1
+      if progress == true
+        next!(p)
+      end
     end
 
 
@@ -36,7 +43,7 @@ function runabc(ABCsetup::ABCRejection, targetdata)
 end
 
 
-function runabc(ABCsetup::ABCRejectionModel, targetdata)
+function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
@@ -46,6 +53,10 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata)
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
   distvec = zeros(Float64, ABCsetup.Models[1].nparticles) #store distances in an array
+
+  if progress == true
+    p = Progress(ABCsetup.Models[1].nparticles, 1, "Running ABC rejection algorithm...", 30)
+  end
 
   while (i < (ABCsetup.Models[1].nparticles + 1)) & (its < ABCsetup.Models[1].maxiterations)
 
@@ -65,6 +76,9 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata)
       particles[i] = ParticleRejectionModel(newparams, model, dist, out)
       distvec[i] = dist
       i +=1
+      if progress == true
+        next!(p)
+      end
     end
 
 
@@ -339,7 +353,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
             constants = map(x -> x.constants, ABCsetup.Models),
             nparticles = ABCsetup.Models[1].nparticles,
             maxiterations = ABCsetup.Models[1].maxiterations),
-            targetdata);
+            targetdata, progress = progress);
 
   oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
@@ -475,8 +489,6 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
   return out
 
 end
-
-
 
 function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
 
