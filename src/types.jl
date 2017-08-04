@@ -199,7 +199,7 @@ type ABCSMCmodelresults
    parameters
    accratio::Float64
    numsims::Array{Int64, 1}
-   dist::Array{Float64,1}
+   ϵ::Array{Float64,1}
    particles::Array{ParticleSMCModel, 1}
    modelfreq::Array{Float64, 1}
    modelprob::Array{Float64, 1}

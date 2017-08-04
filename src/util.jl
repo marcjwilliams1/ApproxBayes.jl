@@ -130,7 +130,7 @@ function show(ABCresults::ABCSMCresults)
     (lowerci[i], upperci[i]) = quantile(ABCresults.parameters[:, i], [0.025,0.975])
   end
 
-  @printf("Total Number of simulations: %.2e\n", sum(ABCresults.numsims))
+  @printf("Total number of simulations: %.2e\n", sum(ABCresults.numsims))
   println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
   @printf("Acceptance ratio: %.2e\n", ABCresults.accratio)
   println("Tolerance schedule = $(round(ABCresults.ϵ, 2))\n")
@@ -177,12 +177,12 @@ function show(ABCresults::ABCrejectionmodelresults)
 
 end
 
-
-
 function show(ABCresults::ABCSMCmodelresults)
 
-  @printf("Number of simulations: %.2e\n", sum(ABCresults.numsims))
+  @printf("Total number of simulations: %.2e\n", sum(ABCresults.numsims))
+  println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
   @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
+  println("Tolerance schedule = $(round(ABCresults.ϵ, 2))\n")
 
   print("Model probabilities:\n")
   for j in 1:length(ABCresults.modelprob)

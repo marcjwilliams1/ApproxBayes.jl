@@ -160,7 +160,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
     if verbose == true
       println("##################################################")
-      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+      show(ABCSMCresults(particles, numsims, ABCsetup, ϵvec))
       println("##################################################\n")
     end
 
