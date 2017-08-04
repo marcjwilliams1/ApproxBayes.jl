@@ -4,6 +4,7 @@ module ApproxBayes
 using Distributions
 using ProgressMeter
 using Gadfly
+using Compat
 
 import Base.show
 

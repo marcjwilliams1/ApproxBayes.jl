@@ -1,5 +1,5 @@
-abstract type ABCtype end
-abstract type Particle end
+@compat abstract type ABCtype end
+@compat abstract type Particle end
 
 type Prior
 
