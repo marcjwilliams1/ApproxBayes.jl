@@ -3,7 +3,7 @@ using Distributions
 using Distances
 using Base.Test
 
-#run using Pkg.test("PkgName")
+#run using Pkg.test("ApproxBayes")
 
 tests = ["sampling", "bayesfactor", "parameter"]
 
