@@ -1,5 +1,5 @@
 
-function runabc(ABCsetup::ABCRejection, targetdata)
+function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 
   #initalize array of particles
   particles = Array(ParticleRejection, ABCsetup.nparticles)
