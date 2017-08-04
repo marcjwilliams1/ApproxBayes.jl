@@ -2,7 +2,7 @@
 function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 
   #initalize array of particles
-  particles = Array(ParticleRejection, ABCsetup.nparticles)
+  particles = Array{ParticleRejection}(ABCsetup.nparticles)
 
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
@@ -48,7 +48,7 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #initalize array of particles
-  particles = Array(ParticleRejectionModel, ABCsetup.Models[1].nparticles)
+  particles = Array{ParticleRejectionModel}(ABCsetup.Models[1].nparticles)
 
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
@@ -91,6 +91,143 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
 
 end
 
+<<<<<<< HEAD
+function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false)
+
+  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
+
+  #run first population with parameters sampled from prior
+  if verbose == true
+    println("##################################################")
+    println("Use ABC rejection to get first population")
+  end
+  ABCrejresults = runabc(ABCRejectionModel(
+            map(x -> x.simfunc, ABCsetup.Models),
+            map(x -> x.nparams, ABCsetup.Models),
+            ABCsetup.Models[1].ϵ1,
+            map(x -> x.prior, ABCsetup.Models),
+            constants = map(x -> x.constants, ABCsetup.Models),
+            nparticles = ABCsetup.Models[1].nparticles,
+            maxiterations = ABCsetup.Models[1].maxiterations),
+            targetdata);
+
+  oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
+  ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
+  ϵvec = [ϵ] #store epsilon values
+  numsims = [ABCrejresults.numsims] #keep track of number of simualtions
+  particles = Array{ParticleSMCModel}(ABCsetup.nparticles) #define particles array
+  weights, modelprob = getparticleweights(oldparticles, ABCsetup)
+
+  modelprob = ABCrejresults.modelfreq
+
+  if verbose == true
+    println("Run ABC SMC \n")
+  end
+
+  popnum = 1
+
+  finalpop = false
+
+  if verbose == true
+    show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+  end
+
+  while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
+
+    i = 1 #set particle indicator to 1
+    particles = Array{ParticleSMCModel}(ABCsetup.nparticles)
+    distvec = zeros(Float64, ABCsetup.nparticles)
+    its = 1
+
+    if verbose == true
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+    end
+    while i < ABCsetup.nparticles + 1
+
+      #draw model from previous model probabilities
+      mstar = wsample(1:ABCsetup.nmodels, modelprob)
+
+      #perturb model
+      mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
+
+      # sample particle with correct model
+      j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
+      particletemp = oldparticles[j]
+
+      #perturb particle
+      newparticle = perturbparticle(particletemp)
+
+      #calculate priorprob
+      priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
+
+      if priorp == 0.0 #return to beginning of loop if prior probability is 0
+        continue
+      end
+
+      #simulate with new parameters
+      dist, out = ABCsetup.Models[mdoublestar].simfunc(newparticle.params, ABCsetup.Models[mdoublestar].constants, targetdata)
+
+      #if simulated data is less than target tolerance accept particle
+      if dist < ϵ
+        particles[i] = newparticle
+        particles[i].other = out
+        particles[i].distance = dist
+        distvec[i] = dist
+        i += 1
+        if verbose == true
+          next!(p)
+        end
+      end
+
+      its += 1
+    end
+
+    particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
+
+    weights, modelprob = getparticleweights(particles, ABCsetup)
+
+    particles = getscales(particles, ABCsetup)
+    oldparticles = deepcopy(particles)
+
+    if finalpop == true
+      break
+    end
+
+    if verbose == true
+      println("##################################################")
+      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+      println("##################################################\n")
+    end
+
+    ϵ = quantile(distvec, ABCsetup.α)
+
+    if ϵ < ABCsetup.ϵT
+      ϵ = ABCsetup.ϵT
+      push!(ϵvec, ϵ)
+      push!(numsims, its)
+      popnum = popnum + 1
+      finalpop = true
+      continue
+    end
+
+    push!(ϵvec, ϵ)
+    push!(numsims, its)
+
+    if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
+      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+      break
+    end
+
+    popnum = popnum + 1
+
+  end
+
+  out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
+
+  return out
+
+end
+
 function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
   #run first population with parameters sampled from prior
@@ -106,7 +243,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
+  particles = Array{ParticleSMC}(ABCsetup.nparticles) #define particles array
 
   if verbose == true
     println("Run ABC SMC \n")
@@ -118,7 +255,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
-    particles = Array(ParticleSMC, ABCsetup.nparticles)
+    particles = Array{ParticleSMC}(ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if progress == true
@@ -223,7 +360,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array(ParticleSMCModel, ABCsetup.nparticles) #define particles array
+  particles = Array{ParticleSMCModel}(ABCsetup.nparticles) #define particles array
   weights, modelprob = getparticleweights(oldparticles, ABCsetup)
 
   modelprob = ABCrejresults.modelfreq
@@ -243,7 +380,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
-    particles = Array(ParticleSMCModel, ABCsetup.nparticles)
+    particles = Array{ParticleSMCModel}(ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
@@ -359,7 +496,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array(ParticleSMCModel, ABCsetup.nparticles) #define particles array
+  particles = Array{ParticleSMCModel}(ABCsetup.nparticles) #define particles array
   weights, modelprob = getparticleweights(oldparticles, ABCsetup)
 
   modelprob = ABCrejresults.modelfreq
@@ -386,7 +523,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     end
 
     i = 1 #set particle indicator to 1
-    particles = Array(ParticleSMCModel, ABCsetup.nparticles)
+    particles = Array{ParticleSMCModel}(ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
@@ -505,7 +642,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array(ParticleSMC, ABCsetup.nparticles) #define particles array
+  particles = Array{ParticleSMC}(ABCsetup.nparticles) #define particles array
 
   if verbose == true
     println("Run ABC SMC \n")
@@ -519,7 +656,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
-    particles = Array(ParticleSMC, ABCsetup.nparticles)
+    particles = Array{ParticleSMC}(ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if verbose == true

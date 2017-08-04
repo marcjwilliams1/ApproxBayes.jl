@@ -1,11 +1,9 @@
-abstract ABCtype
-abstract Particle
-
+@compat abstract type ABCtype end
+@compat abstract type Particle end
 
 type Prior
 
-  distribution::Array{DataType, 1}
-  lims::Array{Array{Real, 1}, 1}
+  distribution::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}
 
 end
 

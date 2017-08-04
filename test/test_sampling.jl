@@ -18,7 +18,7 @@ end
 srand(1234)
 targetdata = rand(Normal(3.5, 0.44), 100)
 
-ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]]), Prior([Uniform, Uniform], [[0.0, 20], [0.0, 2.0]])]; nparticles = 100, maxiterations = 10^5)
+ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)])]; nparticles = 100, maxiterations = 10^5)
 
 #test model perturbation kernel
 Niterations = 10^6

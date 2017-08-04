@@ -1,8 +1,6 @@
 # this file will test that both algorithms correctly infer parameters from a normal distribution
 
-using Distributions
-
-function getnormal(params, constants, targetdata)
+function getnormal2(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 1000)
 
@@ -16,10 +14,10 @@ p2 = 0.4
 targetdata = rand(Normal(p1, p2), 1000)
 
 #setup ABC alogrithm specifications for Rejection algorithm
-setup = ABCRejection(getnormal,
+setup = ABCRejection(getnormal2,
   2,
   0.1,
-  Prior([Uniform, Uniform], [[0.0, 20.0], [0.0, 2.0]]);
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]);
   maxiterations = 10^6,
   )
 # run ABC inference
@@ -30,10 +28,10 @@ resrejection = runabc(setup, targetdata);
 @test isapprox(mean(resrejection.parameters, 1)[2], p2, rtol = 0.05)
 
 #now run SMC algorithm
-setup = ABCSMC(getnormal,
+setup = ABCSMC(getnormal2,
   2,
   0.05,
-  Prior([Uniform, Uniform], [[0, 20], [0, 2.0]]),
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]),
   )
 ressmc = runabc(setup, targetdata, verbose = false);
 
@@ -43,10 +41,10 @@ ressmc = runabc(setup, targetdata, verbose = false);
 
 
 #test SMC is more efficient than rejection algorithm
-setup = ABCSMC(getnormal,
+setup = ABCSMC(getnormal2,
   2,
   0.1,
-  Prior([Uniform, Uniform], [[0, 20], [0, 2.0]]),
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]),
   )
 ressmc = runabc(setup, targetdata, verbose = false);
 
