@@ -451,12 +451,6 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
       break
     end
 
-    #if verbose == true
-    #  println("##################################################")
-    #  show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
-    #    println("##################################################\n")
-    #end
-
     ϵ = quantile(distvec, ABCsetup.α)
 
     if ϵ < ABCsetup.ϵT
@@ -490,7 +484,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
 
 end
 
-function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
+function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
   #run first population with parameters sampled from prior
   if verbose == true
@@ -522,7 +516,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
     particles = Array{ParticleSMC}(ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
-    if verbose == true
+    if progress == true
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
@@ -556,7 +550,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false)
         particles[i].distance = dist
         distvec[i] = dist
         i += 1
-        if verbose == true
+        if progress == true
           next!(p)
         end
       end

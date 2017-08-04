@@ -132,7 +132,7 @@ function show(ABCresults::ABCSMCresults)
 
   @printf("Total number of simulations: %.2e\n", sum(ABCresults.numsims))
   println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
-  @printf("Acceptance ratio: %.2e\n", ABCresults.accratio)
+  @printf("Acceptance ratio: %.2e", ABCresults.accratio)
   println("Tolerance schedule = $(round(ABCresults.ϵ, 2))\n")
 
   print("Median (95% intervals):\n")
