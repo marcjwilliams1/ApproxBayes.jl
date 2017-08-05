@@ -188,8 +188,10 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
       end
       break
     end
-    flush(STDOUT)
-    flush(STDERR)
+    if progress == false
+      flush(STDOUT)
+      flush(STDERR)
+    end
 
     popnum = popnum + 1
 
@@ -327,8 +329,10 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
       println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
       break
     end
-    flush(STDOUT)
-    flush(STDERR)
+    if progress == false
+      flush(STDOUT)
+      flush(STDERR)
+    end
 
     popnum = popnum + 1
 
@@ -473,8 +477,10 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
       println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
       break
     end
-    flush(STDOUT)
-    flush(STDERR)
+    if progress == false
+      flush(STDOUT)
+      flush(STDERR)
+    end
 
     popnum = popnum + 1
 
@@ -593,8 +599,10 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = 
       break
     end
 
-    flush(STDOUT)
-    flush(STDERR)
+    if progress == false
+      flush(STDOUT)
+      flush(STDERR)
+    end
     popnum = popnum + 1
 
   end
