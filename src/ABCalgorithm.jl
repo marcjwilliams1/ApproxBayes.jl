@@ -1,4 +1,8 @@
+"""
+  runabc(ABCsetup::ABCtype, targetdata; progress = false)
 
+Run the ABC algorithm specified by ABCsetup and return and ABCresults type containing posterior distribution samples. If progress is set to true, will print out a ProgressMeter bar.
+"""
 function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 
   #initalize array of particles
@@ -42,7 +46,6 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 
 end
 
-
 function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
@@ -80,8 +83,6 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
         next!(p)
       end
     end
-
-
   end
 
   i > ABCsetup.Models[1].nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.Models[1].ϵ). \n\tDecrease ϵ or increase maxiterations ")
@@ -192,15 +193,10 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
       flush(STDOUT)
       flush(STDERR)
     end
-
     popnum = popnum + 1
-
   end
 
-  out = ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
-
-  return out
-
+  return ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
 end
 
 
@@ -237,7 +233,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   end
 
   popnum = 1
-
   finalpop = false
 
   if verbose == true
@@ -338,12 +333,14 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
 
   end
 
-  out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
-
-  return out
-
+  return ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
 end
 
+"""
+  runabcCancer(ABCsetup::ABCtype, targetdata; progress = false)
+
+Specific implementation of the runabc function to be applied with CancerSeqSim.jl. Only lets a sample be considered true if it returns a the correct clonal structure. If progress is set to true, will print out a ProgressMeter bar.
+"""
 function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
@@ -487,14 +484,12 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     if verbose == true
       show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
     end
-
   end
 
-  out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
-
-  return out
-
+  return ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
 end
+
+
 
 function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 

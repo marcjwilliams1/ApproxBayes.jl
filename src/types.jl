@@ -45,6 +45,17 @@ type ParticleSMCModel <: Particle
 
 end
 
+"""
+  ABCrejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior, <keyword arguments>)
+Construct an ABCrejection type with simulation function `sim_func`, `nparams` parameters, `ϵ` distance threshold and prior distribution over parameters.
+
+...
+## Arguments
+- `maxiterations = 10^3`: Maximum number of iterations before algorithm terminates
+- `constants = [1.0]`: Any constants required in `sim_func` function
+- `nparticles = 100`: Number of posterior samples
+...
+"""
 type ABCRejection <: ABCtype
 
   simfunc::Function
@@ -64,6 +75,21 @@ type ABCRejection <: ABCtype
 
 end
 
+"""
+  ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior, <keyword arguments>)
+Construct an ABCSMC type with simulation function `sim_func`, `nparams` parameters, `ϵT` target distance threshold and `prior` distribution over parameters.
+
+...
+## Arguments
+- `maxiterations = 10^3`: Maximum number of iterations before algorithm terminates
+- `constants = [1.0]`: Any constants required in `sim_func` function
+- `nparticles = 100`: Number of posterior samples
+- `α = 0.3`: SMC adaptive parameter, next population takes αth quantile of previous population distance
+- `ϵ1 = 10^5`: ϵ of first population which is ABCrejection
+- `convergence = 0.05`: Algorithm terminates if distance decreases < convergence
+- `scalefactor = 2`: Parameter perturbation kernel scalefactor, larger numbers means perturbation are smaller
+...
+"""
 type ABCSMC <: ABCtype
 
   simfunc::Function
@@ -91,6 +117,16 @@ type ABCSMC <: ABCtype
 
 end
 
+"""
+  ABCrejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}, <keyword arguments>)
+Construct an ABCrejection Model type with simulation functions `sim_func`, `nparams` parameters, `ϵT` target distance threshold and `prior` distributions over parameters.
+
+## Arguments
+- `maxiterations = 10^3`: Maximum number of iterations before algorithm terminates
+- `constants = [1.0]`: Any constants required in `sim_func` function
+- `nparticles = 100`: Number of posterior samples
+...
+"""
 type ABCRejectionModel <: ABCtype
 
   Models::Array{ABCRejection, 1}
@@ -105,6 +141,23 @@ type ABCRejectionModel <: ABCtype
 
 end
 
+
+"""
+  ABCSMCmodel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1}, <keyword arguments>)
+Construct an ABCSMCModel type with simulation functions `sim_func`, `nparams` parameters, `ϵT` target distance threshold and `prior` distributions over parameters. All arrays should be the same size.
+
+...
+## Arguments
+- `maxiterations = 10^3`: Maximum number of iterations before algorithm terminates
+- `constants = [1.0]`: Any constants required in `sim_func` function
+- `nparticles = 100`: Number of posterior samples
+- `α = 0.3`: SMC adaptive parameter, next population takes αth quantile of previous population distance
+- `modelkern = 0.7`: Probability model stays the same following perturbation
+- `ϵ1 = 10^5`: ϵ of first population which is ABCrejection
+- `convergence = 0.05`: Algorithm terminates if distance decreases < convergence
+- `scalefactor = 2`: Parameter perturbation kernel scalefactor, larger numbers means perturbation are smaller
+...
+"""
 type ABCSMCModel <: ABCtype
 
   Models::Array{ABCSMC, 1}
