@@ -2,7 +2,7 @@ module ApproxBayes
 
 using Distributions
 using ProgressMeter
-using Gadfly
+#using Gadfly
 using Compat
 
 import Base.show
@@ -22,8 +22,8 @@ export
 
   #functions
   ksdist,
-  runabc,
-  plotresults
+  runabc#,
+#  plotresults
 
 ### source files
 include("types.jl")
@@ -31,6 +31,6 @@ include("ABCalgorithm.jl")
 include("sampling.jl")
 include("util.jl")
 include("priorprob.jl")
-include("plots.jl")
+#include("plots.jl")
 
 end
