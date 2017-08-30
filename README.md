@@ -11,7 +11,7 @@ Pkg.clone("https://github.com/marcjwilliams1/ApproxBayes.jl")
 ```
 
 ## Examples
-Below is a simple example using the package to infer the mean of a normal distribution. The first step is to create an ABC type which stores the information required to run an analysis. The first input is the simulation function which returns a distance between the simulated and target data sets, the second input is the number of parameters and the the third is the desired tolerance. The final required input is the prior distributions for the parameters, this specified as by creating an a ```Prior``` type which is an array of distribution types from [Distributions.jl]() of the same length as the number of parameters. There are some more optional parameters that are specific the the different algorithms.
+Below is a simple example using the package to infer the mean of a normal distribution. The first step is to create an ABC type which stores the information required to run an analysis. The first input is the simulation function which returns a distance between the simulated and target data sets, the second input is the number of parameters and the the third is the desired tolerance. The final required input is the prior distributions for the parameters, this specified as by creating an a ```Prior``` type which is an array of distribution types from [Distributions.jl](https://github.com/JuliaStats/Distributions.jl/) of the same length as the number of parameters. There are some more optional parameters that are specific the the different algorithms.
 
 First we'll load ```ApproxBayes``` and ```Distributions``` packages.
 
@@ -69,4 +69,4 @@ show(smc)
 If verbose and progress are set to true then a progress meter will be displayed and at the end of each population a summary will be printed.
 
 ## Acknowledgments
-Acknowledge ABC sysbio
+Some of the code was inspired by [ABC-SysBio](http://www.theosysbio.bio.ic.ac.uk/resources/abc-sysbio/).
