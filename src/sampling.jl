@@ -15,7 +15,6 @@ particleperturbationkernel(x0, scale) = rand(Uniform(x0 - scale, x0 + scale))
 function perturbparticle(particle)
 
   newparticle = deepcopy(particle) #make copy of particle
-
   newparams = zeros(Float64, length(newparticle.params))
 
   for i in 1:length(newparams)
@@ -30,11 +29,8 @@ end
 function kernel_prob(p1, p2)
 
     prob = 1
-
     for i in 1:length(p1.params)
-
       prob = prob * pdf(Uniform(p2.params[i] - p2.scales[i], p2.params[i] + p2.scales[i]), p1.params[i])
-
     end
 
     return prob
@@ -43,12 +39,9 @@ end
 function perturbmodel(ABCsetup, mstar, modelprob)
 
     prob = ABCsetup.modelkern
-
     mprob = ones(Float64, length(modelprob))
     mprob[modelprob.==0.0] = 0.0
-
     nsurvivingmodels = sum(mprob)
-
     mprob[mprob.> 0.0] = (1 - prob) / (nsurvivingmodels - 1)
     mprob[mstar] = prob
 
@@ -60,7 +53,6 @@ function getmodelfreq(particles, ABCsetup)
 
   freq = zeros(Int64, ABCsetup.nmodels)
   models = map(x -> x.model, particles)
-
   for i in 1:ABCsetup.nmodels
     freq[i] = sum(models.==i)
   end
@@ -95,9 +87,7 @@ function smcweights(particles, oldparticles, prior)
     for j in 1:length(particles)
       denom = denom + kernel_prob(particles[i], oldparticles[j])
     end
-
     weights[i] = numerator / (oldparticles[i].weight * denom)
-
   end
 
   for i in 1:length(particles)
@@ -115,18 +105,14 @@ function denom_modelfunc(p, prevmodelprob, ABCsetup)
   end
 
   return denom_m
-
 end
 
 function denom_particlefunc(p, particles, prevmodelprob)
 
   denom_p = 0.0
-
   for i in particles
     if p.model == i.model
-
       denom_p = denom_p + ((i.weight * kernel_prob(p, i)) / prevmodelprob[p.model])
-
     end
   end
 
@@ -142,15 +128,12 @@ function smcweightsmodel(particles, oldparticles, ABCsetup, prevmodelprob)
 
   #calculate numerator
   for i in 1:length(particles)
-
     numerator[i] = priorprob(particles[i].params, ABCsetup.Models[particles[i].model].prior)
     particledenominator[i] = denom_particlefunc(particles[i], oldparticles, prevmodelprob)
     modeldenominator[i] = denom_modelfunc(particles[i], prevmodelprob, ABCsetup)
-
   end
 
   weights = numerator ./ (modeldenominator .* particledenominator)
-
   weights = weights ./ sum(weights)
 
   for i in 1:length(particles)

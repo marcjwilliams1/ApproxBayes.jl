@@ -1,6 +1,5 @@
 # some useful function for calculating distances and summary statistics
 
-
 function ksdist{T<:Real, S<:Real}(x::AbstractVector{T}, y::AbstractVector{S})
 
   #adapted from HypothesisTest.jl
@@ -38,13 +37,10 @@ function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   weights = ones(ABCsetup.Models[1].nparticles)./ABCsetup.Models[1].nparticles
   scales = map(x -> collect((maximum(x, 1) -
                   minimum(x, 1) ./2)[:]), ABCrejresults.parameters)
-
   particles = Array{ParticleSMCModel}(ABCsetup.Models[1].nparticles)
 
   for i in 1:length(particles)
-
     particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params, weights[1], scales[ABCrejresults.particles[i].model], ABCrejresults.particles[i].model, ABCrejresults.particles[i].distance, ABCrejresults.particles[i].other)
-
   end
 
   return particles, weights
@@ -55,7 +51,6 @@ function getscales(particles, ABCsetup::ABCSMC)
   parameters = hcat(map(x -> x.params, particles)...)'
   scales = ((maximum(parameters, 1) -
                   minimum(parameters, 1)) ./ABCsetup.scalefactor)[:]
-
   for i in 1:length(particles)
     particles[i].scales = scales
   end
@@ -151,7 +146,6 @@ function show(ABCresults::ABCrejectionmodelresults)
   for j in 1:length(ABCresults.modelfreq)
     @printf("\tModel %d: %.2f\n", j, ABCresults.modelfreq[j])
   end
-
   print("\nParameters:\n\n")
 
   for j in 1:length(ABCresults.parameters)
@@ -188,41 +182,32 @@ function show(ABCresults::ABCSMCmodelresults)
   for j in 1:length(ABCresults.modelprob)
     @printf("\tModel %d: %.3f\n", j, ABCresults.modelprob[j])
   end
-
   print("\nParameters:\n\n")
 
   for j in 1:length(ABCresults.parameters)
     print("Model $j\n")
-
     upperci = zeros(Float64, size(ABCresults.parameters[j], 2))
     lowerci = zeros(Float64, size(ABCresults.parameters[j], 2))
     parametermeans = zeros(Float64, size(ABCresults.parameters[j], 2))
     parametermedians = zeros(Float64, size(ABCresults.parameters[j], 2))
-
     for i in 1:size(ABCresults.parameters[j], 2)
       parametermeans[i] = mean(ABCresults.parameters[j][:, i])
       parametermedians[i] = median(ABCresults.parameters[j][:, i])
       (lowerci[i], upperci[i]) = quantile(ABCresults.parameters[j][:, i], [0.025,0.975])
     end
-
     print("\tMedian (95% intervals):\n")
     for i in 1:length(parametermeans)
         @printf("\tParameter %d: %.2f (%.2f,%.2f)\n", i, parametermedians[i], lowerci[i], upperci[i])
     end
-
   end
-
 end
-
 
 function getparticleweights(particles, ABCsetup)
 
   w = zeros(Float64, ABCsetup.nmodels, ABCsetup.nparticles)
-
   for i in 1:ABCsetup.nparticles
     w[particles[i].model, i] = particles[i].weight
   end
-
   weights = w ./ sum(w, 2)
 
   return weights, sum(w, 2)[:]
