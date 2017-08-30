@@ -3,7 +3,6 @@
 function getnormal2(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 1000)
-
   ApproxBayes.ksdist(simdata, targetdata), 1
 
 end

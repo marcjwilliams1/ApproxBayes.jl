@@ -4,33 +4,25 @@ using Distributions
 function getnormal(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 100)
-
   ApproxBayes.ksdist(simdata, targetdata), 1
-
 end
 
 function getbinomial(params, constants, targetdata)
 
   simdata = rand(Binomial(round(params[1]), params[2]), 100)
-
   ApproxBayes.ksdist(simdata, targetdata), 1
-
 end
 
 function getpoisson(params, constants, targetdata)
 
   simdata = rand(Poisson(params...), 100)
-
   ApproxBayes.ksdist(simdata, targetdata), 1
-
 end
 
 function getuniformdist(params, constants, targetdata)
 
   simdata = rand(Uniform(params...), 100)
-
   ApproxBayes.ksdist(simdata, targetdata), 1
-
 end
 
 #generate sime synthetic data
