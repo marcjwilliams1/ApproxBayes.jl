@@ -107,7 +107,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round.(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
       j = wsample(1:ABCsetup.nparticles, weights)
@@ -161,7 +161,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       if verbose == true
-        println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+        println("New ϵ is within $(round.(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
       end
       break
     end
@@ -218,7 +218,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round.(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
       #draw model from previous model probabilities
@@ -282,7 +282,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     push!(numsims, its)
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+      println("New ϵ is within $(round.(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
       break
     end
     if progress == false
@@ -352,7 +352,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     its = 1
 
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round.(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
 
@@ -419,7 +419,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     push!(ϵvec, ϵ)
     push!(numsims, its)
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+      println("New ϵ is within $(round.(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
       break
     end
     if progress == false
@@ -469,7 +469,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = 
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round.(ϵ, 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
 
@@ -530,7 +530,7 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = 
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       if verbose == true
-        println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+        println("New ϵ is within $(round.(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
     end
       break
     end
