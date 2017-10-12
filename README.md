@@ -20,7 +20,7 @@ using ApproxBayes
 using Distributions
 ```
 
-Now we'll set up the simulation function, we'll use the Kolmogorov Distance as our distance measure. The simulation needs to return 2 values the first being the distance, the second value is useful if additional information from the simulation needs to be stored, here this is not the case so we'll simply return 1.
+Now we'll set up the simulation function, we'll use the Kolmogorov Distance as our distance measure. The simulation needs to return 2 values the first being the distance, the second value is useful if additional information from the simulation needs to be stored, here this is not the case so we'll simply return 1, for example sometimes we might want to keep the raw data generated from each simulation.
 ```
 function normaldist(params, constants, targetdata)
 
@@ -39,11 +39,11 @@ targetdata = rand(Normal(p1, p2), 1000)
 
 Now we can setup an ABCrejection type and run the inference.
 ```
-setup = ABCRejection(normaldist,
-  2,
-  0.1,
-  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]);
-  maxiterations = 10^6,
+setup = ABCRejection(normaldist, #simulation function
+  2, # number of parameters
+  0.1, #target ϵ
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]); # Prior for each of the parameters
+  maxiterations = 10^6, #Maximum number of iterations before the algorithm terminates
   )
 
 # run ABC inference
@@ -55,10 +55,10 @@ show(rejection)
 
 We can do the same with ABC SMC algorithm.
 ```
-setup = ABCSMC(normaldist,
-  2,
-  0.1,
-  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]),
+setup = ABCSMC(normaldist, #simulation function
+  2, # number of parameters
+  0.1, #target ϵ
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), #Prior for each of the parameters
   )
 
 smc = runabc(setup, targetdata, verbose = true, progress = true);
@@ -66,7 +66,7 @@ smc = runabc(setup, targetdata, verbose = true, progress = true);
 show(smc)
 ```
 
-If verbose and progress are set to true then a progress meter will be displayed and at the end of each population a summary will be printed.
+There are more optional arguments for each of the algorithms, to see these simply use ```?ABCSMC``` in a Julia session. If verbose and progress are set to true then a progress meter will be displayed and at the end of each population a summary will be printed. 
 
 ## Acknowledgments
 Some of the code was inspired by [ABC-SysBio](http://www.theosysbio.bio.ic.ac.uk/resources/abc-sysbio/).
