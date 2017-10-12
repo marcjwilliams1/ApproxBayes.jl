@@ -1,6 +1,11 @@
 @compat abstract type ABCtype end
 @compat abstract type Particle end
 
+"""
+    Prior(Array)
+
+    Creat Prior type for ABC algorithm specifying priors for each parameters. This is an array of Distribution types from Distribution.jl, each elements corresponding to a parameter.
+"""
 type Prior
 
   distribution::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}
@@ -45,6 +50,18 @@ type ParticleSMCModel <: Particle
 
 end
 
+
+"""
+    ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior; <keyword arguments>)
+
+Create an ABCRejection type which will simulate data with sim_func. nparams is the number of parameters inputted into sim_func, ϵ is the target tolerance and prior sets the priors for the parameters. sim_func needs to take in 3 values, the parameters (in an array), constants (array) and target data in that order and needs to return 2 values, the first being the distance between the target data and simulated data and the second can be anything but is useful if for example you want to record some additional information about the simulations.
+...
+## Arguments
+- `maxiterations = 10^5`: Maximum number of samples before the ABC algorithm terminates.
+- `constants = []`: Any constants needed to simulate from sim_func
+- `nparticles = 100`: Number of particles (ie samples) of ABC algorithm
+...
+"""
 type ABCRejection <: ABCtype
 
   simfunc::Function
@@ -64,6 +81,21 @@ type ABCRejection <: ABCtype
 
 end
 
+"""
+    ABCRejection(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior; <keyword arguments>)
+
+Create an ABCSMC type which will simulate data with sim_func. nparams is the number of parameters inputted into sim_func, ϵT is the target tolerance and prior sets the priors for the parameters. sim_func needs to take in 3 values, the parameters (in an array), constants (array) and target data in that order and needs to return 2 values, the first being the distance between the target data and simulated data and the second can be anything but is useful if for example you want to record some additional information about the simulations.
+...
+## Arguments
+- `maxiterations = 10^5`: Maximum number of samples before the ABC algorithm terminates.
+- `constants = []`: Any constants needed to simulate from sim_func
+- `nparticles = 100`: Number of particles (ie samples) of ABC algorithm
+- `α = 0.3`: The αth quantile of population i is chosen as the ϵ for population i + 1
+- `ϵ1 = 10^5`: Starting ϵ for first ABC SMC populations
+- `convergence = 0.05`: ABC SMC stops when ϵ in population i + 1 is within 0.05 of populations i
+- `scalefactor = 2`: : Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
+...
+"""
 type ABCSMC <: ABCtype
 
   simfunc::Function
@@ -91,6 +123,17 @@ type ABCSMC <: ABCtype
 
 end
 
+"""
+    ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1}; <keyword arguments>)
+
+Create an ABCRejectionModel type which will create a type to run ABC with model selection. Each model is specified with a function, first input is an array of functions. nparams and priors are arrays for the number of parameters and priors for each model. each sim_func needs to take in 3 values, the parameters (in an array), constants (array) and target data in that order and needs to return 2 values, the first being the distance between the target data and simulated data and the second can be anything but is useful if for example you want to record some additional information about the simulations.
+...
+## Arguments
+- `maxiterations = 10^5`: Maximum number of samples before the ABC algorithm terminates.
+- `constants = [[]]`: Any constants needed to simulate from sim_func, needs to be an array of arrays, each one corresponding to a model function.
+- `nparticles = 100`: Number of particles (ie samples) of ABC algorithm
+...
+"""
 type ABCRejectionModel <: ABCtype
 
   Models::Array{ABCRejection, 1}
@@ -105,6 +148,24 @@ type ABCRejectionModel <: ABCtype
 
 end
 
+
+
+"""
+    ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1}; <keyword arguments>)
+
+Create an ABCSMCModel type which will create a type to run the ABC SMC with model selection algorithm. Each model is specified with a function, first input is an array of functions. nparams and priors are arrays for the number of parameters and priors for each model, ϵT is the target tolerance. Each sim_func needs to take in 3 values, the parameters (in an array), constants (array) and target data in that order and needs to return 2 values, the first being the distance between the target data and simulated data and the second can be anything but is useful if for example you want to record some additional information about the simulations.
+...
+## Arguments
+- `maxiterations = 10^5`: Maximum number of samples before the ABC algorithm terminates.
+- `constants = []`: Any constants needed to simulate from sim_func
+- `nparticles = 100`: Number of particles (ie samples) of ABC algorithm
+- `α = 0.3`: The αth quantile of population i is chosen as the ϵ for population i + 1
+- `ϵ1 = 10^5`: Starting ϵ for first ABC SMC populations
+- `convergence = 0.05`: ABC SMC stops when ϵ in population i + 1 is within 0.05 of populations i
+- `scalefactor = 2`: Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
+- `modelkern = 0.7`: Probability model stays the same in model perturbation kernel, ie 70% of the time the model perturbation kernel will leave the model the same.
+...
+"""
 type ABCSMCModel <: ABCtype
 
   Models::Array{ABCSMC, 1}
