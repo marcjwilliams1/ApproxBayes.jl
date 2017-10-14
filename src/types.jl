@@ -223,6 +223,7 @@ end
 type ABCSMCresults
 
   parameters::Array{Float64,2}
+  weights::Array{Float64, 1}
   accratio::Float64
   numsims::Array{Int64,1}
   ϵ::Array{Float64,1}
@@ -230,8 +231,9 @@ type ABCSMCresults
 
    function ABCSMCresults(particles, numsims, ABCsetup, epsvec)
       parameters = hcat(map(x -> x.params, particles)...)'
+      weights = map(x -> x.weight, particles)
       accratio = ABCsetup.nparticles/sum(numsims)
-      new(parameters, accratio, numsims, epsvec, particles)
+      new(parameters, weights, accratio, numsims, epsvec, particles)
    end
 end
 
@@ -239,6 +241,7 @@ end
 type ABCSMCmodelresults
 
    parameters
+   weights
    accratio::Float64
    numsims::Array{Int64, 1}
    ϵ::Array{Float64,1}
@@ -249,6 +252,7 @@ type ABCSMCmodelresults
    function ABCSMCmodelresults(particles, its, ABCsetup, dist)
 
      parameters = []
+     weights = []
      modelfreq = []
      modelweights = map(x -> x.weight, particles)
      models = map(x -> x.model, particles)
@@ -257,11 +261,12 @@ type ABCSMCmodelresults
         push!(modelfreq, sum(map(x -> x.model, particles) .== i))
         push!(modelprob, sum(modelweights[models .== i]))
         parameters = push!(parameters, hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
+        weights = push!(weights, map(x -> x.weight, particles[map(x -> x.model, particles) .== i]))
      end
      accratio = ABCsetup.nparticles ./ sum(its)
      modelfreq = modelfreq ./ sum(modelfreq)
 
-     new(parameters, accratio, its, dist, particles, modelfreq, modelprob)
+     new(parameters, weights, accratio, its, dist, particles, modelfreq, modelprob)
    end
 end
 

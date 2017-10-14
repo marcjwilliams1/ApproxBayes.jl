@@ -4,6 +4,8 @@ using Distributions
 using ProgressMeter
 using Gadfly
 using Compat
+using DataFrames
+using Colors
 
 import Base.show
 
@@ -23,7 +25,9 @@ export
   #functions
   ksdist,
   runabc,
-  plotresults
+  plotresults,
+  plotparameterposterior,
+  plotmodelposterior
 
 ### source files
 include("types.jl")
