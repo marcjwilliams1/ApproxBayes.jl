@@ -1,4 +1,3 @@
-
 function getproposal(p::Prior, nparams)
 
   newparams = zeros(Float64, nparams)
@@ -46,7 +45,6 @@ function perturbmodel(ABCsetup, mstar, modelprob)
     mprob[mstar] = prob
 
     wsample(1:ABCsetup.nmodels, mprob)
-
 end
 
 function getmodelfreq(particles, ABCsetup)

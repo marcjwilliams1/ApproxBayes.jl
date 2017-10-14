@@ -4,50 +4,40 @@
 """
     Prior(Array)
 
-    Creat Prior type for ABC algorithm specifying priors for each parameters. This is an array of Distribution types from Distribution.jl, each elements corresponding to a parameter.
+    Create Prior type for ABC algorithm specifying priors for each parameters. This is an array of Distribution types from Distribution.jl, each elements corresponding to a parameter.
 """
 type Prior
-
   distribution::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}
-
 end
 
 type ParticleRejection <: Particle
-
   params::Array{Float64, 1}
   distance::Float64
   other::Any
-
 end
 
 type ParticleRejectionModel <: Particle
-
   params::Array{Float64, 1}
   model::Int64
   distance::Float64
   other::Any
-
 end
 
 type ParticleSMC <: Particle
-
   params::Array{Float64, 1}
   weight::Float64
   scales::Array{Float64, 1}
   distance::Float64
   other::Any
-
 end
 
 type ParticleSMCModel <: Particle
-
   params::Array{Float64, 1}
   weight::Float64
   scales::Array{Float64, 1}
   model::Int64
   distance::Float64
   other::Any
-
 end
 
 
@@ -148,8 +138,6 @@ type ABCRejectionModel <: ABCtype
 
 end
 
-
-
 """
     ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1}; <keyword arguments>)
 
@@ -201,10 +189,8 @@ type ABCrejectionresults
   particles::Array{ParticleRejection, 1}
 
    function ABCrejectionresults(particles, its, ABCsetup, dist)
-
       parameters = hcat(map(x -> x.params, particles)...)'
       accratio = ABCsetup.nparticles/its
-
       new(parameters, accratio, its, dist, particles)
    end
 end
@@ -219,16 +205,13 @@ type ABCrejectionmodelresults
    modelfreq::Array{Float64, 1}
 
    function ABCrejectionmodelresults(particles, its, ABCsetup, dist)
-
      parameters = []
      modelfreq = []
      for i in 1:ABCsetup.nmodels
-
         push!(modelfreq, sum(map(x -> x.model, particles) .== i))
-
         models = map(x -> x.model, particles)
-        parameters = push!(parameters, hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
-
+        parameters = push!(parameters,
+        hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
      end
      accratio = ABCsetup.Models[1].nparticles/its
      modelfreq = modelfreq ./ sum(modelfreq)
@@ -246,10 +229,8 @@ type ABCSMCresults
   particles::Array{ParticleSMC, 1}
 
    function ABCSMCresults(particles, numsims, ABCsetup, epsvec)
-
       parameters = hcat(map(x -> x.params, particles)...)'
       accratio = ABCsetup.nparticles/sum(numsims)
-
       new(parameters, accratio, numsims, epsvec, particles)
    end
 end
@@ -273,12 +254,9 @@ type ABCSMCmodelresults
      models = map(x -> x.model, particles)
      modelprob = []
      for i in 1:ABCsetup.nmodels
-
         push!(modelfreq, sum(map(x -> x.model, particles) .== i))
         push!(modelprob, sum(modelweights[models .== i]))
-
         parameters = push!(parameters, hcat(map(x -> x.params, particles[map(x -> x.model, particles) .== i])...)')
-
      end
      accratio = ABCsetup.nparticles ./ sum(its)
      modelfreq = modelfreq ./ sum(modelfreq)
@@ -287,11 +265,7 @@ type ABCSMCmodelresults
    end
 end
 
-
-
 type SimData
-
   params::Array{Float64, 1}
   dist::Float64
-
 end

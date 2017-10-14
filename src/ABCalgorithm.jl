@@ -15,10 +15,8 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
   while (i < (ABCsetup.nparticles + 1)) & (its < ABCsetup.maxiterations)
 
     its += 1
-
     #get new proposal parameters
     newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
-
     #simulate with new parameters
     dist, out = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
 
@@ -31,15 +29,12 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
         next!(p)
       end
     end
-
-
   end
 
   i > ABCsetup.nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tDecrease ϵ or increase maxiterations ")
 
   out = ABCrejectionresults(particles, its, ABCsetup, distvec)
   return out
-
 end
 
 
@@ -61,13 +56,10 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
   while (i < (ABCsetup.Models[1].nparticles + 1)) & (its < ABCsetup.Models[1].maxiterations)
 
     its += 1
-
     #sample uniformly from models
     model = rand(1:ABCsetup.nmodels)
-
     #get new proposal parameters
     newparams = getproposal(ABCsetup.Models[model].prior, ABCsetup.Models[model].nparams)
-
     #simulate with new parameters
     dist, out = ABCsetup.Models[model].simfunc(newparams, ABCsetup.Models[model].constants, targetdata)
 
@@ -80,15 +72,12 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
         next!(p)
       end
     end
-
-
   end
 
   i > ABCsetup.Models[1].nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.Models[1].ϵ). \n\tDecrease ϵ or increase maxiterations ")
 
   out = ABCrejectionmodelresults(particles, its, ABCsetup, distvec)
   return out
-
 end
 
 function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
@@ -129,9 +118,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
       j = wsample(1:ABCsetup.nparticles, weights)
       particle = oldparticles[j]
       newparticle = perturbparticle(particle)
-
       priorp = priorprob(newparticle.params, ABCsetup.prior)
-
       if priorp == 0.0 #return to beginning of loop if prior probability is 0
         continue
       end
@@ -150,7 +137,6 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
           next!(p)
         end
       end
-
       its += 1
     end
 
@@ -190,15 +176,11 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
       show(ABCSMCresults(particles, numsims, ABCsetup, ϵvec))
       println("##################################################\n")
     end
-
   end
 
   out = ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
-
   return out
-
 end
-
 
 function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
@@ -233,7 +215,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   end
 
   popnum = 1
-
   finalpop = false
 
   if verbose == true
@@ -254,17 +235,14 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
 
       #draw model from previous model probabilities
       mstar = wsample(1:ABCsetup.nmodels, modelprob)
-
       #perturb model
       mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
-
       # sample particle with correct model
       j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
       particletemp = oldparticles[j]
 
       #perturb particle
       newparticle = perturbparticle(particletemp)
-
       #calculate priorprob
       priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
 
@@ -291,9 +269,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     end
 
     particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
-
     weights, modelprob = getparticleweights(particles, ABCsetup)
-
     particles = getscales(particles, ABCsetup)
     oldparticles = deepcopy(particles)
 
@@ -330,7 +306,6 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   end
 
   out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
-
   return out
 end
 
@@ -402,10 +377,8 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
         # sample particle with correct model
         j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
         particletemp = oldparticles[j]
-
         #perturb particle
         newparticle = perturbparticle(particletemp)
-
         #calculate priorprob
         priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
 
@@ -433,14 +406,11 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
           next!(p)
         end
       end
-
       its += 1
     end
 
     particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
-
     weights, modelprob = getparticleweights(particles, ABCsetup)
-
     particles = getscales(particles, ABCsetup)
     oldparticles = deepcopy(particles)
 
@@ -466,13 +436,10 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
       println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
       break
     end
-
     popnum = popnum + 1
-
     if verbose == true
       show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
     end
-
   end
 
   out = ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec)
@@ -502,7 +469,6 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = 
 
   popnum = 1
   finalpop = false
-
   newparticle, dist, out, priorp = 0.0,0.0,0.0,0.0
 
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
@@ -521,16 +487,12 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = 
         j = wsample(1:ABCsetup.nparticles, weights)
         particle = oldparticles[j]
         newparticle = perturbparticle(particle)
-
         priorp = priorprob(newparticle.params, ABCsetup.prior)
-
         if priorp == 0.0 #return to beginning of loop if prior probability is 0
           break
         end
-
         #simulate with new parameters
         dist, out, cm = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
-
         correctmodel = cm
       end
 
@@ -586,6 +548,5 @@ function runabcCancer(ABCsetup::ABCSMC, targetdata; verbose = false, progress = 
   end
 
   out = ABCSMCresults(particles, numsims, ABCsetup, ϵvec)
-
   return out
 end
