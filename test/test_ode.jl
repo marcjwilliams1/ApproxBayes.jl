@@ -1,5 +1,18 @@
 using DifferentialEquations
 using Distributions
+
+function getsolution(sol, times)
+  #function to get species abundance from ODE solution
+  if VERSION < v"0.6-"
+    x1 = map(x -> x[1], sol(times))
+    y1 = map(x -> x[2], sol(times))
+  else
+    x1 = map(x -> x[1], sol(times).u)
+    y1 = map(x -> x[2], sol(times).u) #Need .u syntax as of 0.6
+  end
+  return x1, y1
+end
+
 srand(1)
 println("Test ABC SMC with ODE model")
 
@@ -18,8 +31,9 @@ sol = solve(prob)
 
 #generate target data
 times = 1.0:1.0:15.0
-x = map(x -> x[1], sol(times).u) .+ rand(Normal(0.0, 0.25^2), length(times))
-y = map(x -> x[2], sol(times).u) .+ rand(Normal(0.0, 0.25^2), length(times))
+x, y = getsolution(sol, times)
+x += rand(Normal(0.0, 0.25^2), length(times))
+y += rand(Normal(0.0, 0.25^2), length(times))
 targetdata = [x, y]
 
 function simLV(params, constants, targetdata)
@@ -31,8 +45,7 @@ function simLV(params, constants, targetdata)
   h = LV(a = a, b = b)
   prob = ODEProblem(h, x0, tspan)
   sol = solve(prob)
-  x1 = map(x -> x[1], sol(times).u)
-  y1 = map(x -> x[2], sol(times).u)
+  x1, y1 = getsolution(sol, times)
   d = sum((x1 .- targetdata[1]).^2 + (y1 .- targetdata[2]).^2)
   return d, sol
 end
