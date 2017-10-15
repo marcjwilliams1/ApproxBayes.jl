@@ -3,6 +3,7 @@ module ApproxBayes
 using Distributions
 using ProgressMeter
 using Gadfly
+using Stats
 using Compat
 using DataFrames
 using Colors

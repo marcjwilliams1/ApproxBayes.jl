@@ -1,20 +1,14 @@
 function getnormal(params, constants, targetdata)
-
   simdata = rand(Normal(params...), 100)
-
   ksdist(simdata, targetdata), 1
-
 end
 
 function getuniformdist(params, constants, targetdata)
-
   params = sort(params)
-
   simdata = rand(Uniform(params...), 100)
-
   ksdist(simdata, targetdata), 1
-
 end
+
 srand(1234)
 targetdata = rand(Normal(3.5, 0.44), 100)
 
@@ -59,12 +53,12 @@ ABCrejresults = runabc(ABCRejectionModel(
           maxiterations = ABCsetup.Models[1].maxiterations),
           targetdata);
 
-oldparticles, weights = ApproxBayes.setupSMCparticles(ABCrejresults, ABCsetup)
-weights, modelprob = ApproxBayes.getparticleweights(oldparticles, ABCsetup)
+oldparticles, weightsA = ApproxBayes.setupSMCparticles(ABCrejresults, ABCsetup)
+weightsA, modelprob = ApproxBayes.getparticleweights(oldparticles, ABCsetup)
 
 #test if modelprob is the same as from ABCrejresults
 @test modelprob[:] ≈ ABCrejresults.modelfreq
 
 for i in 1:ABCsetup.nmodels
-  @test (map(x -> x.model, oldparticles).==i) == (weights[i, :].> 0.0)
+  @test (map(x -> x.model, oldparticles).==i) == (weightsA[i, :].> 0.0)
 end

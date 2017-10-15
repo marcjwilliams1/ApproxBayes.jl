@@ -1,11 +1,12 @@
-using ApproxBayes
 using Distributions
 using Distances
 using Base.Test
+using StatsBase
+using ApproxBayes
 
 #run using Pkg.test("ApproxBayes")
 
-tests = ["sampling", "bayesfactor", "parameter"]
+tests = ["sampling", "parameter", "ode", "bayesfactor"]
 
 println("Running tests ...")
 

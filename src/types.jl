@@ -130,7 +130,7 @@ type ABCRejectionModel <: ABCtype
   nmodels::Int64
 
   ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1};
-    constants = repeat([[1]], inner = length(sim_func)),
+    constants = repeat([[1.0]], outer = length(sim_func)),
     maxiterations = 10000,
     nparticles = 100,
     ) =
@@ -166,8 +166,8 @@ type ABCSMCModel <: ABCtype
   convergence::Float64
   scalefactor::Int64
 
-  ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
-    constants = repeat([[1]], inner = length(sim_func)),
+  function ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
+    constants = repeat([[1.0]], outer = length(sim_func)),
     maxiterations = 10^5,
     nparticles = 100,
     α = 0.3,
@@ -175,8 +175,11 @@ type ABCSMCModel <: ABCtype
     modelkern = 0.7,
     convergence = 0.05,
     scalefactor = 2,
-    ) =
-  new([ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)], length(sim_func), modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor)
+    )
+    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)]
+    nmodels = length(sim_func)
+    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor)
+  end
 
 end
 
