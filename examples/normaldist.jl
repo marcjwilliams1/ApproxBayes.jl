@@ -33,7 +33,7 @@ targetdata = rand(Normal(2, 0.4), 100)
 setup = ABCRejection(getnormal,
   2,
   0.1,
-  Prior([Uniform, Uniform], [[0, 20], [0, 2.0]]);
+  Prior([Uniform(0, 20.0), Uniform(0, 2.0)]);
   maxiterations = 10^6,
   )
 # run ABC inference
@@ -45,9 +45,9 @@ show(resrejection)
 setup = ABCSMC(getnormal,
   2,
   0.1,
-  Prior([Uniform, Uniform], [[0, 20], [0, 2.0]]),
+  Prior([Uniform(0, 20.0), Uniform(0, 2.0)])
   )
-@time ressmc = runabc(setup, targetdata, verbose = true);
+@time ressmc = runabc(setup, targetdata, verbose = false, progress = false);
 show(ressmc)
 
 
