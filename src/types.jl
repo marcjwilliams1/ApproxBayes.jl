@@ -6,8 +6,15 @@
 
     Create Prior type for ABC algorithm specifying priors for each parameters. This is an array of Distribution types from Distribution.jl, each elements corresponding to a parameter.
 """
+
+type Prior2
+  distribution
+  Prior2(distributionarray::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}) = new(tuple(distributionarray...))
+end
+
 type Prior
-  distribution::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}
+  distribution
+  Prior(distributionarray) = new(tuple(distributionarray...))
 end
 
 type ParticleRejection <: Particle

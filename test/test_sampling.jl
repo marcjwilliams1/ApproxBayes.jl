@@ -62,3 +62,41 @@ weightsA, modelprob = ApproxBayes.getparticleweights(oldparticles, ABCsetup)
 for i in 1:ABCsetup.nmodels
   @test (map(x -> x.model, oldparticles).==i) == (weightsA[i, :].> 0.0)
 end
+
+
+
+#test get proposal function
+ABCsetup = ABCSMC(getnormal, 2, 0.1, Prior((Uniform(0.0, 20.0), Exponential(1.0))); nparticles = 100, maxiterations = 10^5)
+Niterations = 10^6
+p1 = zeros(Float64, Niterations)
+p2 = zeros(Float64, Niterations)
+@time for i in 1:Niterations
+  p1[i], p2[i] = ApproxBayes.getproposal(ABCsetup.prior, 2)
+end
+@test isapprox(mean(p1), 10.0, rtol = 0.001)
+@test isapprox(mean(p2), 1.0, rtol = 0.001)
+
+#test get proposal function with models with different Priors
+ABCsetup = ABCSMCModel([getnormal, getuniformdist], [2, 2], 1.0,
+[Prior([Exponential(1), Uniform(0.0, 1.0)]), Prior([Uniform(0.0, 3.0), Normal(2.0, 0.1)])]; nparticles = 100, maxiterations = 10^5)
+Niterations = 10^6
+p1 = Float64[]
+p2 = Float64[]
+p3 = Float64[]
+p4 = Float64[]
+@time for i in 1:Niterations
+  m = rand(1:2)
+  if m == 1
+    x = ApproxBayes.getproposal(ABCsetup.Models[m].prior, 2)
+    push!(p1, x[1])
+    push!(p2, x[2])
+  else
+    x = ApproxBayes.getproposal(ABCsetup.Models[m].prior, 2)
+    push!(p3, x[1])
+    push!(p4, x[2])
+  end
+end
+@test isapprox(mean(p1), 1.0, rtol = 0.01)
+@test isapprox(mean(p2), 0.5, rtol = 0.01)
+@test isapprox(mean(p3), 1.5, rtol = 0.01)
+@test isapprox(mean(p4), 2.0, rtol = 0.01)

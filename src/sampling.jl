@@ -1,12 +1,19 @@
 function getproposal(p::Prior, nparams)
 
   newparams = zeros(Float64, nparams)
-
-  for i in 1:nparams
-    newparams[i] = rand(p.distribution[i])
-  end
+  update_newparams!(newparams, p)
 
   return newparams
+end
+
+update_newparams!(newparams,p::Prior) = update_newparams!(newparams, 1, p.distribution...)
+
+@inline function update_newparams!(newparams, i, x, y...)
+  newparams[i] = rand(x)
+  update_newparams!(newparams, i + 1, y...)
+end
+@inline function update_newparams!(newparams,i,x)
+  newparams[i] = rand(x)
 end
 
 particleperturbationkernel(x0, scale) = rand(Uniform(x0 - scale, x0 + scale))
@@ -58,8 +65,6 @@ function getmodelfreq(particles, ABCsetup)
   return freq
 end
 
-
-
 function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
 
   prob = ABCsetup.modelkern
@@ -73,7 +78,6 @@ function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
   end
 
 end
-
 
 function smcweights(particles, oldparticles, prior)
 
