@@ -76,7 +76,7 @@ println("\t Checking ABC SMC model selection with algorithm that returns true or
 function getnormal2(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 1000)
-  ApproxBayes.ksdist(simdata, targetdata), 1
+  ApproxBayes.ksdist(simdata, targetdata), 1, rand([true, false])
 end
 
 println("Test parameters of normal distribution are inferred correctly (mean within 5% of true value)")

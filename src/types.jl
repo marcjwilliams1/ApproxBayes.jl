@@ -1,10 +1,10 @@
 @compat abstract type ABCtype end
 @compat abstract type Particle end
 
-type Prior2
-  distribution
-  Prior2(distributionarray::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}) = new(tuple(distributionarray...))
-end
+#type Prior2
+#  distribution
+#  Prior2(distributionarray::Array{Distributions.Distribution{Distributions.Univariate,Distributions.Continuous},1}) = new(tuple(distributionarray...))
+#end
 
 """
     Prior(distributions)
