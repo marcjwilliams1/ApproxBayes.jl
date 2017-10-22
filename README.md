@@ -1,9 +1,9 @@
 # Approximate Bayesian Computation
 
 [![Build Status](https://travis-ci.org/marcjwilliams1/ApproxBayes.jl.svg?branch=master)](https://travis-ci.org/marcjwilliams1/ApproxBayes.jl)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/marcjwilliams1/ApproxBayes.jl?branch=master&svg=true)](https://ci.appveyor.com/project/marcjwilliams1/approxbayes-jl/branch/master)
 [![Coverage Status](https://coveralls.io/repos/marcjwilliams1/ApproxBayes.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/marcjwilliams1/ApproxBayes.jl?branch=master)
 [![codecov.io](http://codecov.io/github/marcjwilliams1/ApproxBayes.jl/coverage.svg?branch=master)](http://codecov.io/github/marcjwilliams1/ApproxBayes.jl?branch=master)
-[![Build Status](https://ci.appveyor.com/api/projects/status/github/JuliaLang/Example.jl?branch=master&svg=true)](https://ci.appveyor.com/project/tkelman/example-jl/branch/master)
 
 Package to implement Approximate Bayesian computation algorithms in the [Julia](https://julialang.org/) programming language. Package implements basic ABC rejection sampler and sequential monte carlo algorithm (ABC SMC) as in Toni. et al 2009 as well as model selection versions of both (Toni. et al 2010).
 
