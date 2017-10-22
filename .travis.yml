@@ -10,7 +10,7 @@ notifications:
   email: false
 #script: # the default script is equivalent to the following
     - julia -e 'Pkg.clone(pwd())'
-    - julia -e 'Pkg.test("PkgName",coverage=true)'
+    - julia -e 'Pkg.test("ApproxBayes",coverage=true)'
 after_success:
-    - julia -e 'cd(Pkg.dir("PkgName")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
-    - julia -e 'cd(Pkg.dir("PkgName")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+    - julia -e 'cd(Pkg.dir("ApproxBayes")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+    - julia -e 'cd(Pkg.dir("AppoxBayes")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
