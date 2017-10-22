@@ -1,4 +1,9 @@
 
+"""
+    runabc(ABCsetup::ABCtype, targetdata; progress = false)
+
+Run ABC with ABCsetup defining the algotrithm and inputs to algorithm, targetdata is the data we wish to fit the model to and will be used as an input for the simulation function defined in ABCsetup. If progress is set to `true` a progress meter will be shown.
+"""
 function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 
   #initalize array of particles
@@ -182,6 +187,11 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   return out
 end
 
+"""
+    runabc(ABCsetup::ABCtype, targetdata; progress = false, verbose  = false)
+
+When the SMC algorithms are used, a print out at the end of each population will be made if verbose = true.
+"""
 function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
