@@ -7,8 +7,8 @@ function probabilityM1(s₁::BigInt, t₁::BigFloat, n::BigInt)
 end
 
 s1calc(x) = sum(x)
-t1calc(x::Array{BigInt, 1}) = Float64(sum(log(map(a -> factorial(a), x))))
-t1calc(x::Array{Int64, 1}) = sum(log(map(a -> factorial(a), x)))
+t1calc(x::Array{BigInt, 1}) = Float64(sum(log.(map(a -> factorial(a), x))))
+t1calc(x::Array{Int64, 1}) = sum(log.(map(a -> factorial(a), x)))
 
 function poissonsimulator(params, cst, targetdata)
 

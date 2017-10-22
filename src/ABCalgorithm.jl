@@ -8,6 +8,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 
   #initalize array of particles
   particles = Array{ParticleRejection}(ABCsetup.nparticles)
+  particlesall = Array{ParticleRejection}(ABCsetup.maxiterations)
 
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
@@ -24,6 +25,8 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
     newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
     #simulate with new parameters
     dist, out = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
+    #keep track of all particles incase we don't reach nparticles with dist < ϵ
+    particlesall[its] = ParticleRejection(newparams, dist, out)
 
     #if simulated data is less than target tolerance accept particle
     if dist < ABCsetup.ϵ
@@ -36,7 +39,12 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
     end
   end
 
-  i > ABCsetup.nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tDecrease ϵ or increase maxiterations ")
+  if i < ABCsetup.nparticles
+    warn("Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tDecrease ϵ or increase maxiterations if you require this. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance")
+    d = map(p -> p.distance, particlesall)
+    particles = particlesall[sortperm(d)[1:ABCsetup.nparticles]]
+    distvec = map(p -> p.distance, particles)
+  end
 
   out = ABCrejectionresults(particles, its, ABCsetup, distvec)
   return out

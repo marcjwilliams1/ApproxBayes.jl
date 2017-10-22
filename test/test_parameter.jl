@@ -52,3 +52,16 @@ setup = ABCSMC(getnormal2,
   )
 ressmc = runabc(setup, targetdata, verbose = false);
 @test ressmc.accratio/resrejection.accratio > 1.0
+
+
+#Check fallback to taking 100 particles with shortest distance works
+setup = ABCRejection(getnormal2,
+  2,
+  0.1,
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]);
+  maxiterations = 10^3,
+  )
+# run ABC inference
+resrejection = runabc(setup, targetdata);
+
+@test resrejection.numsims == setup.maxiterations
