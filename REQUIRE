@@ -3,3 +3,6 @@ Distributions
 Gadfly
 ProgressMeter
 Compat
+StatsBase
+DataFrames
+Colors
