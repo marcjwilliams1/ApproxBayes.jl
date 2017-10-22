@@ -6,7 +6,8 @@ using ApproxBayes
 
 #run using Pkg.test("ApproxBayes")
 
-tests = ["sampling", "parameter", "ode", "bayesfactor"]
+#tests = ["sampling", "parameter", "ode", "bayesfactor"]
+test = ["sampling", "parameter", "bayesfactor"]
 
 println("Running tests ...")
 
