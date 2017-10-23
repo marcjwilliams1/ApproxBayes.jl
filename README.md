@@ -13,7 +13,7 @@ Package to implement Approximate Bayesian computation algorithms in the [Julia](
 Package has been tested extensively with [Julia](https://julialang.org/) v0.5.1 but should work with later versions. If there any problems please report an issue.
 
 To download the package, once you're in a Julia session type the following command:
-```
+```julia
 Pkg.clone("https://github.com/marcjwilliams1/ApproxBayes.jl")
 ```
 
@@ -22,13 +22,13 @@ Below is a simple example using the package to infer the mean of a normal distri
 
 First we'll load ```ApproxBayes``` and ```Distributions``` packages.
 
-```
+```julia
 using ApproxBayes
 using Distributions
 ```
 
 Now we'll set up the simulation function, we'll use the Kolmogorov Distance as our distance measure. The simulation needs to return 2 values the first being the distance, the second value is useful if additional information from the simulation needs to be stored, here this is not the case so we'll simply return 1, for example sometimes we might want to keep the raw data generated from each simulation.
-```
+```julia
 function normaldist(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 1000)
@@ -37,7 +37,7 @@ end
 ```
 
 Now we can generate some target data, we'll take 100 samples from a normal distirbution with mean = 2.0 and variance = 0.4.
-```
+```julia
 srand(1)
 p1 = 2.0
 p2 = 0.4
@@ -45,7 +45,7 @@ targetdata = rand(Normal(p1, p2), 1000)
 ```
 
 Now we can setup an ABCrejection type and run the inference.
-```
+```julia
 setup = ABCRejection(normaldist, #simulation function
   2, # number of parameters
   0.1, #target ϵ
@@ -61,7 +61,7 @@ show(rejection)
 ```
 
 We can do the same with ABC SMC algorithm.
-```
+```julia
 setup = ABCSMC(normaldist, #simulation function
   2, # number of parameters
   0.1, #target ϵ
