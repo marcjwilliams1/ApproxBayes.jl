@@ -92,6 +92,7 @@ function smcweights(particles, oldparticles, prior)
     weights[i] = numerator / (oldparticles[i].weight * denom)
   end
 
+  weights = weights ./ sum(weights)
   for i in 1:length(particles)
     particles[i].weight = weights[i]
   end
