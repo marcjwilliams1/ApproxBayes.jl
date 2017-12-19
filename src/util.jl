@@ -229,3 +229,44 @@ function priorprob(parameters::Array{Float64, 1}, prior::Prior)
 
   return pprob
 end
+
+function writeoutput(results::ABCSMCresults; dir = "", file = "output.txt")
+  distance = map(x -> x.distance, results.particles)
+  wts = map(x -> x.weight, results.particles)
+  nparams =  size(results.parameters)[2]
+
+  head = map(x -> "parameter$x\t", 1:nparams)
+  append!(head, ["distance\t", "weights\n"])
+
+  out = hcat(results.parameters, distance, wts)
+
+  f = open(joinpath(dir, file), "w")
+  write(f, "## ABC SMC algorithm\n")
+  write(f, "## Number of simulations: $(sum(results.numsims))\n")
+  write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+  write(f, "## Tolerance schedule : $(results.ϵ)\n")
+  write(f, head...)
+  writedlm(f, out)
+  close(f)
+
+end
+
+
+function writeoutput(results::ABCrejectionresults; dir = "", file = "output.txt")
+  distance = map(x -> x.distance, results.particles)
+  nparams =  size(results.parameters)[2]
+
+  head = map(x -> "parameter$x\t", 1:nparams)
+  append!(head, ["distance\n"])
+
+  out = hcat(results.parameters, distance)
+
+  f = open(joinpath(dir, file), "w")
+  write(f, "## ABC Rejection algorithm\n")
+  write(f, "## Number of simulations: $(results.numsims)\n")
+  write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+  write(f, head...)
+  writedlm(f, out)
+  close(f)
+
+end
