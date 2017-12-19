@@ -28,7 +28,8 @@ export
   runabc,
   plotresults,
   plotparameterposterior,
-  plotmodelposterior
+  plotmodelposterior,
+  writeoutput
 
 ### source files
 include("types.jl")
