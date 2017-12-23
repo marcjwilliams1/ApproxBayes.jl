@@ -102,7 +102,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   end
   ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
                   ABCsetup.ϵ1, ABCsetup.prior; nparticles = ABCsetup.nparticles,
-                  maxiterations = ABCsetup.maxiterations, constants = ABCsetup.constants), targetdata);
+                  maxiterations = ABCsetup.maxiterations, constants = ABCsetup.constants), targetdata, progress = progress, verbose = verbose);
 
   oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
