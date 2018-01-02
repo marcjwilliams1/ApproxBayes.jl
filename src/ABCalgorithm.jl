@@ -391,6 +391,10 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
       #perturb model
       mdoublestar = perturbmodel(ABCsetup, mstar, modelprob)
       correctmodel = false
+      #sometimes even though the input is for multiple clones,
+      #simulations will be returned that don't have the requested number of clones,
+      #this can happen if for example the simulation finishes before t1 is reached.
+      #To overcome this we continually resample until we get simulations with the correct number of clones
       while correctmodel == false
         # sample particle with correct model
         j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
@@ -457,6 +461,15 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     popnum = popnum + 1
     if verbose == true
       show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+    end
+
+    #sometimes models die out early in the inference, restart the process if this happens
+    numdeadmodels = sum(modelprob.==0.0)
+    deadmodels = collect(0:(ABCsetup.nmodels-1))[modelprob.==0.0]
+    if (popnum < 4) & (numdeadmodels > 0)
+      warn("One of the models died out, restarting inference...")
+      out = runabcCancer(ABCsetup, targetdata; verbose = verbose, progress = progress)
+      return out
     end
   end
 
