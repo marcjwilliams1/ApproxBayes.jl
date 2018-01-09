@@ -18,9 +18,29 @@ end
 
 particleperturbationkernel(x0, scale) = rand(Uniform(x0 - scale, x0 + scale))
 
+function copyparticle(particle::ParticleSMC)
+  return ParticleSMC(copy(particle.params),
+copy(particle.weight), copy(particle.scales), copy(particle.distance), [1])
+end
+
+function copyparticle(particle::ParticleSMCModel)
+  return ParticleSMCModel(copy(particle.params),
+copy(particle.weight), copy(particle.scales), copy(particle.model), copy(particle.distance), [1])
+end
+
+function copyparticle(particle::ParticleRejection)
+  return ParticleRejection(copy(particle.params), copy(particle.distance),
+  [1])
+end
+
+function copyparticle(particle::ParticleRejectionModel)
+  return ParticleRejectionModel(copy(particle.params), copy(particle.model),
+  copy(particle.distance), [1])
+end
+
 function perturbparticle(particle)
 
-  newparticle = deepcopy(particle) #make copy of particle
+  newparticle = copyparticle(particle)
   newparams = zeros(Float64, length(newparticle.params))
 
   for i in 1:length(newparams)

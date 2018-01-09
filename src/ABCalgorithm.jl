@@ -155,7 +155,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
     particles = getscales(particles, ABCsetup)
-    oldparticles = deepcopy(particles)
+    oldparticles = particles
 
     if finalpop == true
       break
