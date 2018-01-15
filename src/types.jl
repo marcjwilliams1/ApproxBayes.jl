@@ -171,6 +171,7 @@ type ABCSMCModel <: ABCtype
   maxiterations::Int64
   convergence::Float64
   scalefactor::Int64
+  other::Any
 
   function ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
     constants = repeat([[1.0]], outer = length(sim_func)),
@@ -181,10 +182,11 @@ type ABCSMCModel <: ABCtype
     modelkern = 0.7,
     convergence = 0.05,
     scalefactor = 2,
+    other = []
     )
     smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)]
     nmodels = length(sim_func)
-    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor)
+    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor, other)
   end
 
 end
@@ -196,11 +198,12 @@ type ABCrejectionresults
   numsims::Int64
   dist::Array{Float64,1}
   particles::Array{ParticleRejection, 1}
+  setup::ABCRejection
 
    function ABCrejectionresults(particles, its, ABCsetup, dist)
       parameters = hcat(map(x -> x.params, particles)...)'
       accratio = ABCsetup.nparticles/its
-      new(parameters, accratio, its, dist, particles)
+      new(parameters, accratio, its, dist, particles, ABCsetup)
    end
 end
 
@@ -212,6 +215,7 @@ type ABCrejectionmodelresults
    dist::Array{Float64,1}
    particles::Array{ParticleRejectionModel, 1}
    modelfreq::Array{Float64, 1}
+   setup::ABCRejectionModel
 
    function ABCrejectionmodelresults(particles, its, ABCsetup, dist)
      parameters = []
@@ -225,7 +229,7 @@ type ABCrejectionmodelresults
      accratio = ABCsetup.Models[1].nparticles/its
      modelfreq = modelfreq ./ sum(modelfreq)
 
-     new(parameters, accratio, its, dist, particles, modelfreq)
+     new(parameters, accratio, its, dist, particles, modelfreq, ABCsetup)
    end
 end
 
@@ -237,12 +241,13 @@ type ABCSMCresults
   numsims::Array{Int64,1}
   ϵ::Array{Float64,1}
   particles::Array{ParticleSMC, 1}
+  setup::ABCSMC
 
    function ABCSMCresults(particles, numsims, ABCsetup, epsvec)
       parameters = hcat(map(x -> x.params, particles)...)'
       weights = map(x -> x.weight, particles)
       accratio = ABCsetup.nparticles/sum(numsims)
-      new(parameters, weights, accratio, numsims, epsvec, particles)
+      new(parameters, weights, accratio, numsims, epsvec, particles, ABCsetup)
    end
 end
 
@@ -257,6 +262,7 @@ type ABCSMCmodelresults
    particles::Array{ParticleSMCModel, 1}
    modelfreq::Array{Float64, 1}
    modelprob::Array{Float64, 1}
+   setup::ABCSMCModel
 
    function ABCSMCmodelresults(particles, its, ABCsetup, dist)
 
@@ -275,7 +281,7 @@ type ABCSMCmodelresults
      accratio = ABCsetup.nparticles ./ sum(its)
      modelfreq = modelfreq ./ sum(modelfreq)
 
-     new(parameters, weights, accratio, its, dist, particles, modelfreq, modelprob)
+     new(parameters, weights, accratio, its, dist, particles, modelfreq, modelprob, ABCsetup)
    end
 end
 
