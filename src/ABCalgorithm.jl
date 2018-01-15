@@ -327,6 +327,56 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   return out
 end
 
+
+
+function runabcCancer(ABCsetup::ABCRejectionModel, targetdata; progress = false)
+
+  ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
+
+  #initalize array of particles
+  particles = Array{ParticleRejectionModel}(ABCsetup.Models[1].nparticles)
+
+  i = 1 #set particle indicator to 1
+  its = 0 #keep track of number of iterations
+  distvec = zeros(Float64, ABCsetup.Models[1].nparticles) #store distances in an array
+
+  if progress == true
+    p = Progress(ABCsetup.Models[1].nparticles, 1, "Running ABC rejection algorithm...", 30)
+  end
+
+  dist, out, newparams = 0.0,0.0,0.0
+
+  while (i < (ABCsetup.Models[1].nparticles + 1)) & (its < ABCsetup.Models[1].maxiterations)
+
+    its += 1
+    #sample uniformly from models
+    model = rand(1:ABCsetup.nmodels)
+    correctmodel = false
+    while correctmodel == false
+      #get new proposal parameters
+      newparams = getproposal(ABCsetup.Models[model].prior, ABCsetup.Models[model].nparams)
+      #simulate with new parameters
+      dist, out, cm = ABCsetup.Models[model].simfunc(newparams, ABCsetup.Models[model].constants, targetdata)
+      correctmodel = cm
+    end
+
+    #if simulated data is less than target tolerance accept particle
+    if dist < ABCsetup.Models[1].ϵ
+      particles[i] = ParticleRejectionModel(newparams, model, dist, out)
+      distvec[i] = dist
+      i +=1
+      if progress == true
+        next!(p)
+      end
+    end
+  end
+
+  i > ABCsetup.Models[1].nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.Models[1].ϵ). \n\tDecrease ϵ or increase maxiterations ")
+
+  out = ABCrejectionmodelresults(particles, its, ABCsetup, distvec)
+  return out
+end
+
 function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
@@ -336,7 +386,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     println("##################################################")
     println("Use ABC rejection to get first population")
   end
-  ABCrejresults = runabc(ABCRejectionModel(
+  ABCrejresults = runabcCancer(ABCRejectionModel(
             map(x -> x.simfunc, ABCsetup.Models),
             map(x -> x.nparams, ABCsetup.Models),
             ABCsetup.Models[1].ϵ1,
