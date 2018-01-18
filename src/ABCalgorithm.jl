@@ -516,7 +516,7 @@ function runabcCancer(ABCsetup::ABCSMCModel, targetdata; verbose = false, progre
     #sometimes models die out early in the inference, restart the process if this happens
     numdeadmodels = sum(modelprob.==0.0)
     deadmodels = collect(0:(ABCsetup.nmodels-1))[modelprob.==0.0]
-    if (popnum < 4) & (numdeadmodels > 0)
+    if (popnum <= 4) & (numdeadmodels > 0)
       warn("One of the models died out, restarting inference...")
       out = runabcCancer(ABCsetup, targetdata; verbose = verbose, progress = progress)
       return out
