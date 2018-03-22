@@ -1,12 +1,12 @@
 function plotresults(parametervec, xlabel; truevalue = [])
 
   if length(truevalue) > 0
-    p = plot(x = parametervec, Geom.density,
+    p = Gadfly.plot(x = parametervec, Geom.density,
      xintercept = truevalue,
      Geom.vline(color = "red", size=1mm),
      Guide.xlabel(xlabel))
    else
-     p = plot(x = parametervec, Geom.density,
+     p = Gadfly.plot(x = parametervec, Geom.density,
       Guide.xlabel(xlabel))
    end
 
@@ -15,7 +15,7 @@ end
 
 
 function plotmodelposterior(res::ABCSMCmodelresults)
-    p = plot(res.ModelProb, x=:Model, y = :Probability, Geom.bar,
+    p = Gadfly.plot(res.ModelProb, x=:Model, y = :Probability, Geom.bar,
     Theme(bar_spacing = 0.2cm,
     default_color = RGBA(0.5, 0.5, 0.5, 0.8),
     major_label_font_size = 16pt,
@@ -26,25 +26,22 @@ end
 
 function plotparameterposterior(res::ABCSMCmodelresults, model = 1)
 
-    DF = stack(res.Posterior[model].Parameters)
-    plot(DF, x=:value, xgroup=:variable,
-    Geom.subplot_grid(Geom.histogram(bincount = 30), free_x_axis=true),
-    Theme(
-    default_color = RGBA(0.5, 0.5, 0.5, 0.9),
-    major_label_font_size = 12pt,
-    minor_label_font_size = 8pt))
+    nparams = size(res.Posterior[model].Parameters)[2]
+
+    Plots.histogram(Array(res.Posterior[model].Parameters)[:, 1:nparams], nbins = 20, layout = nparams,
+    title=hcat(map(x -> "Parameter $x", 1:nparams)...),
+    linecolor = :white, fillcolor = RGBA(0.75, 0.3, 0.3),
+    markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
 end
 
-
 function plotparameterposterior(res::ABCSMCresults)
 
-    DF = stack(DataFrame(res.parameters))
-    plot(DF, x=:value, xgroup=:variable,
-    Geom.subplot_grid(Geom.histogram(bincount = 30), free_x_axis=true),
-    Theme(
-    default_color = RGBA(0.5, 0.5, 0.5, 0.9),
-    major_label_font_size = 12pt,
-    minor_label_font_size = 8pt))
+    nparams = size(res.parameters)[2]
+
+    Plots.histogram(Array(res.parameters)[:, 1:nparams], nbins = 20, layout = nparams,
+    title=hcat(map(x -> "Parameter $x", 1:nparams)...),
+    linecolor = :white, fillcolor = RGBA(0.75, 0.3, 0.3),
+    markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
 end

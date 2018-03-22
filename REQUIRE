@@ -6,3 +6,4 @@ Compat
 StatsBase
 DataFrames
 Colors
+Plots

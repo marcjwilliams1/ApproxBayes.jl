@@ -71,3 +71,7 @@ println("\t Checking ABC rejection model selection")
 println("\t Checking ABC SMC model selection")
 @time abcressmc = runabc(ABCsetupsmc, td);
 @test isapprox(pM1, abcressmc.modelprob[1], rtol = 0.05)
+
+println("\t Check no errors arising from plotting")
+plotparameterposterior(abcressmc, model = 1)
+plotmodelposterior(abcressmc)

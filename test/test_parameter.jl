@@ -45,6 +45,9 @@ println("\t Check ABC SMC algorithm correctly infers parameters")
 #test weights sum to 1
 @test isapprox(sum(ressmc.weights), 1.0, rtol = 0.0001)
 
+println("\t Check no errors arising from plotting")
+plotparameterposterior(ressmc)
+
 #test SMC is more efficient than rejection algorithm
 println("\t Check ABC SMC is more efficient than ABC rejection")
 setup = ABCSMC(getnormal2,

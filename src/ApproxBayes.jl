@@ -7,6 +7,7 @@ using StatsBase
 using Compat
 using DataFrames
 using Colors
+using Plots
 
 import Base.show
 
