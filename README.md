@@ -10,11 +10,9 @@
 Package to implement Approximate Bayesian computation algorithms in the [Julia](https://julialang.org/) programming language. Package implements basic ABC rejection sampler and sequential monte carlo algorithm (ABC SMC) as in Toni. et al 2009 as well as model selection versions of both (Toni. et al 2010).
 
 ## Getting Started
-Package has been tested extensively with [Julia](https://julialang.org/) v0.5.1 but should work with later versions. If there any problems please report an issue.
-
 To download the package, once you're in a Julia session type the following command:
 ```julia
-Pkg.clone("https://github.com/marcjwilliams1/ApproxBayes.jl")
+Pkg.add("ApproxBayes")
 ```
 
 ## Examples
