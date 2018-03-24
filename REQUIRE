@@ -7,4 +7,4 @@ StatsBase
 DataFrames
 Colors
 Plots
-PlotlyJS
+PyPlot
