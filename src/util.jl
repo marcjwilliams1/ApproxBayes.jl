@@ -230,7 +230,17 @@ function priorprob(parameters::Array{Float64, 1}, prior::Prior)
   return pprob
 end
 
-function writeoutput(results::ABCSMCresults; dir = "", file = "output.txt")
+"""
+    writeoutput(results; <keyword arguments>)
+
+Write the results of an ABC inference to a text file. For model selection algorithms a text file with the parameters of each model will be written and a text file with model probabilities.
+...
+## Arguments
+- `dir = ""`: Directory where the text file will be written to.
+- `file= ""`: Filename to write to, default depends on the type of inference.
+...
+"""
+function writeoutput(results::ABCSMCresults; dir = "", file = "SMC-output.txt")
   distance = map(x -> x.distance, results.particles)
   wts = map(x -> x.weight, results.particles)
   nparams =  size(results.parameters)[2]
@@ -251,8 +261,41 @@ function writeoutput(results::ABCSMCresults; dir = "", file = "output.txt")
 
 end
 
+function writeoutput(results::ABCSMCmodelresults; dir = "", file = "SMCModel-output")
 
-function writeoutput(results::ABCrejectionresults; dir = "", file = "output.txt")
+  for i in 1:length(results.modelprob)
+      prtcles = results.particles[map(x -> x.model, results.particles).==i]
+      distance = map(x -> x.distance, prtcles)
+      wts = map(x -> x.weight, prtcles)
+      nparams =  size(results.parameters[i])[2]
+
+      head = map(x -> "parameter$x\t", 1:nparams)
+      append!(head, ["distance\t", "weights\n"])
+
+      out = hcat(results.parameters[i], distance, wts)
+
+      #write parameters to file
+      f = open(joinpath(dir, "$(file)model$i.txt"), "w")
+      write(f, "## ABC SMC algorithm\n")
+      write(f, "## Model: $i\n")
+      write(f, "## Number of simulations: $(sum(results.numsims))\n")
+      write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+      write(f, "## Tolerance schedule : $(results.ϵ)\n")
+      write(f, head...)
+      writedlm(f, out)
+      close(f)
+  end
+
+  #write model probabilities to file
+  head = ["Model\t", "Probability\n"]
+  f = open(joinpath(dir, "$(file)modelprobabilities.txt"), "w")
+  write(f, head...)
+  writedlm(f, hcat(collect(1:length(results.modelprob)), results.modelprob))
+  close(f)
+
+end
+
+function writeoutput(results::ABCrejectionresults; dir = "", file = "Rejection-output.txt")
   distance = map(x -> x.distance, results.particles)
   nparams =  size(results.parameters)[2]
 
@@ -267,6 +310,35 @@ function writeoutput(results::ABCrejectionresults; dir = "", file = "output.txt"
   write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
   write(f, head...)
   writedlm(f, out)
+  close(f)
+
+end
+
+function writeoutput(results::ABCrejectionmodelresults; dir = "", file = "RejectionModel-output")
+
+    for i in 1:length(results.modelfreq)
+      prtcles = results.particles[map(x -> x.model, results.particles).==i]
+      distance = map(x -> x.distance, prtcles)
+      nparams =  size(results.parameters[i])[2]
+
+      head = map(x -> "parameter$x\t", 1:nparams)
+      append!(head, ["distance\n"])
+      out = hcat(results.parameters[i], distance)
+
+      f = open(joinpath(dir, "$(file)model$i.txt"), "w")
+      write(f, "## ABC Rejection algorithm\n")
+      write(f, "## Number of simulations: $(results.numsims)\n")
+      write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+      write(f, head...)
+      writedlm(f, out)
+      close(f)
+  end
+
+  #write model probabilities to file
+  head = ["Model\t", "Probability\n"]
+  f = open(joinpath(dir, "$(file)modelprobabilities.txt"), "w")
+  write(f, head...)
+  writedlm(f, hcat(collect(1:length(results.modelfreq)), results.modelfreq))
   close(f)
 
 end

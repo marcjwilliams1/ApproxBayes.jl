@@ -29,6 +29,21 @@ println("\t Check ABC rejection algorithm correctly infers parameters")
 @test isapprox(mean(resrejection.parameters, 1)[1], p1, rtol = 0.05)
 @test isapprox(mean(resrejection.parameters, 1)[2], p2, rtol = 0.05)
 
+println("\t Check no errors arising from plotting")
+plotparameterposterior(resrejection, save = true)
+@test isfile("ABCRejectionparameterposteriors.png")
+rm("ABCRejectionparameterposteriors.png")
+
+println("\t Check no errors arising from printing results\n")
+println("#########################################")
+show(resrejection)
+println("#########################################\n")
+
+println("\t Check output is written to file")
+writeoutput(resrejection)
+@test isfile("Rejection-output.txt")
+rm("Rejection-output.txt")
+
 #now run SMC algorithm
 setup = ABCSMC(getnormal2,
   2,
@@ -46,7 +61,19 @@ println("\t Check ABC SMC algorithm correctly infers parameters")
 @test isapprox(sum(ressmc.weights), 1.0, rtol = 0.0001)
 
 println("\t Check no errors arising from plotting")
-plotparameterposterior(ressmc)
+plotparameterposterior(ressmc, save = true)
+@test isfile("ABCSMCparameterposteriors.png")
+rm("ABCSMCparameterposteriors.png")
+
+println("\t Check no errors arising from printing results\n")
+println("#########################################")
+show(ressmc)
+println("#########################################\n")
+
+println("\t Check output is written to file")
+writeoutput(ressmc)
+@test isfile("SMC-output.txt")
+rm("SMC-output.txt")
 
 #test SMC is more efficient than rejection algorithm
 println("\t Check ABC SMC is more efficient than ABC rejection")

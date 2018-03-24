@@ -13,35 +13,111 @@ function plotresults(parametervec, xlabel; truevalue = [])
   return p
 end
 
+"""
+    plotmodelposterior(results; <keyword arguments>)
 
-function plotmodelposterior(res::ABCSMCmodelresults)
-    p = Gadfly.plot(res.ModelProb, x=:Model, y = :Probability, Geom.bar,
+Plot the posterior probabalities of each model.
+...
+## Arguments
+- `save = false`: Set to `true` if you want the plot to be saved
+- `dir = ""`: Directory where the plot will be saved to. Default is the current working directory.
+- `plotname = ""`: Name to call plot when saving, default depends on the algorithm used.
+...
+"""
+function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plotname = "ABCSMCmodelposteriors")
+    DF = DataFrame(Model = map(x -> "$x", 1:length(res.modelprob)), Probability = res.modelprob)
+    p = Gadfly.plot(DF, x=:Model, y = :Probability, Geom.bar,
     Theme(bar_spacing = 0.2cm,
     default_color = RGBA(0.5, 0.5, 0.5, 0.8),
     major_label_font_size = 16pt,
     minor_label_font_size = 12pt))
 
+    if save == true
+        draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
+    end
+
     return p
 end
 
-function plotparameterposterior(res::ABCSMCmodelresults, model = 1)
+function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "", plotname = "ABCRejectionmodelposteriors")
+    println("hello")
+    DF = DataFrame(Model = map(x -> "$x", 1:length(res.modelfreq)), Probability = res.modelfreq)
+    p = Gadfly.plot(DF, x=:Model, y = :Probability, Geom.bar,
+    Theme(bar_spacing = 0.2cm,
+    default_color = RGBA(0.5, 0.5, 0.5, 0.8),
+    major_label_font_size = 16pt,
+    minor_label_font_size = 12pt))
 
-    nparams = size(res.Posterior[model].Parameters)[2]
+    if save == true
+        draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
+    end
 
-    Plots.histogram(Array(res.Posterior[model].Parameters)[:, 1:nparams], nbins = 20, layout = nparams,
+    return p
+end
+
+"""
+    plotparameterposterior(results [,model = 1]; <keyword arguments>)
+
+Plot the parameter posterior values. If algorithm is a model selection algorithm, model needs to be specified.
+...
+## Arguments
+- `save = false`: Set to `true` if you want the plot to be saved
+- `dir = ""`: Directory where the plot will be saved to. Default is the current working directory.
+- `plotname = ""`: Name to call plot when saving, default depends on the algorithm used.
+...
+"""
+function plotparameterposterior(res::ABCrejectionmodelresults, model = 1; save = false, dir = "", plotname = "ABCRejectionparameterposteriors")
+
+    nparams = size(res.parameters[model])[2]
+
+    Plots.histogram(Array(res.parameters[model][:, 1:nparams]), nbins = 20, layout = nparams, normed = true,
     title=hcat(map(x -> "Parameter $x", 1:nparams)...),
     linecolor = :white, fillcolor = RGBA(0.75, 0.3, 0.3),
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
+    if save == true
+        savefig(joinpath(dir, "$(plotname)-model$(model).png"))
+    end
 end
 
-function plotparameterposterior(res::ABCSMCresults)
+function plotparameterposterior(res::ABCrejectionresults; save = false, dir = "", plotname = "ABCRejectionparameterposteriors")
+    nparams = size(res.parameters)[2]
+
+    Plots.histogram(Array(res.parameters[:, 1:nparams]),
+    nbins = 20, layout = nparams, normed = true,
+    title=hcat(map(x -> "Parameter $x", 1:nparams)...),
+    linecolor = :white, fillcolor = RGBA(0.75, 0.3, 0.3),
+    markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
+
+    if save == true
+        savefig(joinpath(dir, "$(plotname).png"))
+    end
+end
+
+function plotparameterposterior(res::ABCSMCmodelresults, model = 1; save = false, dir = "", plotname = "ABCSMCparameterposteriors")
+
+    nparams = size(res.parameters[model])[2]
+
+    Plots.histogram(Array(res.parameters[model])[:, 1:nparams], nbins = 20, layout = nparams, weights = res.weights[model],
+    title=hcat(map(x -> "Parameter $x", 1:nparams)...),
+    linecolor = :white, fillcolor = RGBA(0.75, 0.3, 0.3),
+    markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
+
+    if save == true
+        savefig(joinpath(dir, "$(plotname)-model$(model).png"))
+    end
+end
+
+function plotparameterposterior(res::ABCSMCresults; save = false, dir = "", plotname = "ABCSMCparameterposteriors")
 
     nparams = size(res.parameters)[2]
 
-    Plots.histogram(Array(res.parameters)[:, 1:nparams], nbins = 20, layout = nparams,
+    Plots.histogram(Array(res.parameters)[:, 1:nparams], nbins = 20, layout = nparams, weights = res.weights,
     title=hcat(map(x -> "Parameter $x", 1:nparams)...),
     linecolor = :white, fillcolor = RGBA(0.75, 0.3, 0.3),
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
+    if save == true
+        savefig(joinpath(dir, "$(plotname).png"))
+    end
 end

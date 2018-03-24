@@ -73,5 +73,35 @@ println("\t Checking ABC SMC model selection")
 @test isapprox(pM1, abcressmc.modelprob[1], rtol = 0.05)
 
 println("\t Check no errors arising from plotting")
-plotparameterposterior(abcressmc, model = 1)
-plotmodelposterior(abcressmc)
+
+plotmodelposterior(abcressmc, save = true)
+@test isfile("ABCSMCmodelposteriors.png")
+rm("ABCSMCmodelposteriors.png")
+
+plotmodelposterior(abcresrej, save = true)
+@test isfile("ABCRejectionmodelposteriors.png")
+rm("ABCRejectionmodelposteriors.png")
+
+plotparameterposterior(abcressmc, 1, save = true)
+@test isfile("ABCSMCparameterposteriors-model1.png")
+rm(("ABCSMCparameterposteriors-model1.png"))
+
+plotparameterposterior(abcresrej, 1, save = true)
+@test isfile("ABCRejectionparameterposteriors-model1.png")
+rm("ABCRejectionparameterposteriors-model1.png")
+
+writeoutput(abcressmc)
+@test isfile("SMCModel-outputmodel1.txt")
+@test isfile("SMCModel-outputmodel2.txt")
+@test isfile("SMCModel-outputmodelprobabilities.txt")
+rm("SMCModel-outputmodel1.txt")
+rm("SMCModel-outputmodel2.txt")
+rm("SMCModel-outputmodelprobabilities.txt")
+
+writeoutput(abcresrej)
+@test isfile("RejectionModel-outputmodel1.txt")
+@test isfile("RejectionModel-outputmodel2.txt")
+@test isfile("RejectionModel-outputmodelprobabilities.txt")
+rm("RejectionModel-outputmodel1.txt")
+rm("RejectionModel-outputmodel2.txt")
+rm("RejectionModel-outputmodelprobabilities.txt")
