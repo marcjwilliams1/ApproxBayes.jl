@@ -77,11 +77,11 @@ There are more examples provided in the examples directory and used as tests in 
 
 ### Convenience functions
 Also provided are some convenience functions for plotting and saving the output.
-...
+
 - `writeoutput(abcresults)`: This will write the output to a text file should you wish to some additional analysis or plotting.
 - `plotmodelposterior(abcresults)`: For model selection algorithm will plot a bar chart showing the posterior probabilities of each respective model.
 - `plotparameterposterior(abcresults)`: Will plot the posteriors for each parameter. If model selection algorithm was used need to specify the model in addition as follows: `plotparameterposterior(abcresults, 1)`
-...
+
 Plots can be saved by setting keyword argument to `save = true`, the plots will have a default name based on the algorithm used, this can the directory can be changed using `dir` and `plotname` keywords.
 
 ## Acknowledgments
