@@ -8,6 +8,7 @@ using Compat
 using DataFrames
 using Colors
 using Plots
+using PlotlyJS
 
 import Base.show
 
