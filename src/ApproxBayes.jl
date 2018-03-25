@@ -2,7 +2,6 @@ module ApproxBayes
 
 using Distributions
 using ProgressMeter
-using Gadfly
 using StatsBase
 using Compat
 using DataFrames

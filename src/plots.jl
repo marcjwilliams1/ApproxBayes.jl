@@ -1,18 +1,3 @@
-function plotresults(parametervec, xlabel; truevalue = [])
-
-  if length(truevalue) > 0
-    p = Gadfly.plot(x = parametervec, Geom.density,
-     xintercept = truevalue,
-     Geom.vline(color = "red", size=1mm),
-     Guide.xlabel(xlabel))
-   else
-     p = Gadfly.plot(x = parametervec, Geom.density,
-      Guide.xlabel(xlabel))
-   end
-
-  return p
-end
-
 """
     plotmodelposterior(results; <keyword arguments>)
 
@@ -26,14 +11,14 @@ Plot the posterior probabalities of each model.
 """
 function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plotname = "ABCSMCmodelposteriors")
     DF = DataFrame(Model = map(x -> "$x", 1:length(res.modelprob)), Probability = res.modelprob)
-    p = Gadfly.plot(DF, x=:Model, y = :Probability, Geom.bar,
-    Theme(bar_spacing = 0.2cm,
-    default_color = RGBA(0.5, 0.5, 0.5, 0.8),
-    major_label_font_size = 16pt,
-    minor_label_font_size = 12pt))
+
+    Plots.bar(DF[:Model], DF[:Probability],
+    title="Model Probabilities", yaxis = ("Probability"),
+    linecolor = :white, fillcolor = RGBA(0.5, 0.5, 0.5, 0.8),
+    markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false, grid = false)
 
     if save == true
-        Gadfly.draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
+        Plots.savefig(joinpath(dir, "$(plotname).png"))
     end
 
     return p
@@ -42,14 +27,14 @@ end
 function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "", plotname = "ABCRejectionmodelposteriors")
     println("hello")
     DF = DataFrame(Model = map(x -> "$x", 1:length(res.modelfreq)), Probability = res.modelfreq)
-    p = Gadfly.plot(DF, x=:Model, y = :Probability, Geom.bar,
-    Theme(bar_spacing = 0.2cm,
-    default_color = RGBA(0.5, 0.5, 0.5, 0.8),
-    major_label_font_size = 16pt,
-    minor_label_font_size = 12pt))
+
+    Plots.bar(DF[:Model], DF[:Probability],
+    title="Model Probabilities", yaxis = ("Probability"),
+    linecolor = :white, fillcolor = RGBA(0.5, 0.5, 0.5, 0.8),
+    markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false, grid = false)
 
     if save == true
-        Gadfly.draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
+        Plots.savefig(joinpath(dir, "$(plotname).png"))
     end
 
     return p
