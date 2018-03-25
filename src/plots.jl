@@ -10,6 +10,9 @@ Plot the posterior probabalities of each model.
 ...
 """
 function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plotname = "ABCSMCmodelposteriors")
+
+    pyplot()
+
     DF = DataFrame(Model = map(x -> "$x", 1:length(res.modelprob)), Probability = res.modelprob)
 
     Plots.bar(DF[:Model], DF[:Probability],
@@ -25,7 +28,8 @@ function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plo
 end
 
 function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "", plotname = "ABCRejectionmodelposteriors")
-    println("hello")
+
+    pyplot()
     DF = DataFrame(Model = map(x -> "$x", 1:length(res.modelfreq)), Probability = res.modelfreq)
 
     Plots.bar(DF[:Model], DF[:Probability],

@@ -8,6 +8,7 @@ using DataFrames
 using Colors
 using Plots
 using PyPlot
+using Distances
 
 import Base.show
 
