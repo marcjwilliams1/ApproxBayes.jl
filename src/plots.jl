@@ -33,7 +33,7 @@ function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plo
     minor_label_font_size = 12pt))
 
     if save == true
-        draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
+        Gadfly.draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
     end
 
     return p
@@ -49,7 +49,7 @@ function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "
     minor_label_font_size = 12pt))
 
     if save == true
-        draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
+        Gadfly.draw(PNG(joinpath(dir, "$(plotname).png"), 4inch, 3inch), p)
     end
 
     return p
