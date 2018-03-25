@@ -23,8 +23,6 @@ function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plo
     if save == true
         Plots.savefig(joinpath(dir, "$(plotname).pdf"))
     end
-
-    return p
 end
 
 function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "", plotname = "ABCRejectionmodelposteriors")
@@ -40,8 +38,6 @@ function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "
     if save == true
         Plots.savefig(joinpath(dir, "$(plotname).pdf"))
     end
-
-    return p
 end
 
 """
