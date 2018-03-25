@@ -21,7 +21,7 @@ function plotmodelposterior(res::ABCSMCmodelresults; save = false, dir = "", plo
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false, grid = false)
 
     if save == true
-        Plots.savefig(joinpath(dir, "$(plotname).png"))
+        Plots.savefig(joinpath(dir, "$(plotname).pdf"))
     end
 
     return p
@@ -38,7 +38,7 @@ function plotmodelposterior(res::ABCrejectionmodelresults; save = false, dir = "
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false, grid = false)
 
     if save == true
-        Plots.savefig(joinpath(dir, "$(plotname).png"))
+        Plots.savefig(joinpath(dir, "$(plotname).pdf"))
     end
 
     return p
@@ -65,7 +65,7 @@ function plotparameterposterior(res::ABCrejectionmodelresults, model = 1; save =
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
     if save == true
-        Plots.savefig(joinpath(dir, "$(plotname)-model$(model).png"))
+        Plots.savefig(joinpath(dir, "$(plotname)-model$(model).pdf"))
     end
 end
 
@@ -79,7 +79,7 @@ function plotparameterposterior(res::ABCrejectionresults; save = false, dir = ""
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
     if save == true
-        Plots.savefig(joinpath(dir, "$(plotname).png"))
+        Plots.savefig(joinpath(dir, "$(plotname).pdf"))
     end
 end
 
@@ -93,7 +93,7 @@ function plotparameterposterior(res::ABCSMCmodelresults, model = 1; save = false
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
     if save == true
-        Plots.savefig(joinpath(dir, "$(plotname)-model$(model).png"))
+        Plots.savefig(joinpath(dir, "$(plotname)-model$(model).pdf"))
     end
 end
 
@@ -107,6 +107,6 @@ function plotparameterposterior(res::ABCSMCresults; save = false, dir = "", plot
     markerstrokecolor=:white, titlefont = font(12, "Calibri"), ytickfont = font(10, "Calibri"), xtickfont = font(10, "Calibri"), legend = false)
 
     if save == true
-        Plots.savefig(joinpath(dir, "$(plotname).png"))
+        Plots.savefig(joinpath(dir, "$(plotname).pdf"))
     end
 end

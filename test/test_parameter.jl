@@ -31,8 +31,8 @@ println("\t Check ABC rejection algorithm correctly infers parameters")
 
 println("\t Check no errors arising from plotting")
 plotparameterposterior(resrejection, save = true)
-@test isfile("ABCRejectionparameterposteriors.png")
-rm("ABCRejectionparameterposteriors.png")
+@test isfile("ABCRejectionparameterposteriors.pdf")
+rm("ABCRejectionparameterposteriors.pdf")
 
 println("\t Check no errors arising from printing results\n")
 println("#########################################")
@@ -62,8 +62,8 @@ println("\t Check ABC SMC algorithm correctly infers parameters")
 
 println("\t Check no errors arising from plotting")
 plotparameterposterior(ressmc, save = true)
-@test isfile("ABCSMCparameterposteriors.png")
-rm("ABCSMCparameterposteriors.png")
+@test isfile("ABCSMCparameterposteriors.pdf")
+rm("ABCSMCparameterposteriors.pdf")
 
 println("\t Check no errors arising from printing results\n")
 println("#########################################")
