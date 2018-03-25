@@ -6,5 +6,5 @@ StatsBase
 DataFrames
 Colors
 Plots
-PyPlot
+#PyPlot
 Distances

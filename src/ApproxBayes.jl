@@ -7,7 +7,7 @@ using Compat
 using DataFrames
 using Colors
 using Plots
-using PyPlot
+#using PyPlot
 using Distances
 
 import Base.show
