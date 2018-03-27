@@ -89,7 +89,7 @@ function getscales(particles, ABCsetup::ABCSMCModel)
   return particles
 end
 
-function show(ABCresults::ABCrejectionresults)
+function show(io::IO, ABCresults::ABCrejectionresults)
 
   upperci = zeros(Float64, size(ABCresults.parameters, 2))
   lowerci = zeros(Float64, size(ABCresults.parameters, 2))
@@ -111,7 +111,7 @@ function show(ABCresults::ABCrejectionresults)
   end
 end
 
-function show(ABCresults::ABCSMCresults)
+function show(io::IO, ABCresults::ABCSMCresults)
 
   upperci = zeros(Float64, size(ABCresults.parameters, 2))
   lowerci = zeros(Float64, size(ABCresults.parameters, 2))
@@ -140,7 +140,7 @@ function show(ABCresults::ABCSMCresults)
 end
 
 
-function show(ABCresults::ABCrejectionmodelresults)
+function show(io::IO, ABCresults::ABCrejectionmodelresults)
 
   @printf("Number of simulations: %.2e\n", ABCresults.numsims)
   @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
@@ -172,7 +172,7 @@ function show(ABCresults::ABCrejectionmodelresults)
   end
 end
 
-function show(ABCresults::ABCSMCmodelresults)
+function show(io::IO, ABCresults::ABCSMCmodelresults)
 
   @printf("Total number of simulations: %.2e\n", sum(ABCresults.numsims))
   println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
