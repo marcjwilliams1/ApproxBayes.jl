@@ -5,6 +5,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/marcjwilliams1/ApproxBayes.jl/badge.svg?branch=master)](https://coveralls.io/github/marcjwilliams1/ApproxBayes.jl?branch=master)
 [![codecov.io](http://codecov.io/github/marcjwilliams1/ApproxBayes.jl/coverage.svg?branch=master)](http://codecov.io/github/marcjwilliams1/ApproxBayes.jl?branch=master)
 
+[![ApproxBayes](http://pkg.julialang.org/badges/ApproxBayes_0.6.svg)](http://pkg.julialang.org/detail/ApproxBayes)
+
 
 
 Package to implement Approximate Bayesian computation algorithms in the [Julia](https://julialang.org/) programming language. Package implements basic ABC rejection sampler and sequential monte carlo algorithm (ABC SMC) as in Toni. et al 2009 as well as model selection versions of both (Toni. et al 2010).
@@ -52,10 +54,7 @@ setup = ABCRejection(normaldist, #simulation function
   )
 
 # run ABC inference
-rejection = runabc(setup, targetdata);
-
-#print summary
-show(rejection)
+rejection = runabc(setup, targetdata)
 ```
 
 We can do the same with ABC SMC algorithm.
@@ -66,9 +65,7 @@ setup = ABCSMC(normaldist, #simulation function
   Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), #Prior for each of the parameters
   )
 
-smc = runabc(setup, targetdata, verbose = true, progress = true);
-#print summary
-show(smc)
+smc = runabc(setup, targetdata, verbose = true, progress = true)
 ```
 
 There are more optional arguments for each of the algorithms, to see these simply use ```?ABCSMC``` in a Julia session. If verbose and progress are set to true then a progress meter will be displayed and at the end of each population a summary will be printed.
