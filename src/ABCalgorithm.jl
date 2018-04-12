@@ -4,7 +4,7 @@
 
 Run ABC with ABCsetup defining the algotrithm and inputs to algorithm, targetdata is the data we wish to fit the model to and will be used as an input for the simulation function defined in ABCsetup. If progress is set to `true` a progress meter will be shown.
 """
-function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
+function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = false)
 
   #initalize array of particles
   particles = Array{ParticleRejection}(ABCsetup.nparticles)
@@ -51,7 +51,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false)
 end
 
 
-function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false)
+function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbose = false)
 
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
@@ -116,6 +116,11 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
   popnum = 1
   finalpop = false
+
+  if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
+      warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
+      return ABCrejresults
+  end
 
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
@@ -237,6 +242,11 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
 
   if verbose == true
     show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+  end
+
+  if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
+      warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
+      return ABCrejresults
   end
 
   while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
