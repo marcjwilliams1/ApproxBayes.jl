@@ -1,5 +1,7 @@
 # this file will test that both algorithms correctly infer parameters from a normal distribution
 
+using Plots
+
 function getnormal2(params, constants, targetdata)
 
   simdata = rand(Normal(params...), 1000)

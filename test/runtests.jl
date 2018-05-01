@@ -3,10 +3,10 @@ using Distances
 using Base.Test
 using StatsBase
 using ApproxBayes
+using Plots
 
-#run using Pkg.test("ApproxBayes")
-
-#tests = ["sampling", "parameter", "ode", "bayesfactor"]
+#useful to check what the backend is
+println(backend())
 tests = ["sampling", "parameter", "bayesfactor", "util", "cancer"]
 
 println("Running tests ...")

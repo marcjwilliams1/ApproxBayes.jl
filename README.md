@@ -70,7 +70,7 @@ smc = runabc(setup, targetdata, verbose = true, progress = true)
 
 There are more optional arguments for each of the algorithms, to see these simply use ```?ABCSMC``` in a Julia session. If verbose and progress are set to true then a progress meter will be displayed and at the end of each population a summary will be printed.
 
-There are more examples provided in the examples directory and used as tests in the test directory. These include an ODE model inference example and an example using model selection to calculate Bayes factors.
+There are more examples provided in the examples directory and used as tests in the test directory. ApproxBayes.jl is also available as an option to perform Bayesian inference with differential equations in [DiffEqBayes.jl](https://github.com/JuliaDiffEq/DiffEqBayes.jl).
 
 ### Convenience functions
 Also provided are some convenience functions for plotting and saving the output.

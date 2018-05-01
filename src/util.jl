@@ -1,3 +1,23 @@
+function copyparticle(particle::ParticleSMC)
+  return ParticleSMC(copy(particle.params),
+copy(particle.weight), copy(particle.scales), copy(particle.distance), [1])
+end
+
+function copyparticle(particle::ParticleSMCModel)
+  return ParticleSMCModel(copy(particle.params),
+copy(particle.weight), copy(particle.scales), copy(particle.model), copy(particle.distance), [1])
+end
+
+function copyparticle(particle::ParticleRejection)
+  return ParticleRejection(copy(particle.params), copy(particle.distance),
+  [1])
+end
+
+function copyparticle(particle::ParticleRejectionModel)
+  return ParticleRejectionModel(copy(particle.params), copy(particle.model),
+  copy(particle.distance), [1])
+end
+
 function ksdist{T<:Real, S<:Real}(x::AbstractVector{T}, y::AbstractVector{S})
 
   #adapted from HypothesisTest.jl
@@ -13,7 +33,7 @@ function ksdist{T<:Real, S<:Real}(x::AbstractVector{T}, y::AbstractVector{S})
 end
 
 function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
-
+  #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.nparticles)./ABCsetup.nparticles
   scales = (maximum(ABCrejresults.parameters, 1) -
                   minimum(ABCrejresults.parameters, 1) ./2)[:]
@@ -30,7 +50,7 @@ function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
 end
 
 function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
-
+  #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.Models[1].nparticles)./ABCsetup.Models[1].nparticles
   scales = map(x -> collect((maximum(x, 1) -
                   minimum(x, 1) ./2)[:]), ABCrejresults.parameters)
@@ -48,7 +68,8 @@ function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
 end
 
 function getscales(particles, ABCsetup::ABCSMC)
-
+  #calculate the range of parameter values (ie the scale) to use for the
+  #perturbation kernel
   parameters = hcat(map(x -> x.params, particles)...)'
   scales = ((maximum(parameters, 1) -
                   minimum(parameters, 1)) ./ABCsetup.scalefactor)[:]
@@ -61,7 +82,8 @@ function getscales(particles, ABCsetup::ABCSMC)
 end
 
 function getscales(particles, ABCsetup::ABCSMCModel)
-
+  #calculate the range of parameter values (ie the scale) to use for the
+  #perturbation kernel
   modelindex = trues(ABCsetup.nparticles, ABCsetup.nmodels)
   for i in 1:ABCsetup.nmodels
       modelindex[:, i] = map(x -> x.model, particles) .== i
@@ -208,26 +230,6 @@ function show(io::IO, ABCresults::ABCSMCmodelresults)
         @printf("\tParameter %d: %.2f (%.2f,%.2f)\n", i, parametermedians[i], lowerci[i], upperci[i])
     end
   end
-end
-
-function getparticleweights(particles, ABCsetup)
-
-  w = zeros(Float64, ABCsetup.nmodels, ABCsetup.nparticles)
-  for i in 1:ABCsetup.nparticles
-    w[particles[i].model, i] = particles[i].weight
-  end
-  weights = w ./ sum(w, 2)
-
-  return weights, sum(w, 2)[:]
-end
-
-function priorprob(parameters::Array{Float64, 1}, prior::Prior)
-  pprob = 1
-  for i in 1:length(parameters)
-      pprob = pprob * pdf(prior.distribution[i], parameters[i])
-  end
-
-  return pprob
 end
 
 """

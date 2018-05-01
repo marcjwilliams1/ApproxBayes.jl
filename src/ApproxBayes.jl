@@ -37,6 +37,7 @@ export
 include("types.jl")
 include("ABCalgorithm.jl")
 include("sampling.jl")
+include("calculateweights.jl")
 include("util.jl")
 include("plots.jl")
 
