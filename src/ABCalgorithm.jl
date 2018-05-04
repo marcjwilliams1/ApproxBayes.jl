@@ -182,7 +182,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       if verbose == true
-        println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+        println("\nNew ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC\n")
       end
       break
     end
@@ -193,6 +193,11 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
       println("##################################################")
       show(ABCSMCresults(particles, numsims, ABCsetup, ϵvec))
       println("##################################################\n")
+    end
+  end
+  if sum(numsims) >= ABCsetup.maxiterations
+    if verbose == true
+      println("\nReached maxiterations=$(ABCsetup.maxiterations), stop ABC SMC\n")
     end
   end
 
