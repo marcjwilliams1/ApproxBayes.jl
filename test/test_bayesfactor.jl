@@ -64,13 +64,14 @@ ABCsetuprej = ABCRejectionModel([poissonsimulator, geometricsimulator], [1, 1], 
 nparticles = 500, maxiterations = 10^7)
 
 td, pM1 = generatedata()
-println("\t Checking ABC rejection model selection")
-@time abcresrej = runabc(ABCsetuprej, td);
-@test isapprox(pM1, abcresrej.modelfreq[1], rtol = 0.05)
 
 println("\t Checking ABC SMC model selection")
 @time abcressmc = runabc(ABCsetupsmc, td);
 @test isapprox(pM1, abcressmc.modelprob[1], rtol = 0.05)
+
+println("\t Checking ABC rejection model selection")
+@time abcresrej = runabc(ABCsetuprej, td);
+@test isapprox(pM1, abcresrej.modelfreq[1], rtol = 0.05)
 
 println("\t Check no errors arising from plotting")
 
