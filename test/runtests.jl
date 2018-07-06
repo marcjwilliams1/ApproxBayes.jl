@@ -7,7 +7,7 @@ using Plots
 
 #useful to check what the backend is
 println(backend())
-tests = ["sampling", "parameter", "bayesfactor", "util", "cancer"]
+tests = ["sampling", "parameter", "bayesfactor", "util"]
 
 println("Running tests ...")
 
