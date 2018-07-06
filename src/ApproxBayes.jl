@@ -35,10 +35,11 @@ export
 
 ### source files
 include("types.jl")
+include("util.jl")
 include("ABCalgorithm.jl")
 include("sampling.jl")
 include("calculateweights.jl")
-include("util.jl")
+#include("util.jl")
 include("plots.jl")
 
 end
