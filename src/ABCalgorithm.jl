@@ -118,7 +118,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   finalpop = false
 
   if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
-      warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
+      @warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
       return ABCrejresults
   end
 
@@ -129,7 +129,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits=2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
 
@@ -182,7 +182,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       if verbose == true
-        println("\nNew ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC\n")
+        println("\nNew ϵ is within $(round(ABCsetup.convergence * 100, digits=2))% of previous population, stop ABC SMC\n")
       end
       break
     end
@@ -250,7 +250,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   end
 
   if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
-      warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
+      @warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
       return ABCrejresults
   end
 
@@ -262,7 +262,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     its = 1
 
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits=2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
 
@@ -331,7 +331,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     end
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+      println("New ϵ is within $(round(ABCsetup.convergence * 100, digits=2))% of previous population, stop ABC SMC")
       break
     end
 

@@ -1,6 +1,6 @@
 using Distributions
 using Distances
-using Base.Test
+using Test
 using StatsBase
 using ApproxBayes
 using Plots
