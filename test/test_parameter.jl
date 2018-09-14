@@ -10,7 +10,7 @@ end
 
 println("Test parameters of normal distribution are inferred correctly (mean within 5% of true value)")
 
-srand(1)
+Random.seed!(1)
 p1 = 2.0
 p2 = 0.4
 targetdata = rand(Normal(p1, p2), 1000)

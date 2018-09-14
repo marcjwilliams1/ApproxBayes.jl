@@ -26,7 +26,7 @@ function getuniformdist(params, constants, targetdata)
 end
 
 #generate sime synthetic data
-srand(1)
+Random.seed!(1)
 targetdata = rand(Normal(2, 0.4), 100)
 
 #setup ABC alogrithm specifications for Rejection algorithm
@@ -53,4 +53,4 @@ show(ressmc)
 
 smcefficiency = ressmc.accratio/resrejection.accratio
 println()
-println("SMC algorithm is $(round(smcefficiency, 2)) times more efficient")
+println("SMC algorithm is $(round(smcefficiency, digits=2)) times more efficient")
