@@ -1,9 +1,10 @@
 using Distributions
 using Distances
-using Base.Test
+using Test
 using StatsBase
 using ApproxBayes
 using Plots
+using Random
 
 #useful to check what the backend is
 println(backend())

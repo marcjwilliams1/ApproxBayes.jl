@@ -110,6 +110,6 @@ function getparticleweights(particles, ABCsetup)
   for i in 1:ABCsetup.nparticles
     w[particles[i].model, i] = particles[i].weight
   end
-  weights = w ./ sum(w, 2)
-  return weights, sum(w, 2)[:]
+  weights = w ./ sum(w, dims = 2)
+  return weights, sum(w, dims = 2)[:]
 end

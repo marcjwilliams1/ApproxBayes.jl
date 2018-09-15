@@ -18,7 +18,7 @@ function copyparticle(particle::ParticleRejectionModel)
   copy(particle.distance), [1])
 end
 
-function ksdist{T<:Real, S<:Real}(x::AbstractVector{T}, y::AbstractVector{S})
+function ksdist(x::AbstractVector{T}, y::AbstractVector{S}) where {T <: Real, S <: Real}
 
   #adapted from HypothesisTest.jl
   n_x, n_y = length(x), length(y)
@@ -35,10 +35,10 @@ end
 function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
   #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.nparticles)./ABCsetup.nparticles
-  scales = (maximum(ABCrejresults.parameters, 1) -
-                  minimum(ABCrejresults.parameters, 1) ./2)[:]
+  scales = (maximum(ABCrejresults.parameters, dims = 1) -
+                  minimum(ABCrejresults.parameters, dims = 1) ./2)[:]
 
-  particles = Array{ParticleSMC}(ABCsetup.nparticles)
+  particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
 
   for i in 1:length(particles)
     particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1],
@@ -52,10 +52,10 @@ end
 function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.Models[1].nparticles)./ABCsetup.Models[1].nparticles
-  scales = map(x -> collect((maximum(x, 1) -
-                  minimum(x, 1) ./2)[:]), ABCrejresults.parameters)
+  scales = map(x -> collect((maximum(x, dims = 1) -
+                  minimum(x, dims = 1) ./2)[:]), ABCrejresults.parameters)
 
-  particles = Array{ParticleSMCModel}(ABCsetup.Models[1].nparticles)
+  particles = Array{ParticleSMCModel}(undef, ABCsetup.Models[1].nparticles)
 
   for i in 1:length(particles)
     particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params,
@@ -71,8 +71,8 @@ function getscales(particles, ABCsetup::ABCSMC)
   #calculate the range of parameter values (ie the scale) to use for the
   #perturbation kernel
   parameters = hcat(map(x -> x.params, particles)...)'
-  scales = ((maximum(parameters, 1) -
-                  minimum(parameters, 1)) ./ABCsetup.scalefactor)[:]
+  scales = ((maximum(parameters, dims = 1) -
+                  minimum(parameters, dims = 1)) ./ABCsetup.scalefactor)[:]
 
   for i in 1:length(particles)
     particles[i].scales = scales
@@ -89,7 +89,7 @@ function getscales(particles, ABCsetup::ABCSMCModel)
       modelindex[:, i] = map(x -> x.model, particles) .== i
   end
 
-  modelfreq = sum(modelindex, 1)
+  modelfreq = sum(modelindex, dims = 1)
   scales =  Array{Float64,1}[]
 
   for i in 1:ABCsetup.nmodels
@@ -99,8 +99,8 @@ function getscales(particles, ABCsetup::ABCSMCModel)
       push!(scales, particles[modelindex[:, i]][1].scales)
     else
       parameters = hcat(map(x -> x.params, particles[modelindex[:, i]])...)'
-      push!(scales, ((maximum(parameters, 1) -
-                      minimum(parameters, 1)) ./ABCsetup.scalefactor)[:])
+      push!(scales, ((maximum(parameters, dims = 1) -
+                      minimum(parameters, dims = 1)) ./ABCsetup.scalefactor)[:])
     end
   end
 
@@ -153,7 +153,7 @@ function show(io::IO, ABCresults::ABCSMCresults)
   @printf("Total number of simulations: %.2e\n", sum(ABCresults.numsims))
   println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
   @printf("Acceptance ratio: %.2e\n", ABCresults.accratio)
-  println("Tolerance schedule = $(round.(ABCresults.ϵ, 2))\n")
+  println("Tolerance schedule = $(round.(ABCresults.ϵ, digits = 2))\n")
 
   print("Median (95% intervals):\n")
   for i in 1:length(parametermeans)
@@ -199,7 +199,7 @@ function show(io::IO, ABCresults::ABCSMCmodelresults)
   @printf("Total number of simulations: %.2e\n", sum(ABCresults.numsims))
   println("Cumulative number of simulations = $(cumsum(ABCresults.numsims))")
   @printf("Acceptance ratio: %.2e\n\n", ABCresults.accratio)
-  println("Tolerance schedule = $(round.(ABCresults.ϵ, 2))\n")
+  println("Tolerance schedule = $(round.(ABCresults.ϵ, digits = 2))\n")
 
   print("Model probabilities:\n")
   for j in 1:length(ABCresults.modelprob)
@@ -255,7 +255,7 @@ function writeoutput(results::ABCSMCresults; dir = "", file = "SMC-output.txt")
   f = open(joinpath(dir, file), "w")
   write(f, "## ABC SMC algorithm\n")
   write(f, "## Number of simulations: $(sum(results.numsims))\n")
-  write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+  write(f, "## Acceptance ratio: $(round(results.accratio, digits = 4))\n")
   write(f, "## Tolerance schedule : $(results.ϵ)\n")
   write(f, head...)
   writedlm(f, out)
@@ -281,7 +281,7 @@ function writeoutput(results::ABCSMCmodelresults; dir = "", file = "SMCModel-out
       write(f, "## ABC SMC algorithm\n")
       write(f, "## Model: $i\n")
       write(f, "## Number of simulations: $(sum(results.numsims))\n")
-      write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+      write(f, "## Acceptance ratio: $(round(results.accratio, digits = 4))\n")
       write(f, "## Tolerance schedule : $(results.ϵ)\n")
       write(f, head...)
       writedlm(f, out)
@@ -309,7 +309,7 @@ function writeoutput(results::ABCrejectionresults; dir = "", file = "Rejection-o
   f = open(joinpath(dir, file), "w")
   write(f, "## ABC Rejection algorithm\n")
   write(f, "## Number of simulations: $(results.numsims)\n")
-  write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+  write(f, "## Acceptance ratio: $(round(results.accratio, digits = 4))\n")
   write(f, head...)
   writedlm(f, out)
   close(f)
@@ -330,7 +330,7 @@ function writeoutput(results::ABCrejectionmodelresults; dir = "", file = "Reject
       f = open(joinpath(dir, "$(file)model$i.txt"), "w")
       write(f, "## ABC Rejection algorithm\n")
       write(f, "## Number of simulations: $(results.numsims)\n")
-      write(f, "## Acceptance ratio: $(round(results.accratio, 4))\n")
+      write(f, "## Acceptance ratio: $(round(results.accratio, digits = 4))\n")
       write(f, head...)
       writedlm(f, out)
       close(f)

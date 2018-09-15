@@ -51,7 +51,7 @@ end
 
 ################################################################
 println("Test Bayes factors are calculated correctly (within 5% of true value)")
-srand(1234)
+Random.seed!(1234)
 
 cst = [[i] for i in 1:2]
 
@@ -81,7 +81,7 @@ end
 
 println("Test parameters of normal distribution are inferred correctly (mean within 5% of true value)")
 
-srand(1)
+Random.seed!(1)
 p1 = 2.0
 p2 = 0.4
 targetdata = rand(Normal(p1, p2), 1000)
@@ -104,5 +104,5 @@ ressmc = ApproxBayes.runabcCancer(setup, targetdata, verbose = false);
 
 println("\t Check ABC SMC with true/false returned from simulations correctly infers parameters")
 # test that mean value of posterior is within 10% of true value
-@test isapprox(mean(ressmc.parameters, weights(ressmc.weights), 1)[1], p1, rtol = 0.05)
-@test isapprox(mean(ressmc.parameters, weights(ressmc.weights), 1)[2], p2, rtol = 0.05)
+@test isapprox(mean(ressmc.parameters, weights(ressmc.weights), dims = 1)[1], p1, rtol = 0.05)
+@test isapprox(mean(ressmc.parameters, weights(ressmc.weights), dims = 1)[2], p2, rtol = 0.05)

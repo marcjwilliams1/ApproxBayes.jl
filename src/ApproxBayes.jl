@@ -7,8 +7,11 @@ using Compat
 using DataFrames
 using Colors
 using Plots
-#using PyPlot
+using Printf
 using Distances
+using DelimitedFiles
+using Random
+using Statistics
 
 import Base.show
 
