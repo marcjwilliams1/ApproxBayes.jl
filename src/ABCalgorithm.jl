@@ -7,8 +7,8 @@ Run ABC with ABCsetup defining the algotrithm and inputs to algorithm, targetdat
 function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = false)
 
   #initalize array of particles
-  particles = Array{ParticleRejection}(ABCsetup.nparticles)
-  particlesall = Array{ParticleRejection}(ABCsetup.maxiterations)
+  particles = Array{ParticleRejection}(undef, ABCsetup.nparticles)
+  particlesall = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
 
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
@@ -40,7 +40,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
   end
 
   if i < ABCsetup.nparticles
-    warn("Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance")
+    @warn "Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance"
     d = map(p -> p.distance, particlesall)
     particles = particlesall[sortperm(d)[1:ABCsetup.nparticles]]
     distvec = map(p -> p.distance, particles)
@@ -56,7 +56,7 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbo
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #initalize array of particles
-  particles = Array{ParticleRejectionModel}(ABCsetup.Models[1].nparticles)
+  particles = Array{ParticleRejectionModel}(undef, ABCsetup.Models[1].nparticles)
 
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
@@ -108,7 +108,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array{ParticleSMC}(ABCsetup.nparticles) #define particles array
+  particles = Array{ParticleSMC}(undef, ABCsetup.nparticles) #define particles array
 
   if verbose == true
     println("Run ABC SMC \n")
@@ -118,14 +118,14 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   finalpop = false
 
   if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
-      warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
+      @warn "Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output..."
       return ABCrejresults
   end
 
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
-    particles = Array{ParticleSMC}(ABCsetup.nparticles)
+    particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
     if progress == true
@@ -233,7 +233,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
-  particles = Array{ParticleSMCModel}(ABCsetup.nparticles) #define particles array
+  particles = Array{ParticleSMCModel}(undef, ABCsetup.nparticles) #define particles array
   weights, modelprob = getparticleweights(oldparticles, ABCsetup)
 
   modelprob = ABCrejresults.modelfreq
@@ -250,14 +250,14 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   end
 
   if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
-      warn("Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output...")
+      @warn "Target ϵ reached with ABCRejection algorithm, no need to use ABC SMC algorithm, returning ABCRejection output..."
       return ABCrejresults
   end
 
   while (ϵ >= ABCsetup.ϵT) & (sum(numsims) <= ABCsetup.maxiterations)
 
     i = 1 #set particle indicator to 1
-    particles = Array{ParticleSMCModel}(ABCsetup.nparticles)
+    particles = Array{ParticleSMCModel}(undef, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 

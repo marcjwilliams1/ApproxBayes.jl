@@ -29,9 +29,9 @@ end
 function perturbmodel(ABCsetup, mstar, modelprob)
     prob = ABCsetup.modelkern
     mprob = ones(Float64, length(modelprob))
-    mprob[modelprob.==0.0] = 0.0
+    mprob[modelprob.==0.0] .= 0.0
     nsurvivingmodels = sum(mprob)
-    mprob[mprob.> 0.0] = (1 - prob) / (nsurvivingmodels - 1)
+    mprob[mprob.> 0.0] .= (1 - prob) / (nsurvivingmodels - 1)
     mprob[mstar] = prob
     wsample(1:ABCsetup.nmodels, mprob)
 end

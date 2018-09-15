@@ -51,7 +51,7 @@ end
 
 ################################################################
 println("Test Bayes factors are calculated correctly (within 5% of true value)")
-srand(1234)
+Random.seed!(1234)
 
 cst = [[i] for i in 1:2]
 

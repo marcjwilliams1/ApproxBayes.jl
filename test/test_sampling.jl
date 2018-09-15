@@ -9,14 +9,14 @@ function getuniformdist(params, constants, targetdata)
   ksdist(simdata, targetdata), 1
 end
 
-srand(1234)
+Random.seed!(1234)
 targetdata = rand(Normal(3.5, 0.44), 100)
 
 ABCsetup = ABCSMCModel([getnormal, getuniformdist, getnormal], [2, 2, 2], 0.1, [Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)])]; nparticles = 100, maxiterations = 10^5)
 
 #test model perturbation kernel
 Niterations = 10^6
-m = zeros(Int64, Niterations )
+global m = zeros(Int64, Niterations)
 mstar = 1
 modelprob = [1/3, 1/3, 1/3]
 for i in 1:Niterations
@@ -30,7 +30,7 @@ end
 
 #test model perturbation kernel when one model has died out
 Niterations = 10^6
-m = zeros(Int64, Niterations )
+global m = zeros(Int64, Niterations )
 mstar = 1
 modelprob = [0.5, 0.0, 0.5]
 for i in 1:Niterations
@@ -85,7 +85,7 @@ p2 = Float64[]
 p3 = Float64[]
 p4 = Float64[]
 @time for i in 1:Niterations
-  m = rand(1:2)
+  global m = rand(1:2)
   if m == 1
     x = ApproxBayes.getproposal(ABCsetup.Models[m].prior, 2)
     push!(p1, x[1])

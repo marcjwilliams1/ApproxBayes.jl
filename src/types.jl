@@ -11,25 +11,25 @@
 
     Create Prior type for ABC algorithm specifying priors for each parameters. This is an array of Distribution types from Distribution.jl, each element corresponding to a parameter.
 """
-type Prior
+mutable struct Prior
   distribution
   Prior(distributionarray) = new(tuple(distributionarray...))
 end
 
-type ParticleRejection <: Particle
+mutable struct ParticleRejection <: Particle
   params::Array{Float64, 1}
   distance::Float64
   other::Any
 end
 
-type ParticleRejectionModel <: Particle
+mutable struct ParticleRejectionModel <: Particle
   params::Array{Float64, 1}
   model::Int64
   distance::Float64
   other::Any
 end
 
-type ParticleSMC <: Particle
+mutable struct ParticleSMC <: Particle
   params::Array{Float64, 1}
   weight::Float64
   scales::Array{Float64, 1}
@@ -37,7 +37,7 @@ type ParticleSMC <: Particle
   other::Any
 end
 
-type ParticleSMCModel <: Particle
+mutable struct ParticleSMCModel <: Particle
   params::Array{Float64, 1}
   weight::Float64
   scales::Array{Float64, 1}
@@ -58,7 +58,7 @@ Create an ABCRejection type which will simulate data with sim_func. nparams is t
 - `nparticles = 100`: Number of particles (ie samples) of ABC algorithm
 ...
 """
-type ABCRejection <: ABCtype
+mutable struct ABCRejection <: ABCtype
 
   simfunc::Function
   nparams::Int64
@@ -92,7 +92,7 @@ Create an ABCSMC type which will simulate data with sim_func. nparams is the num
 - `scalefactor = 2`: : Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
 ...
 """
-type ABCSMC <: ABCtype
+mutable struct ABCSMC <: ABCtype
 
   simfunc::Function
   nparams::Int64
@@ -130,7 +130,7 @@ Create an ABCRejectionModel type which will create a type to run ABC with model 
 - `nparticles = 100`: Number of particles (ie samples) of ABC algorithm
 ...
 """
-type ABCRejectionModel <: ABCtype
+mutable struct ABCRejectionModel <: ABCtype
 
   Models::Array{ABCRejection, 1}
   nmodels::Int64
@@ -160,7 +160,7 @@ Create an ABCSMCModel type which will create a type to run the ABC SMC with mode
 - `modelkern = 0.7`: Probability model stays the same in model perturbation kernel, ie 70% of the time the model perturbation kernel will leave the model the same.
 ...
 """
-type ABCSMCModel <: ABCtype
+mutable struct ABCSMCModel <: ABCtype
 
   Models::Array{ABCSMC, 1}
   nmodels::Int64
@@ -191,7 +191,7 @@ type ABCSMCModel <: ABCtype
 
 end
 
-type ABCrejectionresults
+mutable struct ABCrejectionresults
 
   parameters::Array{Float64,2}
   accratio::Float64
@@ -207,7 +207,7 @@ type ABCrejectionresults
    end
 end
 
-type ABCrejectionmodelresults
+mutable struct ABCrejectionmodelresults
 
    parameters
    accratio::Float64
@@ -233,7 +233,7 @@ type ABCrejectionmodelresults
    end
 end
 
-type ABCSMCresults
+mutable struct ABCSMCresults
 
   parameters::Array{Float64,2}
   weights::Array{Float64, 1}
@@ -252,7 +252,7 @@ type ABCSMCresults
 end
 
 
-type ABCSMCmodelresults
+mutable struct ABCSMCmodelresults
 
    parameters
    weights
@@ -285,7 +285,7 @@ type ABCSMCmodelresults
    end
 end
 
-type SimData
+mutable struct SimData
   params::Array{Float64, 1}
   dist::Float64
 end
