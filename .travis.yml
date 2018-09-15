@@ -11,9 +11,6 @@ matrix:
    - julia: nightly
 notifications:
   email: false
-script:
-  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("ApproxBayes"); Pkg.test("ApproxBayes"; coverage=true)'
 after_success:
-    - julia -e 'cd(Pkg.dir("ApproxBayes")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
-    - julia -e 'cd(Pkg.dir("ApproxBayes")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+    - julia -e 'using Pkg; cd(Pkg.dir("ApproxBayes")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
+    - julia -e 'using Pkg; cd(Pkg.dir("ApproxBayes")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
