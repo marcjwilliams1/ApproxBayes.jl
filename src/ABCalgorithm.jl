@@ -4,37 +4,71 @@
 
 Run ABC with ABCsetup defining the algotrithm and inputs to algorithm, targetdata is the data we wish to fit the model to and will be used as an input for the simulation function defined in ABCsetup. If progress is set to `true` a progress meter will be shown.
 """
-function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = false)
+function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = false, parallel = false)
 
+  println("Using local version")
   #initalize array of particles
   particles = Array{ParticleRejection}(undef, ABCsetup.nparticles)
   particlesall = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
-
-  i = 1 #set particle indicator to 1
-  its = 0 #keep track of number of iterations
   distvec = zeros(Float64, ABCsetup.nparticles) #store distances in an array
 
   if progress == true
     p = Progress(ABCsetup.nparticles, 1, "Running ABC rejection algorithm...", 30)
   end
 
-  while (i < (ABCsetup.nparticles + 1)) & (its < ABCsetup.maxiterations)
+  if parallel
+    Printf.@printf("Preparing to run in parallel on %i processors", nthreads())
+    i = Atomic{Int64}(1)
+    cntr = Atomic{Int64}(0)
+    @threads for its = 1:ABCsetup.maxiterations
 
-    its += 1
-    #get new proposal parameters
-    newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
-    #simulate with new parameters
-    dist, out = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
-    #keep track of all particles incase we don't reach nparticles with dist < ϵ
-    particlesall[its] = ParticleRejection(newparams, dist, out)
+      #get new proposal parameters
+      newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
+      #simulate with new parameters
+      dist, out = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
+      #keep track of all particles incase we don't reach nparticles with dist < ϵ
+      particlesall[its] = ParticleRejection(newparams, dist, out)
 
-    #if simulated data is less than target tolerance accept particle
-    if dist < ABCsetup.ϵ
-      particles[i] = ParticleRejection(newparams, dist, out)
-      distvec[i] = dist
-      i +=1
-      if progress == true
-        next!(p)
+      #if simulated data is less than target tolerance accept particle
+      if dist < ABCsetup.ϵ
+        particles[i[]] = ParticleRejection(newparams, dist, out)
+        distvec[i[]] = dist
+        atomic_add!(i, 1)
+        if progress == true
+          next!(p)
+        end
+      end
+      if i[] > ABCsetup.nparticles
+        break
+      end
+      atomic_add!(cntr,1)
+
+    end
+    i = i[]
+    its = cntr[]
+
+  else
+    Printf.@printf("Preparing to run in serial on %i processors", 1)
+    i = 1 #set particle indicator to 1
+    its = 0 #keep track of number of iterations
+    while (i < (ABCsetup.nparticles + 1)) & (its < ABCsetup.maxiterations)
+
+      its += 1
+      #get new proposal parameters
+      newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
+      #simulate with new parameters
+      dist, out = ABCsetup.simfunc(newparams, ABCsetup.constants, targetdata)
+      #keep track of all particles incase we don't reach nparticles with dist < ϵ
+      particlesall[its] = ParticleRejection(newparams, dist, out)
+
+      #if simulated data is less than target tolerance accept particle
+      if dist < ABCsetup.ϵ
+        particles[i] = ParticleRejection(newparams, dist, out)
+        distvec[i] = dist
+        i +=1
+        if progress == true
+          next!(p)
+        end
       end
     end
   end
@@ -53,6 +87,7 @@ end
 
 function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbose = false)
 
+  println("Using local version")
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #initalize array of particles
@@ -95,6 +130,7 @@ end
 
 function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
+  println("Using local version")
   #run first population with parameters sampled from prior
   if verbose == true
     println("##################################################")
@@ -212,6 +248,7 @@ When the SMC algorithms are used, a print out at the end of each population will
 """
 function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
+  println("Using local version")
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
   #run first population with parameters sampled from prior
