@@ -6,7 +6,6 @@ Run ABC with ABCsetup defining the algotrithm and inputs to algorithm, targetdat
 """
 function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = false, parallel = false)
 
-  println("Using local version")
   #initalize array of particles
   particles = Array{ParticleRejection}(undef, ABCsetup.nparticles)
   particlesall = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
@@ -17,7 +16,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
   end
 
   if parallel
-    Printf.@printf("Preparing to run in parallel on %i processors", nthreads())
+    Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
     i = Atomic{Int64}(1)
     cntr = Atomic{Int64}(0)
     @threads for its = 1:ABCsetup.maxiterations
@@ -48,7 +47,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
     its = cntr[]
 
   else
-    Printf.@printf("Preparing to run in serial on %i processors", 1)
+    Printf.@printf("Preparing to run in serial on %i processor\n", 1)
     i = 1 #set particle indicator to 1
     its = 0 #keep track of number of iterations
     while (i < (ABCsetup.nparticles + 1)) & (its < ABCsetup.maxiterations)
@@ -87,7 +86,6 @@ end
 
 function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbose = false)
 
-  println("Using local version")
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #initalize array of particles
@@ -128,9 +126,8 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbo
   return out
 end
 
-function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
+function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false, parallel = false)
 
-  println("Using local version")
   #run first population with parameters sampled from prior
   if verbose == true
     println("##################################################")
@@ -138,7 +135,9 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
   end
   ABCrejresults = runabc(ABCRejection(ABCsetup.simfunc, ABCsetup.nparams,
                   ABCsetup.ϵ1, ABCsetup.prior; nparticles = ABCsetup.nparticles,
-                  maxiterations = ABCsetup.maxiterations, constants = ABCsetup.constants), targetdata, progress = progress);
+                  maxiterations = ABCsetup.maxiterations,
+                  constants = ABCsetup.constants), targetdata,
+                  progress = progress, parallel = parallel);
 
   oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
@@ -160,38 +159,79 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false)
 
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
-    i = 1 #set particle indicator to 1
     particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
     distvec = zeros(Float64, ABCsetup.nparticles)
-    its = 1
+
     if progress == true
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     end
-    while i < ABCsetup.nparticles + 1
 
-      j = wsample(1:ABCsetup.nparticles, weights)
-      particle = oldparticles[j]
-      newparticle = perturbparticle(particle)
-      priorp = priorprob(newparticle.params, ABCsetup.prior)
-      if priorp == 0.0 #return to beginning of loop if prior probability is 0
-        continue
-      end
+    if parallel
+      Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
+      i = Atomic{Int64}(1)
+      its = Atomic{Int64}(0)
+      @threads for ii = sum(numsims):ABCsetup.maxiterations
 
-      #simulate with new parameters
-      dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+        j = wsample(1:ABCsetup.nparticles, weights)
+        particle = oldparticles[j]
+        newparticle = perturbparticle(particle)
+        priorp = priorprob(newparticle.params, ABCsetup.prior)
+        if priorp == 0.0 #return to beginning of loop if prior probability is 0
+          continue
+        end
 
-      #if simulated data is less than target tolerance accept particle
-      if dist < ϵ
-        particles[i] = newparticle
-        particles[i].other = out
-        particles[i].distance = dist
-        distvec[i] = dist
-        i += 1
-        if progress == true
-          next!(p)
+        #simulate with new parameters
+        dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+
+        #if simulated data is less than target tolerance accept particle
+        if dist < ϵ
+          particles[i[]] = newparticle
+          particles[i[]].other = out
+          particles[i[]].distance = dist
+          distvec[i[]] = dist
+          atomic_add!(i, 1)
+          if progress == true
+            next!(p)
+          end
+        end
+        atomic_add!(ii,1)
+
+        if i[] > ABCsetup.nparticles
+          break
         end
       end
-      its += 1
+      its = its[]
+
+    else
+      Printf.@printf("Preparing to run in serial on %i processor\n", 1)
+      i = 1 #set particle indicator to 1
+      its = 1
+      while i < ABCsetup.nparticles + 1
+
+        j = wsample(1:ABCsetup.nparticles, weights)
+        particle = oldparticles[j]
+        newparticle = perturbparticle(particle)
+        priorp = priorprob(newparticle.params, ABCsetup.prior)
+        if priorp == 0.0 #return to beginning of loop if prior probability is 0
+          continue
+        end
+
+        #simulate with new parameters
+        dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+
+        #if simulated data is less than target tolerance accept particle
+        if dist < ϵ
+          particles[i] = newparticle
+          particles[i].other = out
+          particles[i].distance = dist
+          distvec[i] = dist
+          i += 1
+          if progress == true
+            next!(p)
+          end
+        end
+        its += 1
+      end
     end
 
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)

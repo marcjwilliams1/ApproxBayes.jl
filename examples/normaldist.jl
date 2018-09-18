@@ -48,7 +48,7 @@ setup = ABCSMC(getnormal,
   0.1,
   Prior([Uniform(0, 20.0), Uniform(0, 2.0)])
   )
-@time ressmc = runabc(setup, targetdata, verbose = false, progress = false);
+@time ressmc = runabc(setup, targetdata, verbose=false, progress=false, parallel=true);
 show(ressmc)
 
 
