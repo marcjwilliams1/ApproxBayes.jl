@@ -20,16 +20,16 @@ end
 
 function simParallel(N,tol)
   dVec = Array{Float64}(undef,N)
-  iCnt = Atomic{Int64}(0)
+  iCnt = Atomic{Int64}(1)
   @threads for ii=1:N
     d,sol = simLV(p+0.05*randn(size(p)), 1, targetdata)
     dVec[ii] = d
-    # if d < tol
-    #   atomic_add!(iCnt, 1)
-    # end
-    # if iCnt[] > 1000
-    #   break
-    # end
+    if d < tol
+      atomic_add!(iCnt, 1)
+    end
+    if iCnt[] > 1000
+      break
+    end
   end
   return dVec
 end

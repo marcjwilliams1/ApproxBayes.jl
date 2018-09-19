@@ -7,9 +7,7 @@ Run ABC with ABCsetup defining the algotrithm and inputs to algorithm, targetdat
 function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = false, parallel = false)
 
   #initalize array of particles
-  particles = Array{ParticleRejection}(undef, ABCsetup.nparticles)
   particlesall = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
-  distvec = zeros(Float64, ABCsetup.nparticles) #store distances in an array
 
   if progress == true
     p = Progress(ABCsetup.nparticles, 1, "Running ABC rejection algorithm...", 30)
@@ -17,9 +15,18 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
 
   if parallel
     Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
-    i = Atomic{Int64}(1)
+
+    # particles = Array{ParticleRejection}(undef, ABCsetup.nparticles+nthreads()-1)
+    # distvec = zeros(Float64, ABCsetup.nparticles+nthreads()-1) #store distances in an array
+    particles = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
+    distvec = zeros(Float64, ABCsetup.maxiterations) #store distances in an array
+    i = Atomic{Int64}(0)
     cntr = Atomic{Int64}(0)
     @threads for its = 1:ABCsetup.maxiterations
+
+      if i[] > ABCsetup.nparticles
+        break
+      end
 
       #get new proposal parameters
       newparams = getproposal(ABCsetup.prior, ABCsetup.nparams)
@@ -30,24 +37,30 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
 
       #if simulated data is less than target tolerance accept particle
       if dist < ABCsetup.ϵ
-        particles[i[]] = ParticleRejection(newparams, dist, out)
-        distvec[i[]] = dist
+        particles[its] = ParticleRejection(newparams, dist, out)
+        distvec[its] = dist
         atomic_add!(i, 1)
         if progress == true
           next!(p)
         end
       end
-      if i[] > ABCsetup.nparticles
-        break
-      end
       atomic_add!(cntr,1)
 
     end
-    i = i[]
-    its = cntr[]
+    println("Started reassignment (rejection)")
+    # Remove particles that are still #undef and corresponding distances
+    idx = [isassigned(particles,ii) for ii in eachindex(particles)]
+    particles = particles[idx][1:ABCsetup.nparticles]
+    distvec = distvec[idx][1:ABCsetup.nparticles]
+    i = length(particles)    # Number of accepted particles
+    its = cntr[]    # Total number of simulations
+    println("Ended reassignment (rejection)")
 
   else
     Printf.@printf("Preparing to run in serial on %i processor\n", 1)
+
+    particles = Array{ParticleRejection}(undef, ABCsetup.nparticles)
+    distvec = zeros(Float64, ABCsetup.nparticles) #store distances in an array
     i = 1 #set particle indicator to 1
     its = 0 #keep track of number of iterations
     while (i < (ABCsetup.nparticles + 1)) & (its < ABCsetup.maxiterations)
@@ -159,18 +172,23 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
-    particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
-    distvec = zeros(Float64, ABCsetup.nparticles)
-
     if progress == true
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
     end
 
     if parallel
       Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
-      i = Atomic{Int64}(1)
+
+      particles = Array{ParticleSMC}(undef, ABCsetup.maxiterations)
+      distvec = zeros(Float64, ABCsetup.maxiterations)
+      i = Atomic{Int64}(0)
       its = Atomic{Int64}(0)
       @threads for ii = sum(numsims):ABCsetup.maxiterations
+
+        if i[] > ABCsetup.nparticles
+          break
+        end
+        idx = ii-sum(numsims)+1  # Unique index for particle and distance arrays
 
         j = wsample(1:ABCsetup.nparticles, weights)
         particle = oldparticles[j]
@@ -185,25 +203,32 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
         #if simulated data is less than target tolerance accept particle
         if dist < ϵ
-          particles[i[]] = newparticle
-          particles[i[]].other = out
-          particles[i[]].distance = dist
-          distvec[i[]] = dist
+          particles[idx] = newparticle
+          particles[idx].other = out
+          particles[idx].distance = dist
+          distvec[idx] = dist
           atomic_add!(i, 1)
           if progress == true
             next!(p)
           end
         end
-        atomic_add!(ii,1)
+        atomic_add!(its,1)
 
-        if i[] > ABCsetup.nparticles
-          break
-        end
       end
+      # Remove particles that are still #undef and corresponding distances
+      println("Started reassignment (SMC)")
+      idx = [isassigned(particles,ii) for ii in eachindex(particles)]
+      particles = particles[idx][1:ABCsetup.nparticles]
+      distvec = distvec[idx][1:ABCsetup.nparticles]
+      i = length(particles)    # Number of accepted particles
       its = its[]
+      println("Ended reassignment (SMC)")
 
     else
       Printf.@printf("Preparing to run in serial on %i processor\n", 1)
+
+      particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
+      distvec = zeros(Float64, ABCsetup.nparticles)
       i = 1 #set particle indicator to 1
       its = 1
       while i < ABCsetup.nparticles + 1
