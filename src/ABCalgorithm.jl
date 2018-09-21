@@ -40,21 +40,20 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
         particles[its] = ParticleRejection(newparams, dist, out)
         distvec[its] = dist
         atomic_add!(i, 1)
-        if progress == true
-          next!(p)
-        end
+        # Cannot write to console from within parallel loop
+        # if progress == true
+        #   next!(p)
+        # end
       end
       atomic_add!(cntr,1)
 
     end
-    println("Started reassignment (rejection)")
     # Remove particles that are still #undef and corresponding distances
     idx = [isassigned(particles,ii) for ii in eachindex(particles)]
     particles = particles[idx][1:ABCsetup.nparticles]
     distvec = distvec[idx][1:ABCsetup.nparticles]
     i = length(particles)    # Number of accepted particles
     its = cntr[]    # Total number of simulations
-    println("Ended reassignment (rejection)")
 
   else
     Printf.@printf("Preparing to run in serial on %i processor\n", 1)
@@ -183,13 +182,15 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
       distvec = zeros(Float64, ABCsetup.maxiterations)
       i = Atomic{Int64}(0)
       its = Atomic{Int64}(0)
+      errs = Atomic{Int64}(0)
+
       @threads for ii = sum(numsims):ABCsetup.maxiterations
 
         if i[] > ABCsetup.nparticles
           break
         end
-        idx = ii-sum(numsims)+1  # Unique index for particle and distance arrays
 
+        idx = ii-sum(numsims)+1  # Unique index for particle and distance arrays
         j = wsample(1:ABCsetup.nparticles, weights)
         particle = oldparticles[j]
         newparticle = perturbparticle(particle)
@@ -203,26 +204,33 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
         #if simulated data is less than target tolerance accept particle
         if dist < ϵ
-          particles[idx] = newparticle
-          particles[idx].other = out
-          particles[idx].distance = dist
-          distvec[idx] = dist
-          atomic_add!(i, 1)
-          if progress == true
-            next!(p)
+          try
+            particles[idx] = newparticle
+            distvec[idx] = dist
+            particles[idx].other = out
+            particles[idx].distance = dist
+            atomic_add!(i, 1)
+          catch err
+            atomic_add!(errs,1)
           end
         end
+
         atomic_add!(its,1)
 
       end
+      Printf.@printf("After loop, caught %i errors\n", errs[])
+
       # Remove particles that are still #undef and corresponding distances
-      println("Started reassignment (SMC)")
       idx = [isassigned(particles,ii) for ii in eachindex(particles)]
       particles = particles[idx][1:ABCsetup.nparticles]
       distvec = distvec[idx][1:ABCsetup.nparticles]
+      # map!(p.other -> out, particles, particles)
+      for ii in eachindex(particles)
+        particles[ii].distance = distvec[ii]
+        particles[ii].other = out
+      end
       i = length(particles)    # Number of accepted particles
       its = its[]
-      println("Ended reassignment (SMC)")
 
     else
       Printf.@printf("Preparing to run in serial on %i processor\n", 1)
@@ -262,6 +270,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
     particles = getscales(particles, ABCsetup)
     oldparticles = particles
+    println(any([!isassigned(oldparticles,ii) for ii in eachindex(particles)]))
 
     if finalpop == true
       break
@@ -283,7 +292,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
       if verbose == true
-        println("\nNew ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC\n")
+        println("\nNew ϵ is within $(round(ABCsetup.convergence * 100, digits=2))% of previous population, stop ABC SMC\n")
       end
       break
     end

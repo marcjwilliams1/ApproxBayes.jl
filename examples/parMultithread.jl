@@ -34,5 +34,5 @@ function simParallel(N,tol)
   return dVec
 end
 
-@time simSerial(10000,15.0);
-@time dV = simParallel(10000,15.0);
+@time simSerial(100000,10.0);
+@time dV = simParallel(100000,10.0);
