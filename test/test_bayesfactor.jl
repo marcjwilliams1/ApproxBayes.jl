@@ -75,21 +75,10 @@ println("\t Checking ABC rejection model selection")
 
 println("\t Check no errors arising from plotting")
 
-plotmodelposterior(abcressmc, save = true)
-@test isfile("ABCSMCmodelposteriors.pdf")
-rm("ABCSMCmodelposteriors.pdf")
-
-plotmodelposterior(abcresrej, save = true)
-@test isfile("ABCRejectionmodelposteriors.pdf")
-rm("ABCRejectionmodelposteriors.pdf")
-
-plotparameterposterior(abcressmc, 1, save = true)
-@test isfile("ABCSMCparameterposteriors-model1.pdf")
-rm(("ABCSMCparameterposteriors-model1.pdf"))
-
-plotparameterposterior(abcresrej, 1, save = true)
-@test isfile("ABCRejectionparameterposteriors-model1.pdf")
-rm("ABCRejectionparameterposteriors-model1.pdf")
+plot(abcressmc)
+plot(abcresrej)
+plot(abcressmc, 1)
+plot(abcresrej, 1)
 
 writeoutput(abcressmc)
 @test isfile("SMCModel-outputmodel1.txt")

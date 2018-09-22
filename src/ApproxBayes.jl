@@ -3,10 +3,7 @@ module ApproxBayes
 using Distributions
 using ProgressMeter
 using StatsBase
-using Compat
-using DataFrames
-using Colors
-using Plots
+using RecipesBase
 using Printf
 using Distances
 using DelimitedFiles
@@ -31,9 +28,6 @@ export
   #functions
   ksdist,
   runabc,
-  plotresults,
-  plotparameterposterior,
-  plotmodelposterior,
   writeoutput
 
 ### source files
