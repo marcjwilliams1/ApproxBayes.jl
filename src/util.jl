@@ -78,6 +78,8 @@ function getscales(particles, ABCsetup::ABCSMC)
     particles[i].scales = scales
   end
 
+  println(scales)
+
   return particles
 end
 

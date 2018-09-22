@@ -20,7 +20,7 @@ function perturbparticle(particle)
   newparticle = copyparticle(particle)
   newparams = zeros(Float64, length(newparticle.params))
   for i in 1:length(newparams)
-    newparams[i] = particleperturbationkernel(newparticle.params[i], newparticle.scales[i])
+    newparams[i] = kernel.perturbation_function(newparticle.params[i], kernel.kernel_parameters[i])
   end
   newparticle.params = newparams
   return newparticle

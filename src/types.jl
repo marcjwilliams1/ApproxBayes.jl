@@ -41,6 +41,22 @@ mutable struct ParticleSMCModel <: Particle
   other::Any
 end
 
+mutable struct Kernel
+    perturbation_function::Function
+    pdf_function::Function
+    calculate_kernel_parameters::Function
+    kernel_parameters
+
+    Kernel(perturbation_function::Function,
+    pdf_function::Function,
+    calculate_kernel_parameters;
+    kernel_parameters = []) =
+    new(perturbation_function,
+    pdf_function,
+    calculate_kernel_parameters,
+    kernel_parameters)
+end
+
 
 """
     ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior; <keyword arguments>)

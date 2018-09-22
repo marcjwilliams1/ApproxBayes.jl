@@ -25,6 +25,7 @@ export
   ABCSMC,
   ABCRejectionModel,
   ABCSMCModel,
+  Kernel,
 
   #functions
   ksdist,

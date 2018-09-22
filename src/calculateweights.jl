@@ -10,7 +10,8 @@ end
 function kernelprob(p1, p2)
     prob = 1
     for i in 1:length(p1.params)
-      prob = prob * pdf(Uniform(p2.params[i] - p2.scales[i], p2.params[i] + p2.scales[i]), p1.params[i])
+      #prob = prob * pdf(Uniform(p2.params[i] - p2.scales[i], p2.params[i] + p2.scales[i]), p1.params[i])
+      prob = prob * kernel.pdf_function(p1, p2, kernel.kernel_parameters, i)
     end
     return prob
 end
@@ -40,7 +41,7 @@ function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
 
 end
 
-function smcweights(particles, oldparticles, prior)
+function smcweights(particles, oldparticles, prior, kernel::Kernel)
 
   weights = zeros(Float64, length(particles))
 
@@ -48,7 +49,7 @@ function smcweights(particles, oldparticles, prior)
     numerator = priorprob(particles[i].params, prior)
     denominator = 0.0
     for j in 1:length(particles)
-      denominator = denominator + kernelprob(particles[i], oldparticles[j])
+      denominator = denominator + kernelprob(particles[i], oldparticles[j], kernel)
     end
     weights[i] = numerator / (oldparticles[i].weight * denominator)
   end

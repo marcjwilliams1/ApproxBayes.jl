@@ -151,6 +151,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
                   progress = progress, parallel = parallel);
 
   oldparticles, weights = setupSMCparticles(ABCrejresults, ABCsetup)
+  ABCsetup.kernel.kernel_parameters = (maximum(ABCrejresults.parameters, dims = 1) - minimum(ABCrejresults.parameters, dims = 1) ./2)[:]
   ϵ = quantile(ABCrejresults.dist, ABCsetup.α) # set new ϵ to αth quantile
   ϵvec = [ϵ] #store epsilon values
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
@@ -253,8 +254,17 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
       end
     end
 
+<<<<<<< HEAD
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
     particles = getscales(particles, ABCsetup)
+||||||| merged common ancestors
+    particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
+    ABCsetup.kernel.prev_kernel_parameters =
+    ABCsetup.kernel.kernel_parameters = ABCsetup.kernel.calculate_kernel_parameters(particles)
+=======
+    particles, weights = smcweights(particles, oldparticles, ABCsetup.prior, ABCsetup.kernel)
+    ABCsetup.kernel.kernel_parameters = ABCsetup.kernel.calculate_kernel_parameters(particles)
+>>>>>>> Tidied up a bit and added unit test
     oldparticles = particles
 
     if finalpop == true
