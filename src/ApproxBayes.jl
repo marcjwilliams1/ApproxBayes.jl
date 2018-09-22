@@ -26,6 +26,8 @@ export
   ABCRejectionModel,
   ABCSMCModel,
   Kernel,
+  gaussiankernel,
+  uniformkernel,
 
   #functions
   ksdist,
