@@ -5,9 +5,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/marcjwilliams1/ApproxBayes.jl/badge.svg?branch=master)](https://coveralls.io/github/marcjwilliams1/ApproxBayes.jl?branch=master)
 [![codecov.io](http://codecov.io/github/marcjwilliams1/ApproxBayes.jl/coverage.svg?branch=master)](http://codecov.io/github/marcjwilliams1/ApproxBayes.jl?branch=master)
 
-[![ApproxBayes](http://pkg.julialang.org/badges/ApproxBayes_0.6.svg)](http://pkg.julialang.org/detail/ApproxBayes)
-
-
 
 Package to implement Approximate Bayesian computation algorithms in the [Julia](https://julialang.org/) programming language. Package implements basic ABC rejection sampler and sequential monte carlo algorithm (ABC SMC) as in Toni. et al 2009 as well as model selection versions of both (Toni. et al 2010).
 
@@ -30,7 +27,6 @@ using Distributions
 Now we'll set up the simulation function, we'll use the Kolmogorov Distance as our distance measure. The simulation needs to return 2 values the first being the distance, the second value is useful if additional information from the simulation needs to be stored, here this is not the case so we'll simply return 1, for example sometimes we might want to keep the raw data generated from each simulation.
 ```julia
 function normaldist(params, constants, targetdata)
-
   simdata = rand(Normal(params...), 1000)
   ApproxBayes.ksdist(simdata, targetdata), 1
 end
@@ -68,6 +64,20 @@ setup = ABCSMC(normaldist, #simulation function
 smc = runabc(setup, targetdata, verbose = true, progress = true)
 ```
 
+### Parallelism
+Parallelism is provided via multithreading. To use multithreading you'll need to set the JULIA_NUM_THREADS environmental variable before running julia (one way of doing this exporting the variable in the terminal eg `export JULIA_NUM_THREADS=1`). Then when running an ABCRejection or ABCSMC inference in parallel set the `parallel` keyword to true. For example the normal distribution example above would be run in parallel as follows:
+
+```julia
+setup = ABCSMC(normaldist, #simulation function
+  2, # number of parameters
+  0.1, #target ϵ
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]), #Prior for each of the parameters
+  )
+
+smc = runabc(setup, targetdata, verbose = true, progress = true, parallel = true)
+```
+
+### Optional arguments
 There are more optional arguments for each of the algorithms, to see these simply use ```?ABCSMC``` in a Julia session. If verbose and progress are set to true then a progress meter will be displayed and at the end of each population a summary will be printed.
 
 There are more examples provided in the examples directory and used as tests in the test directory. ApproxBayes.jl is also available as an option to perform Bayesian inference with differential equations in [DiffEqBayes.jl](https://github.com/JuliaDiffEq/DiffEqBayes.jl).
@@ -76,10 +86,7 @@ There are more examples provided in the examples directory and used as tests in 
 Also provided are some convenience functions for plotting and saving the output.
 
 - `writeoutput(abcresults)`: This will write the output to a text file should you wish to some additional analysis or plotting.
-- `plotmodelposterior(abcresults)`: For model selection algorithm will plot a bar chart showing the posterior probabilities of each respective model.
-- `plotparameterposterior(abcresults)`: Will plot the posteriors for each parameter. If model selection algorithm was used need to specify the model in addition as follows: `plotparameterposterior(abcresults, 1)`
-
-Plots can be saved by setting keyword argument to `save = true`, the plots will have a default name based on the algorithm used, this can the directory can be changed using `dir` and `plotname` keywords.
+- `plot`: Plotting recipes for use with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) are provided. Just use `plot` on any ABC return type. This will plot histograms of the posterior distributions. For the model selection algorithm `plot(result::ABCSMCmodelresults)` will plot the model posterior probabilities, a second argument indexing a particular model will plot the parameter posterior distributions for that model, ie `plot(result::ABCSMCmodelresults, 1)` will plot the posterior distribution of parameters for model 1.
 
 ## Acknowledgments
 Some of the code was inspired by [ABC-SysBio](http://www.theosysbio.bio.ic.ac.uk/resources/abc-sysbio/).

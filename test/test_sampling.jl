@@ -30,7 +30,7 @@ end
 
 #test model perturbation kernel when one model has died out
 Niterations = 10^6
-global m = zeros(Int64, Niterations )
+global m = zeros(Int64, Niterations)
 mstar = 1
 modelprob = [0.5, 0.0, 0.5]
 for i in 1:Niterations
@@ -62,8 +62,6 @@ weightsA, modelprob = ApproxBayes.getparticleweights(oldparticles, ABCsetup)
 for i in 1:ABCsetup.nmodels
   @test (map(x -> x.model, oldparticles).==i) == (weightsA[i, :].> 0.0)
 end
-
-
 
 #test get proposal function
 ABCsetup = ABCSMC(getnormal, 2, 0.1, Prior((Uniform(0.0, 20.0), Exponential(1.0))); nparticles = 100, maxiterations = 10^5)
