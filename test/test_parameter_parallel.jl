@@ -33,9 +33,7 @@ println("\t Check ABC rejection algorithm correctly infers parameters")
 @test isapprox(mean(resrejection.parameters, dims = 1)[2], p2, rtol = 0.05)
 
 println("\t Check no errors arising from plotting")
-plotparameterposterior(resrejection, save = true)
-@test isfile("ABCRejectionparameterposteriors.pdf")
-rm("ABCRejectionparameterposteriors.pdf")
+plot(resrejection)
 
 println("\t Check no errors arising from printing results\n")
 println("#########################################")
@@ -64,9 +62,7 @@ println("\t Check ABC SMC algorithm correctly infers parameters")
 @test isapprox(sum(ressmc.weights), 1.0, rtol = 0.0001)
 
 println("\t Check no errors arising from plotting")
-plotparameterposterior(ressmc, save = true)
-@test isfile("ABCSMCparameterposteriors.pdf")
-rm("ABCSMCparameterposteriors.pdf")
+plot(ressmc)
 
 println("\t Check no errors arising from printing results\n")
 println("#########################################")
