@@ -8,7 +8,7 @@ using Random
 
 #useful to check what the backend is
 println(backend())
-tests = ["sampling", "parameter", "parameter_parallel" "bayesfactor", "util"]
+tests = ["sampling", "parameter", "parameter_parallel", "bayesfactor", "util"]
 
 println("Running tests ...")
 
