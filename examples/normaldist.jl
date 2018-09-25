@@ -1,5 +1,6 @@
 using ApproxBayes
 using Distributions
+using Random
 
 function getnormal(params, constants, targetdata)
 
@@ -26,7 +27,7 @@ function getuniformdist(params, constants, targetdata)
 end
 
 #generate sime synthetic data
-srand(1)
+Random.seed!(1)
 targetdata = rand(Normal(2, 0.4), 100)
 
 #setup ABC alogrithm specifications for Rejection algorithm
@@ -37,7 +38,7 @@ setup = ABCRejection(getnormal,
   maxiterations = 10^6,
   )
 # run ABC inference
-@time resrejection = runabc(setup, targetdata);
+@time resrejection = runabc(setup, targetdata, parallel=true);
 #print summary of inference
 show(resrejection)
 
@@ -47,7 +48,7 @@ setup = ABCSMC(getnormal,
   0.1,
   Prior([Uniform(0, 20.0), Uniform(0, 2.0)])
   )
-@time ressmc = runabc(setup, targetdata, verbose = false, progress = false);
+@time ressmc = runabc(setup, targetdata, verbose=true, progress=false, parallel=true);
 show(ressmc)
 
 

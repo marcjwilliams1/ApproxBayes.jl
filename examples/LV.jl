@@ -56,7 +56,7 @@ setup = ABCSMC(simLV,
   nparticles = 1000
   )
   #run ABC SMC algorithm
-@time ressmc = runabc(setup, targetdata, verbose = true, progress = true)
+@time ressmc = runabc(setup, targetdata, verbose = true, progress = true, parallel=true)
 
 #show results
 show(ressmc)

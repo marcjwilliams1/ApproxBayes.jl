@@ -9,6 +9,7 @@ using Distances
 using DelimitedFiles
 using Random
 using Statistics
+using Base.Threads
 
 import Base.show
 
