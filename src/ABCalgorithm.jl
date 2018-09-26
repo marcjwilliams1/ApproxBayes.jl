@@ -78,10 +78,11 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
         end
       end
     end
+    i -= 1    # Correct to total number of particels
   end
 
   if i < ABCsetup.nparticles
-    @warn "Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance"
+    @warn "Only accepted $(i) particles with ϵ < $(ABCsetup.ϵ). \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance"
     d = map(p -> p.distance, particlesall)
     particles = particlesall[sortperm(d)[1:ABCsetup.nparticles]]
     distvec = map(p -> p.distance, particles)
@@ -171,7 +172,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     if progress
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits=2))...", 30)
     end
 
     if parallel
@@ -307,7 +308,6 @@ When the SMC algorithms are used, a print out at the end of each population will
 """
 function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
-  println("Using local version")
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
   #run first population with parameters sampled from prior
@@ -358,7 +358,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     its = 1
 
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits=2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
 
@@ -427,7 +427,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     end
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+      println("New ϵ is within $(round(ABCsetup.convergence * 100, digits=2))% of previous population, stop ABC SMC")
       break
     end
 
