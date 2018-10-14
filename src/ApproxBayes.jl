@@ -35,12 +35,12 @@ export
   writeoutput
 
 ### source files
+include("kernels.jl")
 include("types.jl")
 include("util.jl")
 include("ABCalgorithm.jl")
 include("sampling.jl")
 include("calculateweights.jl")
-include("kernels.jl")
 include("plots.jl")
 
 end

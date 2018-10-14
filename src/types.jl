@@ -27,7 +27,6 @@ end
 mutable struct ParticleSMC <: Particle
   params::Array{Float64, 1}
   weight::Float64
-  scales::Array{Float64, 1}
   distance::Float64
   other::Any
 end
@@ -35,28 +34,10 @@ end
 mutable struct ParticleSMCModel <: Particle
   params::Array{Float64, 1}
   weight::Float64
-  scales::Array{Float64, 1}
   model::Int64
   distance::Float64
   other::Any
 end
-
-mutable struct Kernel
-    perturbation_function::Function
-    pdf_function::Function
-    calculate_kernel_parameters::Function
-    kernel_parameters
-
-    Kernel(perturbation_function::Function,
-    pdf_function::Function,
-    calculate_kernel_parameters;
-    kernel_parameters = []) =
-    new(perturbation_function,
-    pdf_function,
-    calculate_kernel_parameters,
-    kernel_parameters)
-end
-
 
 """
     ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior; <keyword arguments>)
@@ -115,7 +96,6 @@ mutable struct ABCSMC <: ABCtype
   prior::Prior
   α::Float64
   convergence::Float64
-  scalefactor::Int64
   kernel::Kernel
 
   ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
@@ -125,10 +105,9 @@ mutable struct ABCSMC <: ABCtype
     α = 0.3,
     ϵ1 = 10000.0,
     convergence = 0.05,
-    scalefactor = 2,
     kernel = ApproxBayes.uniformkernel
     ) =
-  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, scalefactor, kernel)
+  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, kernel)
 
 end
 
@@ -169,7 +148,6 @@ Create an ABCSMCModel type which will create a type to run the ABC SMC with mode
 - `α = 0.3`: The αth quantile of population i is chosen as the ϵ for population i + 1
 - `ϵ1 = 10^5`: Starting ϵ for first ABC SMC populations
 - `convergence = 0.05`: ABC SMC stops when ϵ in population i + 1 is within 0.05 of populations i
-- `scalefactor = 2`: Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
 - `modelkern = 0.7`: Probability model stays the same in model perturbation kernel, ie 70% of the time the model perturbation kernel will leave the model the same.
 ...
 """
@@ -183,7 +161,6 @@ mutable struct ABCSMCModel <: ABCtype
   ϵT::Float64
   maxiterations::Int64
   convergence::Float64
-  scalefactor::Int64
   other::Any
 
   function ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
@@ -195,7 +172,7 @@ mutable struct ABCSMCModel <: ABCtype
     modelkern = 0.7,
     convergence = 0.05,
     other = [],
-    kernels = [deepcopy(ApproxBayes.uniformkernel) for i in 1:length(sim_func)],
+    kernels = [deepcopy(ApproxBayes.uniformkernel) for i in 1:length(sim_func)]
     )
     smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence, kernel = kernels[i]) for i in 1:length(sim_func)]
     nmodels = length(sim_func)

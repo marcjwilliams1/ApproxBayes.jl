@@ -98,3 +98,5 @@ end
 @test isapprox(mean(p2), 0.5, rtol = 0.01)
 @test isapprox(mean(p3), 1.5, rtol = 0.01)
 @test isapprox(mean(p4), 2.0, rtol = 0.01)
+
+#test kernels

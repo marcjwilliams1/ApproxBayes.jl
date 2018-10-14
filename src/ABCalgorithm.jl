@@ -9,15 +9,13 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
   #initalize array of particles
   particlesall = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
 
-  if progress == true
+  if progress
     p = Progress(ABCsetup.nparticles, 1, "Running ABC rejection algorithm...", 30)
   end
 
   if parallel
     Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
 
-    # particles = Array{ParticleRejection}(undef, ABCsetup.nparticles+nthreads()-1)
-    # distvec = zeros(Float64, ABCsetup.nparticles+nthreads()-1) #store distances in an array
     particles = Array{ParticleRejection}(undef, ABCsetup.maxiterations)
     distvec = zeros(Float64, ABCsetup.maxiterations) #store distances in an array
     i = Atomic{Int64}(0)
@@ -73,7 +71,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
         particles[i] = ParticleRejection(newparams, dist, out)
         distvec[i] = dist
         i +=1
-        if progress == true
+        if progress
           next!(p)
         end
       end
@@ -81,7 +79,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
   end
 
   if i < ABCsetup.nparticles
-    @warn "Only accepted $(i-1) particles with ϵ < $(ABCsetup.ϵ). \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance"
+    @warn "Only accepted $(i) particles with ϵ < $(ABCsetup.ϵ). \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance"
     d = map(p -> p.distance, particlesall)
     particles = particlesall[sortperm(d)[1:ABCsetup.nparticles]]
     distvec = map(p -> p.distance, particles)
@@ -100,13 +98,14 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbo
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCRejection method to estimate parameters for a single model")
 
   #initalize array of particles
-  particles = Array{ParticleRejectionModel}(undef, ABCsetup.Models[1].nparticles)
+  particles = Array{ParticleRejectionModel}(undef,
+                ABCsetup.Models[1].nparticles)
 
   i = 1 #set particle indicator to 1
   its = 0 #keep track of number of iterations
   distvec = zeros(Float64, ABCsetup.Models[1].nparticles) #store distances in an array
 
-  if progress == true
+  if progress
     p = Progress(ABCsetup.Models[1].nparticles, 1, "Running ABC rejection algorithm...", 30)
   end
 
@@ -125,13 +124,13 @@ function runabc(ABCsetup::ABCRejectionModel, targetdata; progress = false, verbo
       particles[i] = ParticleRejectionModel(newparams, model, dist, out)
       distvec[i] = dist
       i +=1
-      if progress == true
+      if progress
         next!(p)
       end
     end
   end
 
-  i > ABCsetup.Models[1].nparticles || error("Only accepted $(i-1) particles with ϵ < $(ABCsetup.Models[1].ϵ). \n\tDecrease ϵ or increase maxiterations ")
+  i > ABCsetup.Models[1].nparticles || error("Only accepted $(i) particles with ϵ < $(ABCsetup.Models[1].ϵ). \n\tDecrease ϵ or increase maxiterations ")
 
   out = ABCrejectionmodelresults(particles, its, ABCsetup, distvec)
   return out
@@ -140,7 +139,7 @@ end
 function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false, parallel = false)
 
   #run first population with parameters sampled from prior
-  if verbose == true
+  if verbose
     println("##################################################")
     println("Use ABC rejection to get first population")
   end
@@ -157,7 +156,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
   numsims = [ABCrejresults.numsims] #keep track of number of simualtions
   particles = Array{ParticleSMC}(undef, ABCsetup.nparticles) #define particles array
 
-  if verbose == true
+  if verbose
     println("Run ABC SMC \n")
   end
 
@@ -247,7 +246,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
           particles[i].distance = dist
           distvec[i] = dist
           i += 1
-          if progress == true
+          if progress
             next!(p)
           end
         end
@@ -278,7 +277,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
     push!(numsims, its)
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      if verbose == true
+      if verbose
         println("\nNew ϵ is within $(round(ABCsetup.convergence * 100, digits=2))% of previous population, stop ABC SMC\n")
       end
       break
@@ -286,14 +285,14 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
     popnum = popnum + 1
 
-    if verbose == true
+    if verbose
       println("##################################################")
       show(ABCSMCresults(particles, numsims, ABCsetup, ϵvec))
       println("##################################################\n")
     end
   end
   if sum(numsims) >= ABCsetup.maxiterations
-    if verbose == true
+    if verbose
       println("\nPassed maxiterations=$(ABCsetup.maxiterations), stop ABC SMC\n")
     end
   end
@@ -313,7 +312,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
   #run first population with parameters sampled from prior
-  if verbose == true
+  if verbose
     println("##################################################")
     println("Use ABC rejection to get first population")
   end
@@ -337,15 +336,15 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
 
   modelprob = ABCrejresults.modelfreq
 
-  if verbose == true
+  if verbose
     println("Run ABC SMC \n")
   end
 
   popnum = 1
   finalpop = false
 
-  if verbose == true
-    show(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
+  if verbose
+    println(ABCSMCmodelresults(oldparticles, numsims, ABCsetup, ϵvec))
   end
 
   if sum(ABCrejresults.dist .< ABCsetup.ϵT) == ABCsetup.nparticles
@@ -360,7 +359,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     distvec = zeros(Float64, ABCsetup.nparticles)
     its = 1
 
-    if progress == true
+    if progress
       p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits = 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
@@ -391,7 +390,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
         particles[i].distance = dist
         distvec[i] = dist
         i += 1
-        if progress == true
+        if progress
           next!(p)
         end
       end
@@ -422,9 +421,9 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     push!(ϵvec, ϵ)
     push!(numsims, its)
 
-    if verbose == true
+    if verbose
       println("##################################################")
-      show(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
+      println(ABCSMCmodelresults(particles, numsims, ABCsetup, ϵvec))
       println("##################################################\n")
     end
 

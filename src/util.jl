@@ -1,11 +1,11 @@
 function copyparticle(particle::ParticleSMC)
   return ParticleSMC(copy(particle.params),
-copy(particle.weight), copy(particle.scales), copy(particle.distance), [1])
+  copy(particle.weight), copy(particle.distance), [1])
 end
 
 function copyparticle(particle::ParticleSMCModel)
   return ParticleSMCModel(copy(particle.params),
-copy(particle.weight), copy(particle.scales), copy(particle.model), copy(particle.distance), [1])
+  copy(particle.weight), copy(particle.model), copy(particle.distance), [1])
 end
 
 function copyparticle(particle::ParticleRejection)
@@ -35,14 +35,11 @@ end
 function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
   #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.nparticles)./ABCsetup.nparticles
-  scales = (maximum(ABCrejresults.parameters, dims = 1) -
-                  minimum(ABCrejresults.parameters, dims = 1) ./2)[:]
 
   particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
 
   for i in 1:length(particles)
-    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1],
-    scales, ABCrejresults.particles[i].distance,
+    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], ABCrejresults.particles[i].distance,
     ABCrejresults.particles[i].other)
   end
 
@@ -52,15 +49,12 @@ end
 function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.Models[1].nparticles)./ABCsetup.Models[1].nparticles
-  scales = map(x -> collect((maximum(x, dims = 1) -
-                  minimum(x, dims = 1) ./2)[:]), ABCrejresults.parameters)
-
   particles = Array{ParticleSMCModel}(undef, ABCsetup.Models[1].nparticles)
 
   for i in 1:length(particles)
     particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params,
-    weights[1], scales[ABCrejresults.particles[i].model],
-    ABCrejresults.particles[i].model, ABCrejresults.particles[i].distance,
+    weights[1], ABCrejresults.particles[i].model,
+    ABCrejresults.particles[i].distance,
     ABCrejresults.particles[i].other)
   end
 

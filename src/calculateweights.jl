@@ -55,6 +55,8 @@ function smcweights(particles, oldparticles, prior, kernel::Kernel)
   return particles, weights
 end
 
+#the below functions are related to the SMC with model selection algorithm
+
 function modelperturbation(p, prevmodelprob, ABCsetup)
   denominator_m = 0.0
   for i in 1:ABCsetup.nmodels
