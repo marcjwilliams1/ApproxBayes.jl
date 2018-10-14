@@ -100,7 +100,7 @@ Create an ABCSMC type which will simulate data with sim_func. nparams is the num
 - `α = 0.3`: The αth quantile of population i is chosen as the ϵ for population i + 1
 - `ϵ1 = 10^5`: Starting ϵ for first ABC SMC populations
 - `convergence = 0.05`: ABC SMC stops when ϵ in population i + 1 is within 0.05 of populations i
-- `scalefactor = 2`: : Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
+- `kernel = uniformkernel`: Parameter perturbation kernel, default is a uniform distribution. `gaussiankernel` is also an option that is already available in ApproxBayes.jl. Alternatively you can code up your own kernel function. See kernels.jl for examples.
 ...
 """
 mutable struct ABCSMC <: ABCtype
@@ -116,6 +116,7 @@ mutable struct ABCSMC <: ABCtype
   α::Float64
   convergence::Float64
   scalefactor::Int64
+  kernel::Kernel
 
   ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
     maxiterations = 10^5,
@@ -125,8 +126,9 @@ mutable struct ABCSMC <: ABCtype
     ϵ1 = 10000.0,
     convergence = 0.05,
     scalefactor = 2,
+    kernel = ApproxBayes.uniformkernel
     ) =
-  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, scalefactor)
+  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, scalefactor, kernel)
 
 end
 
@@ -192,12 +194,12 @@ mutable struct ABCSMCModel <: ABCtype
     ϵ1 = 10000.0,
     modelkern = 0.7,
     convergence = 0.05,
-    scalefactor = 2,
-    other = []
+    other = [],
+    kernels = [deepcopy(ApproxBayes.uniformkernel) for i in 1:length(sim_func)],
     )
-    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)]
+    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence, kernel = kernels[i]) for i in 1:length(sim_func)]
     nmodels = length(sim_func)
-    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor, other)
+    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, other)
   end
 
 end

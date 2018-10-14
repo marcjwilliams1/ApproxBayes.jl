@@ -172,7 +172,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
   while (ϵ > ABCsetup.ϵT) & (sum(numsims) < ABCsetup.maxiterations)
 
     if progress
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits = 2))...", 30)
     end
 
     if parallel
@@ -192,7 +192,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
         j = wsample(1:ABCsetup.nparticles, weights)
         particle = oldparticles[j]
-        newparticle = perturbparticle(particle)
+        newparticle = perturbparticle(particle, ABCsetup.kernel)
         priorp = priorprob(newparticle.params, ABCsetup.prior)
         if priorp == 0.0 #return to beginning of loop if prior probability is 0
           continue
@@ -226,11 +226,12 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
       distvec = zeros(Float64, ABCsetup.nparticles)
       i = 1 #set particle indicator to 1
       its = 1
+
       while i < ABCsetup.nparticles + 1
 
         j = wsample(1:ABCsetup.nparticles, weights)
         particle = oldparticles[j]
-        newparticle = perturbparticle(particle)
+        newparticle = perturbparticle(particle, ABCsetup.kernel)
         priorp = priorprob(newparticle.params, ABCsetup.prior)
         if priorp == 0.0 #return to beginning of loop if prior probability is 0
           continue
@@ -254,17 +255,8 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
       end
     end
 
-<<<<<<< HEAD
-    particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
-    particles = getscales(particles, ABCsetup)
-||||||| merged common ancestors
-    particles, weights = smcweights(particles, oldparticles, ABCsetup.prior)
-    ABCsetup.kernel.prev_kernel_parameters =
-    ABCsetup.kernel.kernel_parameters = ABCsetup.kernel.calculate_kernel_parameters(particles)
-=======
     particles, weights = smcweights(particles, oldparticles, ABCsetup.prior, ABCsetup.kernel)
     ABCsetup.kernel.kernel_parameters = ABCsetup.kernel.calculate_kernel_parameters(particles)
->>>>>>> Tidied up a bit and added unit test
     oldparticles = particles
 
     if finalpop == true
@@ -341,6 +333,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
   numsims = [ABCrejresults.numsims] #keep track of number of simulations
   particles = Array{ParticleSMCModel}(undef, ABCsetup.nparticles) #define particles array
   weights, modelprob = getparticleweights(oldparticles, ABCsetup)
+  ABCsetup = modelselection_kernel(ABCsetup, oldparticles)
 
   modelprob = ABCrejresults.modelfreq
 
@@ -368,7 +361,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     its = 1
 
     if progress == true
-      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, 2))...", 30)
+      p = Progress(ABCsetup.nparticles, 1, "ABC SMC population $(popnum), new ϵ: $(round(ϵ, digits = 2))...", 30)
     end
     while i < ABCsetup.nparticles + 1
 
@@ -379,9 +372,8 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
       # sample particle with correct model
       j = wsample(1:ABCsetup.nparticles, weights[mdoublestar, :])
       particletemp = oldparticles[j]
-
       #perturb particle
-      newparticle = perturbparticle(particletemp)
+      newparticle = perturbparticle(particletemp, ABCsetup.Models[mdoublestar].kernel)
       #calculate priorprob
       priorp = priorprob(newparticle.params, ABCsetup.Models[mdoublestar].prior)
 
@@ -409,8 +401,8 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
 
     particles, weights = smcweightsmodel(particles, oldparticles, ABCsetup, modelprob)
     weights, modelprob = getparticleweights(particles, ABCsetup)
-    particles = getscales(particles, ABCsetup)
-    oldparticles = deepcopy(particles)
+    ABCsetup = modelselection_kernel(ABCsetup, particles)
+    oldparticles = particles
 
     if finalpop == true
       break
@@ -437,7 +429,7 @@ function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = f
     end
 
     if ((( abs(ϵvec[end - 1] - ϵ )) / ϵvec[end - 1]) < ABCsetup.convergence) == true
-      println("New ϵ is within $(round(ABCsetup.convergence * 100, 2))% of previous population, stop ABC SMC")
+      println("New ϵ is within $(round(ABCsetup.convergence * 100, digits = 2))% of previous population, stop ABC SMC")
       break
     end
 

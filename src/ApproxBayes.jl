@@ -40,7 +40,7 @@ include("util.jl")
 include("ABCalgorithm.jl")
 include("sampling.jl")
 include("calculateweights.jl")
-#include("util.jl")
+include("kernels.jl")
 include("plots.jl")
 
 end

@@ -14,9 +14,7 @@ end
   newparams[i] = rand(x)
 end
 
-particleperturbationkernel(x0, scale) = rand(Uniform(x0 - scale, x0 + scale))
-
-function perturbparticle(particle)
+function perturbparticle(particle, kernel::Kernel)
   newparticle = copyparticle(particle)
   newparams = zeros(Float64, length(newparticle.params))
   for i in 1:length(newparams)

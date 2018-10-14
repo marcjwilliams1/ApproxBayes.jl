@@ -74,7 +74,7 @@ writeoutput(ressmc)
 rm("SMC-output.txt")
 
 
-setup = ABCSMC(getnormal2,
+setup = ABCSMC(getnormal,
   2,
   0.05,
   Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]),

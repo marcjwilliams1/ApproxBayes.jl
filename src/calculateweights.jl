@@ -3,34 +3,28 @@ function priorprob(parameters::Array{Float64, 1}, prior::Prior)
   for i in 1:length(parameters)
       pprob = pprob * pdf(prior.distribution[i], parameters[i])
   end
-
   return pprob
 end
 
-function kernelprob(p1, p2)
+function kernelprob(p1, p2, kernel::Kernel)
     prob = 1
     for i in 1:length(p1.params)
-      #prob = prob * pdf(Uniform(p2.params[i] - p2.scales[i], p2.params[i] + p2.scales[i]), p1.params[i])
       prob = prob * kernel.pdf_function(p1, p2, kernel.kernel_parameters, i)
     end
     return prob
 end
 
 function getmodelfreq(particles, ABCsetup)
-
   freq = zeros(Int64, ABCsetup.nmodels)
   models = map(x -> x.model, particles)
   for i in 1:ABCsetup.nmodels
     freq[i] = sum(models.==i)
   end
-
   return freq
 end
 
 function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
-
   prob = ABCsetup.modelkern
-
   if currmodel == prevmodel
     return prob
   elseif sum(modelprob.>0.0) > 1
@@ -38,7 +32,6 @@ function getmodelprob(currmodel, prevmodel, modelprob, ABCsetup)
   else
     return prob
   end
-
 end
 
 function smcweights(particles, oldparticles, prior, kernel::Kernel)
@@ -70,11 +63,11 @@ function modelperturbation(p, prevmodelprob, ABCsetup)
   return denominator_m
 end
 
-function parameterperturbation(p, particles, prevmodelprob)
+function parameterperturbation(p, particles, prevmodelprob, kernel)
   denominator_p = 0.0
   for i in particles
     if p.model == i.model
-      denominator_p = denominator_p + ((i.weight * kernelprob(p, i)) / prevmodelprob[p.model])
+      denominator_p = denominator_p + ((i.weight * kernelprob(p, i, kernel)) / prevmodelprob[p.model])
     end
   end
   return denominator_p
@@ -91,7 +84,7 @@ function smcweightsmodel(particles, oldparticles, ABCsetup, prevmodelprob)
     # get prior probabilty of parameter set
     numerator[i] = priorprob(particles[i].params, ABCsetup.Models[particles[i].model].prior)
     # get probability of parameter perturbation
-    particledenominator[i] = parameterperturbation(particles[i], oldparticles, prevmodelprob)
+    particledenominator[i] = parameterperturbation(particles[i], oldparticles, prevmodelprob, ABCsetup.Models[particles[i].model].kernel)
     # get probability of model perturbation
     modeldenominator[i] = modelperturbation(particles[i], prevmodelprob, ABCsetup)
   end
