@@ -20,11 +20,13 @@ export
   Particle,
   abctype,
   ParticleRejection,
-  SimData,
   ABCRejection,
   ABCSMC,
   ABCRejectionModel,
   ABCSMCModel,
+  Kernel,
+  gaussiankernel,
+  uniformkernel,
 
   #functions
   ksdist,
@@ -32,12 +34,12 @@ export
   writeoutput
 
 ### source files
+include("kernels.jl")
 include("types.jl")
 include("util.jl")
 include("ABCalgorithm.jl")
 include("sampling.jl")
 include("calculateweights.jl")
-#include("util.jl")
 include("plots.jl")
 
 end

@@ -1,11 +1,11 @@
 function copyparticle(particle::ParticleSMC)
   return ParticleSMC(copy(particle.params),
-copy(particle.weight), copy(particle.scales), copy(particle.distance), [1])
+  copy(particle.weight), copy(particle.distance), [1])
 end
 
 function copyparticle(particle::ParticleSMCModel)
   return ParticleSMCModel(copy(particle.params),
-copy(particle.weight), copy(particle.scales), copy(particle.model), copy(particle.distance), [1])
+  copy(particle.weight), copy(particle.model), copy(particle.distance), [1])
 end
 
 function copyparticle(particle::ParticleRejection)
@@ -35,14 +35,11 @@ end
 function setupSMCparticles(ABCrejresults::ABCrejectionresults, ABCsetup)
   #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.nparticles)./ABCsetup.nparticles
-  scales = (maximum(ABCrejresults.parameters, dims = 1) -
-                  minimum(ABCrejresults.parameters, dims = 1) ./2)[:]
 
   particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
 
   for i in 1:length(particles)
-    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1],
-    scales, ABCrejresults.particles[i].distance,
+    particles[i] = ParticleSMC(ABCrejresults.particles[i].params, weights[1], ABCrejresults.particles[i].distance,
     ABCrejresults.particles[i].other)
   end
 
@@ -52,63 +49,16 @@ end
 function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   #convert to SMC type after using ABC rejection
   weights = ones(ABCsetup.Models[1].nparticles)./ABCsetup.Models[1].nparticles
-  scales = map(x -> collect((maximum(x, dims = 1) -
-                  minimum(x, dims = 1) ./2)[:]), ABCrejresults.parameters)
-
   particles = Array{ParticleSMCModel}(undef, ABCsetup.Models[1].nparticles)
 
   for i in 1:length(particles)
     particles[i] = ParticleSMCModel(ABCrejresults.particles[i].params,
-    weights[1], scales[ABCrejresults.particles[i].model],
-    ABCrejresults.particles[i].model, ABCrejresults.particles[i].distance,
+    weights[1], ABCrejresults.particles[i].model,
+    ABCrejresults.particles[i].distance,
     ABCrejresults.particles[i].other)
   end
 
   return particles, weights
-end
-
-function getscales(particles, ABCsetup::ABCSMC)
-  #calculate the range of parameter values (ie the scale) to use for the
-  #perturbation kernel
-  parameters = hcat(map(x -> x.params, particles)...)'
-  scales = ((maximum(parameters, dims = 1) -
-                  minimum(parameters, dims = 1)) ./ABCsetup.scalefactor)[:]
-
-  for i in 1:length(particles)
-    particles[i].scales = scales
-  end
-
-  return particles
-end
-
-function getscales(particles, ABCsetup::ABCSMCModel)
-  #calculate the range of parameter values (ie the scale) to use for the
-  #perturbation kernel
-  modelindex = trues(ABCsetup.nparticles, ABCsetup.nmodels)
-  for i in 1:ABCsetup.nmodels
-      modelindex[:, i] = map(x -> x.model, particles) .== i
-  end
-
-  modelfreq = sum(modelindex, dims = 1)
-  scales =  Array{Float64,1}[]
-
-  for i in 1:ABCsetup.nmodels
-    if modelfreq[i] == 0
-      push!(scales, [0.0])
-    elseif modelfreq[i] == 1
-      push!(scales, particles[modelindex[:, i]][1].scales)
-    else
-      parameters = hcat(map(x -> x.params, particles[modelindex[:, i]])...)'
-      push!(scales, ((maximum(parameters, dims = 1) -
-                      minimum(parameters, dims = 1)) ./ABCsetup.scalefactor)[:])
-    end
-  end
-
-  for i in 1:length(particles)
-    particles[i].scales = scales[particles[i].model]
-  end
-
-  return particles
 end
 
 function show(io::IO, ABCresults::ABCrejectionresults)

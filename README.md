@@ -82,11 +82,14 @@ There are more optional arguments for each of the algorithms, to see these simpl
 
 There are more examples provided in the examples directory and used as tests in the test directory. ApproxBayes.jl is also available as an option to perform Bayesian inference with differential equations in [DiffEqBayes.jl](https://github.com/JuliaDiffEq/DiffEqBayes.jl).
 
+### Perturbation kernels
+One requirement for the ABC SMC is to have a perturbation kernel. This kernel takes a sampled particle and perturbs the parameter vector in some way to explore the parameter space. Two default kernels are supplied by ApproxBayes.jl, a uniform kernel and a gaussian kernel. Both are adaptive in that the parameters specific to the kernel change as the distance decreases. For example, in the gaussian kernel the variance is calculated from the variance of the previous population. If you want to write your own kernel, take a look at `src/kernels.jl` for examples.
+
 ### Convenience functions
 Also provided are some convenience functions for plotting and saving the output.
 
-- `writeoutput(abcresults)`: This will write the output to a text file should you wish to some additional analysis or plotting.
-- `plot`: Plotting recipes for use with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) are provided. Just use `plot` on any ABC return type. This will plot histograms of the posterior distributions. For the model selection algorithm `plot(result::ABCSMCmodelresults)` will plot the model posterior probabilities, a second argument indexing a particular model will plot the parameter posterior distributions for that model, ie `plot(result::ABCSMCmodelresults, 1)` will plot the posterior distribution of parameters for model 1.
+- `writeoutput(abcresults)`: This will write the output to a text file should you wish to some additional analysis or plotting using some other tools or languages.
+- `plot`: Plotting recipes for use with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) are provided. Just use `plot` on any ABC return type. This will plot histograms of the posterior distributions. For the model selection algorithm `plot(result::ABCSMCmodelresults)` will plot the model posterior probabilities, a second argument indexing a particular model will plot the parameter posterior distributions for that model, ie `plot(result::ABCSMCmodelresults, 1)` will plot the posterior distribution of parameters for model 1. You'll need to add the [Plots.jl](https://github.com/JuliaPlots/Plots.jl) packages yourself as it is not bundled in with `ApproxBayes.jl`.
 
 ## Acknowledgments
 Some of the code was inspired by [ABC-SysBio](http://www.theosysbio.bio.ic.ac.uk/resources/abc-sysbio/).

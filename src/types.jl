@@ -27,7 +27,6 @@ end
 mutable struct ParticleSMC <: Particle
   params::Array{Float64, 1}
   weight::Float64
-  scales::Array{Float64, 1}
   distance::Float64
   other::Any
 end
@@ -35,12 +34,10 @@ end
 mutable struct ParticleSMCModel <: Particle
   params::Array{Float64, 1}
   weight::Float64
-  scales::Array{Float64, 1}
   model::Int64
   distance::Float64
   other::Any
 end
-
 
 """
     ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior; <keyword arguments>)
@@ -65,7 +62,7 @@ mutable struct ABCRejection <: ABCtype
 
   ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior;
     maxiterations = 10000,
-    constants = [1.0],
+    constants = [],
     nparticles = 100,
     ) =
   new(sim_func, nparams, ϵ, nparticles, constants, maxiterations, prior)
@@ -84,7 +81,7 @@ Create an ABCSMC type which will simulate data with sim_func. nparams is the num
 - `α = 0.3`: The αth quantile of population i is chosen as the ϵ for population i + 1
 - `ϵ1 = 10^5`: Starting ϵ for first ABC SMC populations
 - `convergence = 0.05`: ABC SMC stops when ϵ in population i + 1 is within 0.05 of populations i
-- `scalefactor = 2`: : Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
+- `kernel = uniformkernel`: Parameter perturbation kernel, default is a uniform distribution. `gaussiankernel` is also an option that is already available in ApproxBayes.jl. Alternatively you can code up your own kernel function. See kernels.jl for examples.
 ...
 """
 mutable struct ABCSMC <: ABCtype
@@ -99,18 +96,18 @@ mutable struct ABCSMC <: ABCtype
   prior::Prior
   α::Float64
   convergence::Float64
-  scalefactor::Int64
+  kernel::Kernel
 
   ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
     maxiterations = 10^5,
-    constants = [1.0],
+    constants = [],
     nparticles = 100,
     α = 0.3,
     ϵ1 = 10000.0,
     convergence = 0.05,
-    scalefactor = 2,
+    kernel = ApproxBayes.uniformkernel
     ) =
-  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, scalefactor)
+  new(sim_func, nparams, ϵ1, ϵT, nparticles, constants, maxiterations, prior, α, convergence, kernel)
 
 end
 
@@ -131,7 +128,7 @@ mutable struct ABCRejectionModel <: ABCtype
   nmodels::Int64
 
   ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1};
-    constants = repeat([[1.0]], outer = length(sim_func)),
+    constants = repeat([[]], outer = length(sim_func)),
     maxiterations = 10000,
     nparticles = 100,
     ) =
@@ -151,7 +148,6 @@ Create an ABCSMCModel type which will create a type to run the ABC SMC with mode
 - `α = 0.3`: The αth quantile of population i is chosen as the ϵ for population i + 1
 - `ϵ1 = 10^5`: Starting ϵ for first ABC SMC populations
 - `convergence = 0.05`: ABC SMC stops when ϵ in population i + 1 is within 0.05 of populations i
-- `scalefactor = 2`: Parameter for perturbation kernel for parameter values. Larger values means space will be explored more slowly but fewer particles will be perturbed outside prior range.
 - `modelkern = 0.7`: Probability model stays the same in model perturbation kernel, ie 70% of the time the model perturbation kernel will leave the model the same.
 ...
 """
@@ -165,23 +161,22 @@ mutable struct ABCSMCModel <: ABCtype
   ϵT::Float64
   maxiterations::Int64
   convergence::Float64
-  scalefactor::Int64
   other::Any
 
   function ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
-    constants = repeat([[1.0]], outer = length(sim_func)),
+    constants = repeat([[]], outer = length(sim_func)),
     maxiterations = 10^5,
     nparticles = 100,
     α = 0.3,
     ϵ1 = 10000.0,
     modelkern = 0.7,
     convergence = 0.05,
-    scalefactor = 2,
-    other = []
+    other = [],
+    kernels = [ApproxBayes.uniformkernel for i in 1:length(sim_func)]
     )
-    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence) for i in 1:length(sim_func)]
+    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence, kernel = deepcopy(kernels[i])) for i in 1:length(sim_func)]
     nmodels = length(sim_func)
-    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, scalefactor, other)
+    new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, other)
   end
 
 end
@@ -278,9 +273,4 @@ mutable struct ABCSMCmodelresults
 
      new(parameters, weights, accratio, its, dist, particles, modelfreq, modelprob, ABCsetup)
    end
-end
-
-mutable struct SimData
-  params::Array{Float64, 1}
-  dist::Float64
 end

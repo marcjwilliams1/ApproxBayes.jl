@@ -73,6 +73,17 @@ writeoutput(ressmc)
 @test isfile("SMC-output.txt")
 rm("SMC-output.txt")
 
+
+setup = ABCSMC(getnormal,
+  2,
+  0.05,
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]),
+  kernel = ApproxBayes.gaussiankernel
+  )
+println("\t Check ABC SMC algorithm correctly infers parameters with gaussian perturbation kernel")
+@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), 1)[1], p1, rtol = 0.05)
+@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), 1)[2], p2, rtol = 0.05)
+
 #test SMC is more efficient than rejection algorithm
 println("\t Check ABC SMC is more efficient than ABC rejection")
 setup = ABCSMC(getnormal,
@@ -95,3 +106,18 @@ setup = ABCRejection(getnormal,
 resrejection = runabc(setup, targetdata);
 
 @test resrejection.numsims == setup.maxiterations
+
+#check results with gaussian kernel and non uniform prior
+setup = ABCSMC(getnormal,
+  2,
+  0.05,
+  Prior([Uniform(0.0, 20.0), Gamma(0.5, 0.5)]),
+  kernel = gaussiankernel
+  )
+ressmc = runabc(setup, targetdata, verbose = false);
+println(ressmc)
+
+println("\t Check ABC SMC algorithm with gaussian perturbation kernel correctly infers parameters")
+# test that mean value of posterior is within 5% of true value
+@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), 1)[1], p1, rtol = 0.05)
+@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), 1)[2], p2, rtol = 0.05)
