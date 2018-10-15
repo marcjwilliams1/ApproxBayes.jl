@@ -78,6 +78,7 @@ function runabc(ABCsetup::ABCRejection, targetdata; progress = false, verbose = 
         end
       end
     end
+    i -= 1    # Correct to total number of particels
   end
 
   if i < ABCsetup.nparticles
@@ -313,7 +314,6 @@ When the SMC algorithms are used, a print out at the end of each population will
 """
 function runabc(ABCsetup::ABCSMCModel, targetdata; verbose = false, progress = false)
 
-  println("Using local version")
   ABCsetup.nmodels > 1 || error("Only 1 model specified, use ABCSMC method to estimate parameters for a single model")
 
   #run first population with parameters sampled from prior
