@@ -3,7 +3,18 @@
     pdf_function::Function,
     calculate_kernel_parameters::Function)
 
-Create a parameter perturbation kernel. Required inputs are 3 functions. First is the `perturbation_function` which should take 2 parameters, the parameter to be perturbed and any kernel specific parameter (for example the standard deviation of a normal distribution if this is the kernel of choice). Second function is the `pdf_function`, that requires 4 inputs: 1) the newparticle 2) the old particle 3) kernel specific parameters and 4) an index i. The third function is `calculate_kernel_parameters` which given an array of particles should calculate the kernel specific parameters for the next population. Should you wish to keep the same parameters throughout you can just write a function that returns a number(s).
+Create a parameter perturbation kernel. Required inputs are 3 functions.
+First is the `perturbation_function` which should take 2 parameters,
+the parameter to be perturbed and any kernel specific parameter
+(for example the standard deviation of a normal distribution if this is the kernel of choice).
+Second function is the `pdf_function`, that requires 4 inputs:
+    1) the newparticle
+    2) the old particle
+    3) kernel specific parameters and
+    4) an index i.
+The third function is `calculate_kernel_parameters` which given an array of
+particles should calculate the kernel specific parameters for the next population.
+Should you wish to keep the same parameters throughout you can just write a function that returns a number(s).
 """
 mutable struct Kernel
     perturbation_function::Function
