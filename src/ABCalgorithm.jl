@@ -1,3 +1,5 @@
+#File which defined all the algorithms. Each algorithm takes in an ABCtype
+
 
 """
     runabc(ABCsetup::ABCtype, targetdata; progress = false, verbose = false, parallel = true)
@@ -157,7 +159,13 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
   particles = Array{ParticleSMC}(undef, ABCsetup.nparticles) #define particles array
 
   if verbose
-    println("Run ABC SMC \n")
+    println("Running ABC SMC... \n")
+  end
+
+  if parallel
+    Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
+  else
+    Printf.@printf("Preparing to run in serial on %i processor\n", 1)
   end
 
   popnum = 1
@@ -175,7 +183,6 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
     end
 
     if parallel
-      Printf.@printf("Preparing to run in parallel on %i processors\n", nthreads())
 
       # Arrays initialised with length maxiterations to enable use of unique index ii
       particles = Array{ParticleSMC}(undef, ABCsetup.maxiterations)
@@ -219,8 +226,6 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
       its = its[]
 
     else
-      Printf.@printf("Preparing to run in serial on %i processor\n", 1)
-
       particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
       distvec = zeros(Float64, ABCsetup.nparticles)
       i = 1 #set particle indicator to 1

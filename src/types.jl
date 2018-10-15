@@ -62,7 +62,7 @@ mutable struct ABCRejection <: ABCtype
 
   ABCRejection(sim_func::Function, nparams::Int64, ϵ::Float64, prior::Prior;
     maxiterations = 10000,
-    constants = [1.0],
+    constants = [],
     nparticles = 100,
     ) =
   new(sim_func, nparams, ϵ, nparticles, constants, maxiterations, prior)
@@ -100,7 +100,7 @@ mutable struct ABCSMC <: ABCtype
 
   ABCSMC(sim_func::Function, nparams::Int64, ϵT::Float64, prior::Prior;
     maxiterations = 10^5,
-    constants = [1.0],
+    constants = [],
     nparticles = 100,
     α = 0.3,
     ϵ1 = 10000.0,
@@ -128,7 +128,7 @@ mutable struct ABCRejectionModel <: ABCtype
   nmodels::Int64
 
   ABCRejectionModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵ::Float64, prior::Array{Prior, 1};
-    constants = repeat([[1.0]], outer = length(sim_func)),
+    constants = repeat([[]], outer = length(sim_func)),
     maxiterations = 10000,
     nparticles = 100,
     ) =
@@ -164,7 +164,7 @@ mutable struct ABCSMCModel <: ABCtype
   other::Any
 
   function ABCSMCModel(sim_func::Array{Function, 1}, nparams::Array{Int64, 1}, ϵT::Float64, prior::Array{Prior, 1};
-    constants = repeat([[1.0]], outer = length(sim_func)),
+    constants = repeat([[]], outer = length(sim_func)),
     maxiterations = 10^5,
     nparticles = 100,
     α = 0.3,
@@ -172,9 +172,9 @@ mutable struct ABCSMCModel <: ABCtype
     modelkern = 0.7,
     convergence = 0.05,
     other = [],
-    kernels = [deepcopy(ApproxBayes.uniformkernel) for i in 1:length(sim_func)]
+    kernels = [ApproxBayes.uniformkernel for i in 1:length(sim_func)]
     )
-    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence, kernel = kernels[i]) for i in 1:length(sim_func)]
+    smcarray = [ABCSMC(sim_func[i], nparams[i], ϵT, prior[i],  maxiterations = maxiterations, constants = constants[i], nparticles = nparticles, α = α, ϵ1 = ϵ1, convergence = convergence, kernel = deepcopy(kernels[i])) for i in 1:length(sim_func)]
     nmodels = length(sim_func)
     new(smcarray, nmodels, modelkern, nparticles, α, ϵT, maxiterations, convergence, other)
   end
@@ -273,9 +273,4 @@ mutable struct ABCSMCmodelresults
 
      new(parameters, weights, accratio, its, dist, particles, modelfreq, modelprob, ABCsetup)
    end
-end
-
-mutable struct SimData
-  params::Array{Float64, 1}
-  dist::Float64
 end

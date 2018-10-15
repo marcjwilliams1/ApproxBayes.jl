@@ -20,7 +20,6 @@ export
   Particle,
   abctype,
   ParticleRejection,
-  SimData,
   ABCRejection,
   ABCSMC,
   ABCRejectionModel,

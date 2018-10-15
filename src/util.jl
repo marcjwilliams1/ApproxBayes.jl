@@ -61,52 +61,6 @@ function setupSMCparticles(ABCrejresults::ABCrejectionmodelresults, ABCsetup)
   return particles, weights
 end
 
-function getscales(particles, ABCsetup::ABCSMC)
-  #calculate the range of parameter values (ie the scale) to use for the
-  #perturbation kernel
-  parameters = hcat(map(x -> x.params, particles)...)'
-  scales = ((maximum(parameters, dims = 1) -
-                  minimum(parameters, dims = 1)) ./ABCsetup.scalefactor)[:]
-
-  for i in 1:length(particles)
-    particles[i].scales = scales
-  end
-
-  println(scales)
-
-  return particles
-end
-
-function getscales(particles, ABCsetup::ABCSMCModel)
-  #calculate the range of parameter values (ie the scale) to use for the
-  #perturbation kernel
-  modelindex = trues(ABCsetup.nparticles, ABCsetup.nmodels)
-  for i in 1:ABCsetup.nmodels
-      modelindex[:, i] = map(x -> x.model, particles) .== i
-  end
-
-  modelfreq = sum(modelindex, dims = 1)
-  scales =  Array{Float64,1}[]
-
-  for i in 1:ABCsetup.nmodels
-    if modelfreq[i] == 0
-      push!(scales, [0.0])
-    elseif modelfreq[i] == 1
-      push!(scales, particles[modelindex[:, i]][1].scales)
-    else
-      parameters = hcat(map(x -> x.params, particles[modelindex[:, i]])...)'
-      push!(scales, ((maximum(parameters, dims = 1) -
-                      minimum(parameters, dims = 1)) ./ABCsetup.scalefactor)[:])
-    end
-  end
-
-  for i in 1:length(particles)
-    particles[i].scales = scales[particles[i].model]
-  end
-
-  return particles
-end
-
 function show(io::IO, ABCresults::ABCrejectionresults)
 
   upperci = zeros(Float64, size(ABCresults.parameters, 2))
