@@ -30,7 +30,7 @@ end
     Model, Probability
 end
 
-@recipe function f(results::ABCrejectionmodelresults, model = 1)
+@recipe function f(results::ABCrejectionmodelresults, model)
     nparams = size(results.parameters[model])[2]
     x = Array(results.parameters[model])
     seriestype --> :histogram
@@ -58,7 +58,7 @@ end
     x
 end
 
-@recipe function f(results::ABCSMCmodelresults, model = 1)
+@recipe function f(results::ABCSMCmodelresults, model)
     nparams = size(results.parameters[model])[2]
     x = Array(results.parameters[model])
     seriestype --> :histogram
