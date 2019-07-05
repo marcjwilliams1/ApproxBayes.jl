@@ -55,8 +55,8 @@ ressmc = runabc(setup, targetdata, verbose = false, parallel=true);
 
 println("\t Check ABC SMC algorithm correctly infers parameters")
 # test that mean value of posterior is within 10% of true value
-@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), 1)[1], p1, rtol = 0.05)
-@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), 1)[2], p2, rtol = 0.05)
+@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), dims = 1)[1], p1, rtol = 0.05)
+@test isapprox(StatsBase.mean(ressmc.parameters, weights(ressmc.weights), dims = 1)[2], p2, rtol = 0.05)
 
 #test weights sum to 1
 @test isapprox(sum(ressmc.weights), 1.0, rtol = 0.0001)

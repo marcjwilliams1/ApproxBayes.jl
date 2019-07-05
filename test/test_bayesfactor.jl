@@ -51,7 +51,6 @@ end
 
 ################################################################
 println("Test Bayes factors are calculated correctly (within 5% of true value)")
-Random.seed!(1234)
 
 cst = [[i] for i in 1:2]
 
@@ -63,6 +62,7 @@ ABCsetuprej = ABCRejectionModel([poissonsimulator, geometricsimulator], [1, 1], 
 [Prior([Exponential(1)]), Prior([Uniform(0.0, 1.0)])];
 nparticles = 500, maxiterations = 10^7)
 
+Random.seed!(3)
 td, pM1 = generatedata()
 
 println("\t Checking ABC SMC model selection")
