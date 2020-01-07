@@ -229,9 +229,20 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
       # Remove particles that are still #undef and corresponding distances
       idx = [isassigned(particles,ii) for ii in eachindex(particles)]
-      particles = particles[idx][1:ABCsetup.nparticles]
-      distvec = distvec[idx][1:ABCsetup.nparticles]
+      particles = particles[idx]
+      distvec = distvec[idx]
       its = its[]
+      i = size(particles, 1)    # Number of accepted particles
+      
+      if i < ABCsetup.nparticles
+        @warn "Only accepted $(i) particles with ϵ < $ϵ. \n\tYou may want to increase ϵ or increase maxiterations. \n\t Resorting to taking the $(ABCsetup.nparticles) particles with smallest distance"
+        d = map(p -> p.distance, particlesall)
+        particles = particlesall[sortperm(d)[1:ABCsetup.nparticles]]
+        distvec = map(p -> p.distance, particles)
+      elseif i > ABCsetup.nparticles
+        particles = particles[1:ABCsetup.nparticles]
+        distvec = distvec[1:ABCsetup.nparticles]
+      end
 
     else
       particles = Array{ParticleSMC}(undef, ABCsetup.nparticles)
