@@ -187,6 +187,7 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
 
       # Arrays initialised with length maxiterations to enable use of unique index ii
       particles = Array{ParticleSMC}(undef, ABCsetup.maxiterations)
+      particlesall = Array{ParticleSMC}(undef, ABCsetup.maxiterations)
       distvec = zeros(Float64, ABCsetup.maxiterations)
       i = Atomic{Int64}(0)
       its = Atomic{Int64}(0)
@@ -202,11 +203,17 @@ function runabc(ABCsetup::ABCSMC, targetdata; verbose = false, progress = false,
         newparticle = perturbparticle(particle, ABCsetup.kernel)
         priorp = priorprob(newparticle.params, ABCsetup.prior)
         if priorp == 0.0 #return to beginning of loop if prior probability is 0
+          particlesall[ii] = particle
           continue
         end
 
         #simulate with new parameters
         dist, out = ABCsetup.simfunc(newparticle.params, ABCsetup.constants, targetdata)
+
+        # save newparticle to array of all particles
+        particlesall[ii] = newparticle
+        particlesall[ii].other = out
+        particlesall[ii].distance = dist
 
         #if simulated data is less than target tolerance accept particle
         if dist < ϵ
