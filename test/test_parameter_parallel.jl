@@ -96,3 +96,13 @@ setup = ABCRejection(getnormal,
 resrejection = runabc(setup, targetdata, parallel=true);
 
 @test resrejection.numsims == setup.maxiterations
+
+#test for when epsilon is very small
+println("\t Check ABC SMC when epsilon is small and maxiterations small")
+setup = ABCSMC(getnormal,
+  2,
+  0.0001,
+  maxiterations = 10^3,
+  Prior([Uniform(0.0, 20.0), Uniform(0.0, 2.0)]),
+  )
+ressmc = runabc(setup, targetdata, verbose = false, parallel=true);
