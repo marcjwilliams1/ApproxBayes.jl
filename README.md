@@ -92,5 +92,10 @@ Also provided are some convenience functions for plotting and saving the output.
 - `writeoutput(abcresults)`: This will write the output to a text file should you wish to some additional analysis or plotting using some other tools or languages.
 - `plot`: Plotting recipes for use with [Plots.jl](https://github.com/JuliaPlots/Plots.jl) are provided. Just use `plot` on any ABC return type. This will plot histograms of the posterior distributions. For the model selection algorithm `plot(result::ABCSMCmodelresults)` will plot the model posterior probabilities, a second argument indexing a particular model will plot the parameter posterior distributions for that model, ie `plot(result::ABCSMCmodelresults, 1)` will plot the posterior distribution of parameters for model 1. You'll need to add the [Plots.jl](https://github.com/JuliaPlots/Plots.jl) packages yourself as it is not bundled in with `ApproxBayes.jl`.
 
+## Other ABC packages in julia
+Here are some other packages that perform ABSC in julia that I am aware of. If this package does not have all your requirements then you might want to take a look at these. [gpABC.jl](https://github.com/tanhevg/GpABC.jl) in particular has more features.
+* [gpABC.jl](https://github.com/tanhevg/GpABC.jl)
+* [ABC.jl](https://github.com/eford/ABC.jl)
+
 ## Acknowledgments
 Some of the code was inspired by [ABC-SysBio](http://www.theosysbio.bio.ic.ac.uk/resources/abc-sysbio/).
