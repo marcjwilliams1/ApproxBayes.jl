@@ -15,6 +15,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
 Distances = "0.8, 0.9"
+Distributions = "0.24"
 ProgressMeter = "1.2"
 julia = "≥ 0.7.0"
 
